@@ -7,4 +7,4 @@ pluginManagement {
         maven { url 'https://artifactory.cern.ch/release' }
     }
 }
-rootProject.name = "rade-services-japc"
+rootProject.name = "java-codec"
