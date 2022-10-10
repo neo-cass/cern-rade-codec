@@ -1,21 +1,22 @@
 package types;
 
-import java.lang.invoke.TypeDescriptor;
+
+import types.labview.LVTypeDescriptor;
 
 public class DataContainer {
     private Object data;
-    private TypeDescriptor typeDescriptor;
+    private LVTypeDescriptor lvTypeDescriptor;
 
-    public DataContainer(Object data, TypeDescriptor typeDescriptor){
+    public DataContainer(Object data, LVTypeDescriptor lvTypeDescriptor){
         this.data = data;
-        this.typeDescriptor = typeDescriptor;
+        this.lvTypeDescriptor = lvTypeDescriptor;
     }
 
     public Object getData() {
         return data;
     }
 
-    public TypeDescriptor getFieldName() {
-        return typeDescriptor;
+    public LVTypeDescriptor getTypeDescriptor() {
+        return lvTypeDescriptor;
     }
 }

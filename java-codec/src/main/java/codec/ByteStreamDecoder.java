@@ -1,8 +1,11 @@
 package codec;
 
+import codec.lvtojava.LVDeserialiser;
 import codec.lvtojava.LVTypeDecoder;
 import types.*;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ByteStreamDecoder {
@@ -22,9 +25,17 @@ public class ByteStreamDecoder {
         return Arrays.copyOfRange(stream, 0, typeDescLen);
     }
 
-    public IntermediateDataContainer decode(){
+    public ArrayList<DataContainer> decode(){
         LVTypeDecoder LVTypeDecoder = new LVTypeDecoder();
-        return new IntermediateDataContainer(getData(), LVTypeDecoder.decodeTypeFull(getType()));
+        IntermediateDataContainer idc = new IntermediateDataContainer(ByteBuffer.wrap(getData()), LVTypeDecoder.decodeTypeFull(getType()));
+        LVDeserialiser lvDeserialiser = new LVDeserialiser();
+        ArrayList<DataContainer> dataContainers = lvDeserialiser.deserialise(idc);
+        for (DataContainer dataContainer : dataContainers) {
+            System.out.println("HI");
+            System.out.println(dataContainer.getData());
+        }
+
+        return dataContainers;
     }
 
 

@@ -20,17 +20,19 @@ public class LVDeserialiser {
         ByteBuffer buffer = intermediateDataContainer.getByteBuffer();
         LVTypeDescriptor LVTypeDescriptor = intermediateDataContainer.getTypeDescriptor();
         ClusterDescriptor clusterDescriptor = (ClusterDescriptor) LVTypeDescriptor.getTypeSpecificInfo();
+        LVTypeDescriptor[] lvTypeDescriptors = clusterDescriptor.getTypeDescriptors();
         for (int i = 0; i<clusterDescriptor.getnTypeDescriptors(); i++){
-            javaDatums.add(deserialise(intermediateDataContainer));
+            IntermediateDataContainer nestedContainer = new IntermediateDataContainer(buffer, lvTypeDescriptors[i]);
+            javaDatums.addAll(deserialise(nestedContainer));
         }
         return javaDatums;
     }
 
     private DataContainer decodeNumeric(IntermediateDataContainer intermediateDataContainer){
         ByteBuffer buffer = intermediateDataContainer.getByteBuffer();
-        LVTypeDescriptor LVTypeDescriptor = intermediateDataContainer.getTypeDescriptor();
-        LVType type = LVTypeDescriptor.getLvType();
-        Object javaData;
+        LVTypeDescriptor lvTypeDescriptor = intermediateDataContainer.getTypeDescriptor();
+        LVType type = lvTypeDescriptor.getLvType();
+        Object javaData = null;
         switch(type){
             case INT_8 -> {javaData = buffer.get();}
             case INT_16 -> {javaData = buffer.getShort();}
@@ -40,12 +42,15 @@ public class LVDeserialiser {
             case UINT_16 -> {javaData = buffer.getInt();}
             case UINT_32 -> {javaData = buffer.getLong();}
             case UINT_64 -> {javaData = buffer.getLong();}//TODO: choose different datatype
+            case BOOL -> {javaData = buffer.getShort();}
+
         }
-        return null;
+        DataContainer dataContainer = new DataContainer(javaData, lvTypeDescriptor);
+        return dataContainer;
 
     }
 
-    public DataContainer deserialise(IntermediateDataContainer intermediateDataContainer){
+    public ArrayList<DataContainer> deserialise(IntermediateDataContainer intermediateDataContainer){
         ByteBuffer buffer = intermediateDataContainer.getByteBuffer();
         LVTypeDescriptor LVTypeDescriptor = intermediateDataContainer.getTypeDescriptor();
         LVType type = LVTypeDescriptor.getLvType();
@@ -55,7 +60,8 @@ public class LVDeserialiser {
             case CLUSTER -> {data.addAll(deserialiseCluster(intermediateDataContainer));}
             case ARRAY -> {;}
         }
-        return null;
+
+        return data;
     }
 
 

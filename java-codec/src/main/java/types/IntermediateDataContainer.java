@@ -8,8 +8,8 @@ public class IntermediateDataContainer {
     private types.labview.LVTypeDescriptor LVTypeDescriptor;
     private ByteBuffer byteBuffer;
 
-    public IntermediateDataContainer(byte[] data, LVTypeDescriptor LVTypeDescriptor){
-        this.byteBuffer = ByteBuffer.wrap(data);;
+    public IntermediateDataContainer(ByteBuffer data, LVTypeDescriptor LVTypeDescriptor){
+        this.byteBuffer = data;
         this.LVTypeDescriptor = LVTypeDescriptor;
     }
 
