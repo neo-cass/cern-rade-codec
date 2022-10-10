@@ -1,0 +1,28 @@
+
+plugins {
+    id 'java'
+    id 'war'
+    id ('cern.devops.cbng.dependency') version "4.0.20"
+}
+
+dependencies {
+    implementation ("cern.accsoft.commons:accsoft-commons-util:PRO")
+    implementation ("cern.japc:japc:PRO")
+    implementation ("cern.japc:japc-ext-cmwrda3:PRO")
+    implementation ("cern.japc:japc-ext-remote:PRO")
+    implementation ("cern.cmw:cmw-data:PRO")
+
+    compileOnly('jakarta.servlet:jakarta.servlet-api:5.0.0')
+}
+//TODO: exclude non-essential class files from wars
+task createHelloWorldWar(type: War, dependsOn: classes) {
+    baseName = 'TomcatHelloWorld'
+    from file('src/main/wars/examples/TomcatHelloWorld')
+    destinationDir = file("$buildDir/wars/examples")
+}
+
+task createJAPCWar(type: War, dependsOn: classes) {
+    baseName = 'TomcatJAPC'
+    from file('src/main/wars/examples/TomcatJAPC')
+    destinationDir = file("$buildDir/wars/examples")
+}
