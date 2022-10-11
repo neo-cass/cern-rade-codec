@@ -40,6 +40,13 @@ public class LVTypeDecoderImp {
         return new LVTypeDescriptor(LVType.ARRAY, arrayDescriptor, getFieldName());
     }
 
+    private LVTypeDescriptor decodeString(){
+        buffer.getShort(); //FFFF
+        buffer.getShort(); //FFFF
+
+        return new LVTypeDescriptor(LVType.STRING, getFieldName());
+    }
+
     private LVTypeDescriptor decodeStringPathPic(){
         return null;
     }
@@ -55,16 +62,18 @@ public class LVTypeDecoderImp {
         buffer.get();//As per the NI documentation, the first 2 bytes are the length of the type descriptor and the next 2 bytes are the type code but the first of these bytes is reserved for use by LabVIEW
         byte typeCode = buffer.get();
         LVType type = LVTypeLookup.getType(typeCode);
-        LVTypeDescriptor LVTypeDescriptor = null;
+        LVTypeDescriptor lvTypeDescriptor = null;
         switch(type){
             case CLUSTER -> {
-                LVTypeDescriptor = decodeCluster();
+                lvTypeDescriptor = decodeCluster();
+
             }
             case ARRAY -> {
-                LVTypeDescriptor = decodeArray();
+                lvTypeDescriptor = decodeArray();
             }
 
             case STRING, PATH, PICTURE -> {
+                lvTypeDescriptor = decodeString();
 
             }
 
@@ -89,12 +98,12 @@ public class LVTypeDecoderImp {
             }
 
             case INT_8, INT_16, INT_32, INT_64, UINT_8, UINT_16, UINT_32, UINT_64, SGL, DBL, EXT, SGL_CPX, DBL_CPX, EXT_CPX, BOOL -> {
-                LVTypeDescriptor = decodeBasic(type);
+                lvTypeDescriptor = decodeBasic(type);
             }
 
 
         }
-        return LVTypeDescriptor;
+        return lvTypeDescriptor;
     }
 
     public ByteBuffer getBuffer() {
