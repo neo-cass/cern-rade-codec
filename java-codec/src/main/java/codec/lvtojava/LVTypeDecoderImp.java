@@ -96,4 +96,8 @@ public class LVTypeDecoderImp {
         }
         return LVTypeDescriptor;
     }
+
+    public ByteBuffer getBuffer() {
+        return buffer;
+    }
 }

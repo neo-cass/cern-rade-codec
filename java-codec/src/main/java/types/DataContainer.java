@@ -5,18 +5,18 @@ import types.labview.LVTypeDescriptor;
 
 public class DataContainer {
     private Object data;
-    private LVTypeDescriptor lvTypeDescriptor;
+    private String fieldName;
 
-    public DataContainer(Object data, LVTypeDescriptor lvTypeDescriptor){
+    public DataContainer(Object data, LVTypeDescriptor fieldName){
         this.data = data;
-        this.lvTypeDescriptor = lvTypeDescriptor;
+        this.fieldName = String.valueOf(fieldName);
     }
 
     public Object getData() {
         return data;
     }
 
-    public LVTypeDescriptor getTypeDescriptor() {
-        return lvTypeDescriptor;
+    public String getFieldName() {
+        return fieldName;
     }
 }
