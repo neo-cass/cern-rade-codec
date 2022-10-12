@@ -41,7 +41,6 @@ public class LVDataSerialiserImp {
             case DBL -> {javaData = buffer.getDouble();}
             case BOOL -> {javaData = buffer.get();}
         }
-        System.out.println(javaData);
 
         return new JavaDataContainer(lvTypeDescriptor.getFieldName(), javaData);
 
@@ -49,11 +48,9 @@ public class LVDataSerialiserImp {
 
     private JavaDataContainer deserialiseString(LVTypeDescriptor lvTypeDescriptor){
         int stringLen = buffer.getInt();
-        System.out.println("SIZE: "+ stringLen);
         byte[] rawString = new byte[stringLen];
         buffer.get(rawString);
         String string = new String(rawString);
-        System.out.println(string);
         return new JavaDataContainer(lvTypeDescriptor.getFieldName(), string);
     }
 

@@ -1,9 +1,9 @@
 package codec.lvtojava;
 
+import cern.accsoft.commons.util.value.Pair;
 import types.labview.*;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 public class LVTypeDecoderImp {
     private ByteBuffer buffer;
@@ -12,68 +12,116 @@ public class LVTypeDecoderImp {
         buffer = ByteBuffer.wrap(rawData);
     }
 
-    private String getFieldName(){
+
+
+    private Pair<String, Integer> decodeFieldName(){
         int fieldNameLen = buffer.get();
         byte[] fieldName = new byte[fieldNameLen];
         buffer.get(fieldName);
-        return new String(fieldName);
+        return new Pair<String, Integer>(new String(fieldName), fieldNameLen+1);
     }
 
-    private LVTypeDescriptor decodeCluster(){
-        int nTDs = buffer.getShort();
-        LVTypeDescriptor nestedLVTypeDesc;
+    private Pair<String, Integer> getFieldName(int typeLen, int bytesRead){
+        Pair<String, Integer> namePair = decodeFieldName();
+        String name = namePair.getFirst();
+        bytesRead+=namePair.getSecond();
+        if (bytesRead<typeLen){
+            for(int i = 0; i < typeLen-bytesRead; i++){
+                buffer.get();
+            }
+            bytesRead = typeLen;
+        }
+        return new Pair<>(name, bytesRead);
+    }
+
+    private Pair<LVTypeDescriptor, Integer> decodeCluster(int typeLen){
+        int nTDs = buffer.getShort(); // 2 bytes
+        int bytesRead = 6;
+        LVTypeDescriptor nestedLVTypeDesc = null;
+        Pair<LVTypeDescriptor, Integer> typePair;
         ClusterDescriptor clusterDescriptor = new ClusterDescriptor(nTDs);
         for (int i = 0; i<nTDs; i++){
-            nestedLVTypeDesc = decodeTypeDescriptor();
+            typePair = decodeTypeDescriptor();
+            nestedLVTypeDesc = typePair.getFirst();
             clusterDescriptor.addNewTypeDescriptor(nestedLVTypeDesc);
+            bytesRead+=typePair.getSecond();
         }
-        return new LVTypeDescriptor(LVType.CLUSTER, clusterDescriptor, getFieldName());
+        Pair<String, Integer> namePair = getFieldName(typeLen, bytesRead);
+        String name = namePair.getFirst();
+        bytesRead=namePair.getSecond();
+        LVTypeDescriptor clusterLVTypeDesc = new LVTypeDescriptor(LVType.CLUSTER, clusterDescriptor, name);
+
+        return new Pair<>(clusterLVTypeDesc, bytesRead);
     }
 
-    private LVTypeDescriptor decodeArray(){
-        int dimension = buffer.getShort();
-        buffer.getShort(); //FFFF
-        buffer.getShort(); //FFFF
-        LVTypeDescriptor lvTypeDescriptor = decodeTypeDescriptor();
-        ArrayDescriptor arrayDescriptor = new ArrayDescriptor(dimension, lvTypeDescriptor);
+    private Pair<LVTypeDescriptor, Integer> decodeArray(int typeLen){
 
-        return new LVTypeDescriptor(LVType.ARRAY, arrayDescriptor, getFieldName());
+        int dimension = buffer.getShort(); // 2 bytes
+        buffer.getShort(); //FFFF - 2 bytes
+        buffer.getShort(); //FFFF - 2 bytes
+        int bytesRead = 10;
+        Pair<LVTypeDescriptor, Integer> typePair = decodeTypeDescriptor();
+        bytesRead += typePair.getSecond();
+
+
+        LVTypeDescriptor arrayType = typePair.getFirst();
+        ArrayDescriptor arrayDescriptor = new ArrayDescriptor(dimension, arrayType);
+
+        Pair<String, Integer> namePair = getFieldName(typeLen, bytesRead);
+        String name = namePair.getFirst();
+        bytesRead=namePair.getSecond();
+        LVTypeDescriptor lvTypeDescriptor =  new LVTypeDescriptor(LVType.ARRAY, arrayDescriptor, name);
+
+        return new Pair<>(lvTypeDescriptor, bytesRead);
     }
 
-    private LVTypeDescriptor decodeString(){
-        buffer.getShort(); //FFFF
-        buffer.getShort(); //FFFF
+    private Pair<LVTypeDescriptor, Integer> decodeString(int typeLen){
+        buffer.getInt(); //FFFF FFFF - 4 bytes read
+        int bytesRead = 8;
 
-        return new LVTypeDescriptor(LVType.STRING, getFieldName());
+
+        Pair<String, Integer> namePair = getFieldName(typeLen, bytesRead);
+        String name = namePair.getFirst();
+        bytesRead=namePair.getSecond();
+        LVTypeDescriptor lvTypeDescriptor = new LVTypeDescriptor(LVType.STRING, name);
+
+        return new Pair<>(lvTypeDescriptor, bytesRead);
     }
 
     private LVTypeDescriptor decodeStringPathPic(){
         return null;
     }
 
-    private LVTypeDescriptor decodeBasic(LVType type){
-        return new LVTypeDescriptor(type, getFieldName());
+    private Pair<LVTypeDescriptor, Integer> decodeBasic(LVType type, int typeLen){
+        int bytesRead = 4;
+
+
+        Pair<String, Integer> namePair = getFieldName(typeLen, bytesRead);
+        String name = namePair.getFirst();
+        bytesRead=namePair.getSecond();
+        LVTypeDescriptor lvTypeDescriptor = new LVTypeDescriptor(LVType.STRING, name);
+
+        return new Pair<>(lvTypeDescriptor, bytesRead);
     }
 
     //TODO: remove recursive calls.
     //Here we call the type specific decoder
-    public LVTypeDescriptor decodeTypeDescriptor(){
-        int typeLen = buffer.getShort();
+    public Pair<LVTypeDescriptor, Integer> decodeTypeDescriptor(){
+        int typeLen = buffer.getShort(); //2 bytes read
         buffer.get();//As per the NI documentation, the first 2 bytes are the length of the type descriptor and the next 2 bytes are the type code but the first of these bytes is reserved for use by LabVIEW
         byte typeCode = buffer.get();
         LVType type = LVTypeLookup.getType(typeCode);
-        LVTypeDescriptor lvTypeDescriptor = null;
+        Pair<LVTypeDescriptor, Integer> typePair = null;
         switch(type){
             case CLUSTER -> {
-                lvTypeDescriptor = decodeCluster();
-
+                typePair =decodeCluster(typeLen);
             }
             case ARRAY -> {
-                lvTypeDescriptor = decodeArray();
+                typePair = decodeArray(typeLen);
             }
 
             case STRING, PATH, PICTURE -> {
-                lvTypeDescriptor = decodeString();
+                typePair = decodeString(typeLen);
 
             }
 
@@ -98,12 +146,12 @@ public class LVTypeDecoderImp {
             }
 
             case INT_8, INT_16, INT_32, INT_64, UINT_8, UINT_16, UINT_32, UINT_64, SGL, DBL, EXT, SGL_CPX, DBL_CPX, EXT_CPX, BOOL -> {
-                lvTypeDescriptor = decodeBasic(type);
+                typePair = decodeBasic(type, typeLen);
             }
 
 
         }
-        return lvTypeDescriptor;
+        return typePair;
     }
 
     public ByteBuffer getBuffer() {
