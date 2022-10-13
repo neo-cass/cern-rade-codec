@@ -24,13 +24,15 @@ public class JavaDataContainer {
     }
 
     public String toString(){
+        System.out.println("TO STRING USED");
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("FIELD NAME: ");
         stringBuilder.append(fieldName);
         stringBuilder.append(" | DATA: ");
         if(data instanceof JavaDataContainer[]){
             stringBuilder.append("ITEMS IN ARRAY: ");
-            stringBuilder.append(clusterToString(stringBuilder));
+            clusterToString(stringBuilder);
+
         }
         else{
             stringBuilder.append(data.toString());
@@ -39,12 +41,12 @@ public class JavaDataContainer {
         return stringBuilder.toString();
     }
 
-    private String clusterToString(StringBuilder stringBuilder){
+    private StringBuilder clusterToString(StringBuilder stringBuilder){
         JavaDataContainer[] javaData = (JavaDataContainer[]) data;
         for (JavaDataContainer item : javaData){
             stringBuilder.append(item.toString());
             stringBuilder.append(", ");
         }
-        return stringBuilder.toString();
+        return stringBuilder;
     }
 }

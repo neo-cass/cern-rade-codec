@@ -19,11 +19,13 @@ public class LVDataDeserialiser {
         LVTypeDescriptor[] lvTypeDescriptors = clusterDescriptor.getTypeDescriptors();
         JavaDataContainer[] javaData = new JavaDataContainer[nTDs];
         for (int i = 0; i< nTDs; i++){
-            javaData[i] = deserialise(lvTypeDescriptors[i]);
-            System.out.println(javaData[i]);
-        }
 
-        return new JavaDataContainer(lvTypeDescriptor.getFieldName(), javaData);
+            javaData[i] = deserialise(lvTypeDescriptors[i]);
+
+        }
+        JavaDataContainer javaDataContainer = new JavaDataContainer(lvTypeDescriptor.getFieldName(), javaData);
+
+        return javaDataContainer;
     }
 
     private JavaDataContainer deserialiseNumeric(LVTypeDescriptor lvTypeDescriptor){
