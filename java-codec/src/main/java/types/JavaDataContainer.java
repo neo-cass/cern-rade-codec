@@ -28,7 +28,23 @@ public class JavaDataContainer {
         stringBuilder.append("FIELD NAME: ");
         stringBuilder.append(fieldName);
         stringBuilder.append(" | DATA: ");
-        stringBuilder.append(data);
+        if(data instanceof JavaDataContainer[]){
+            stringBuilder.append("ITEMS IN ARRAY: ");
+            stringBuilder.append(clusterToString(stringBuilder));
+        }
+        else{
+            stringBuilder.append(data.toString());
+        }
+        stringBuilder.append(" | ");
+        return stringBuilder.toString();
+    }
+
+    private String clusterToString(StringBuilder stringBuilder){
+        JavaDataContainer[] javaData = (JavaDataContainer[]) data;
+        for (JavaDataContainer item : javaData){
+            stringBuilder.append(item.toString());
+            stringBuilder.append(", ");
+        }
         return stringBuilder.toString();
     }
 }

@@ -12,13 +12,11 @@ public class LVTypeDecoderImp {
         buffer = ByteBuffer.wrap(rawData);
     }
 
-
-
     private Pair<String, Integer> decodeFieldName(){
         int fieldNameLen = buffer.get();
         byte[] fieldName = new byte[fieldNameLen];
         buffer.get(fieldName);
-        return new Pair<String, Integer>(new String(fieldName), fieldNameLen+1);
+        return new Pair<>(new String(fieldName), fieldNameLen + 1);
     }
 
     private Pair<String, Integer> getFieldName(int typeLen, int bytesRead){
@@ -99,7 +97,7 @@ public class LVTypeDecoderImp {
         Pair<String, Integer> namePair = getFieldName(typeLen, bytesRead);
         String name = namePair.getFirst();
         bytesRead=namePair.getSecond();
-        LVTypeDescriptor lvTypeDescriptor = new LVTypeDescriptor(LVType.STRING, name);
+        LVTypeDescriptor lvTypeDescriptor = new LVTypeDescriptor(type, name);
 
         return new Pair<>(lvTypeDescriptor, bytesRead);
     }
@@ -148,8 +146,6 @@ public class LVTypeDecoderImp {
             case INT_8, INT_16, INT_32, INT_64, UINT_8, UINT_16, UINT_32, UINT_64, SGL, DBL, EXT, SGL_CPX, DBL_CPX, EXT_CPX, BOOL -> {
                 typePair = decodeBasic(type, typeLen);
             }
-
-
         }
         return typePair;
     }

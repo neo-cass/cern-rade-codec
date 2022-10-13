@@ -7,9 +7,9 @@ import types.labview.LVTypeDescriptor;
 
 import java.nio.ByteBuffer;
 
-public class LVDataSerialiserImp {
+public class LVDataDeserialiser {
     private ByteBuffer buffer;
-    public LVDataSerialiserImp(ByteBuffer buffer){
+    public LVDataDeserialiser(ByteBuffer buffer){
         this.buffer = buffer;
     }
 
@@ -17,11 +17,12 @@ public class LVDataSerialiserImp {
         ClusterDescriptor clusterDescriptor = (ClusterDescriptor) lvTypeDescriptor.getTypeSpecificInfo();
         int nTDs = clusterDescriptor.getnTypeDescriptors();
         LVTypeDescriptor[] lvTypeDescriptors = clusterDescriptor.getTypeDescriptors();
-        Object[] items = new Object[nTDs];
         JavaDataContainer[] javaData = new JavaDataContainer[nTDs];
         for (int i = 0; i< nTDs; i++){
             javaData[i] = deserialise(lvTypeDescriptors[i]);
+            System.out.println(javaData[i]);
         }
+
         return new JavaDataContainer(lvTypeDescriptor.getFieldName(), javaData);
     }
 
@@ -61,7 +62,7 @@ public class LVDataSerialiserImp {
             case INT_8, INT_16, INT_32, INT_64, UINT_8, UINT_16, UINT_32, UINT_64, BOOL -> {
                 javaDataContainer = deserialiseNumeric(lvTypeDescriptor);
             }
-            case STRING -> {deserialiseString(lvTypeDescriptor);}
+            case STRING -> {javaDataContainer = deserialiseString(lvTypeDescriptor);}
         }
         return javaDataContainer;
     }
