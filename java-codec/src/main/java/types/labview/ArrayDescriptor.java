@@ -18,4 +18,12 @@ public class ArrayDescriptor extends LVTypeSpecificDescription {
         stringBuilder.append("\n--------------------------------------\n");
         return stringBuilder.toString();
     }
+
+    public LVTypeDescriptor getArrayType() {
+        return arrayType;
+    }
+
+    public int getArrayDim() {
+        return arrayDim;
+    }
 }

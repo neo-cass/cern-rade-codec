@@ -1,33 +1,23 @@
 package codec;
 
+import cern.accsoft.commons.util.value.Pair;
+import codec.lvtojava.LVDataDeserialiser;
 import codec.lvtojava.LVTypeDecoder;
+import codec.lvtojava.LVTypeDecoderImp;
 import types.*;
+import types.labview.LVTypeDescriptor;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class ByteStreamDecoder {
-    private byte[] stream;
-    private byte[] typeDesc;
-    private byte[] data;
-    private int typeDescLen;
-    public ByteStreamDecoder(byte[] stream){
-        this.stream = stream;
-        this.typeDescLen = ((stream[0] & 0xFF) << 8) | (stream[1] & 0xFF);
+    public ByteStreamDecoder(){
+
     }
 
-    private byte[] getData(){
-        return Arrays.copyOfRange(stream, typeDescLen, stream.length);
+    public JavaDataContainer decode(byte[] rawData){
+        ByteBuffer buffer = ByteBuffer.wrap(rawData);
+        LVTypeDescriptor lvTypeDescriptor = LVTypeDecoderImp.decodeTypeDescriptor(buffer);
+        return LVDataDeserialiser.deserialise(buffer, lvTypeDescriptor);
     }
-    private byte[] getType(){
-        return Arrays.copyOfRange(stream, 0, typeDescLen);
-    }
-
-    public ArrayList<DataContainer> decode(){
-
-        return null;
-    }
-
 
 }

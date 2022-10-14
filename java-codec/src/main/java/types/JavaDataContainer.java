@@ -1,14 +1,18 @@
 package types;
 
+import cern.cmw.data.DataType;
+
 import java.lang.reflect.Type;
 
 public class JavaDataContainer {
     private String fieldName;
     private Object data;
+    private DataType dataType;
 
-    public JavaDataContainer(String fieldName, Object data){
+    public JavaDataContainer(String fieldName, Object data, DataType dataType){
         this.fieldName = fieldName;
         this.data = data;
+        this.dataType = dataType;
     }
 
     public String getFieldName() {
@@ -19,8 +23,8 @@ public class JavaDataContainer {
         return data;
     }
 
-    public Type getType(){
-        return data.getClass();
+    public DataType getDataType() {
+        return dataType;
     }
 
     public String toString(){
@@ -48,5 +52,6 @@ public class JavaDataContainer {
             stringBuilder.append(", ");
         }
         return stringBuilder;
+
     }
 }

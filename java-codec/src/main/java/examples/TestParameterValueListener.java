@@ -19,13 +19,13 @@ public class TestParameterValueListener implements ParameterValueListener {
 
     @Override
     public void valueReceived(String parameterName, AcquiredParameterValue value) {
-        // TODO Auto-generated method stub
+
         acquiredValsQueue.add(value);
     }
 
     @Override
     public void exceptionOccured(String parameterName, String description, ParameterException exception) {
-        // TODO Auto-generated method stub
+
         
     }
     
