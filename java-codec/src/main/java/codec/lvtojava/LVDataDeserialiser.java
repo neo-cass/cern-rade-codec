@@ -17,9 +17,7 @@ public final class LVDataDeserialiser {
         LVTypeDescriptor[] lvTypeDescriptors = clusterDescriptor.getTypeDescriptors();
         JavaDataContainer[] javaData = new JavaDataContainer[nTDs];
         for (int i = 0; i< nTDs; i++){
-
             javaData[i] = deserialise(buffer, lvTypeDescriptors[i]);
-
         }
         JavaDataContainer javaDataContainer = new JavaDataContainer(lvTypeDescriptor.getFieldName(), javaData, DataType.DT_DATA);
 
@@ -62,11 +60,54 @@ public final class LVDataDeserialiser {
             case INT_8, INT_16, INT_32, INT_64, UINT_8, UINT_16, UINT_32, BOOL, SGL, DBL -> {javaDataContainer = deserialiseNumeric(buffer,lvTypeDescriptor);}
             case STRING -> {javaDataContainer = deserialiseString(buffer, lvTypeDescriptor);}
             case ARRAY -> {javaDataContainer = deserialiseArray(buffer,lvTypeDescriptor);}
-
         }
         return javaDataContainer;
     }
 
+    private static DataType getArrayType(DataType type, int dimension){
+        DataType dataType = null;
+        if (dimension == 1){
+            switch(type){
+                case DT_BYTE -> dataType = DataType.DT_BYTE_ARRAY;
+                case DT_SHORT -> dataType = DataType.DT_SHORT_ARRAY;
+                case DT_INT -> dataType = DataType.DT_INT_ARRAY;
+                case DT_LONG -> dataType = DataType.DT_LONG_ARRAY;
+                case DT_FLOAT -> dataType = DataType.DT_FLOAT_ARRAY;
+                case DT_DOUBLE -> dataType = DataType.DT_DOUBLE_ARRAY;
+                case DT_BOOL -> dataType = DataType.DT_BOOL_ARRAY;
+                case DT_STRING -> dataType = DataType.DT_STRING_ARRAY;
+            }
+        }
+        else if (dimension == 2){
+            switch(type){
+                case DT_BYTE -> dataType = DataType.DT_BYTE_ARRAY_2D;
+                case DT_SHORT -> dataType = DataType.DT_SHORT_ARRAY_2D;
+                case DT_INT -> dataType = DataType.DT_INT_ARRAY_2D;
+                case DT_LONG -> dataType = DataType.DT_LONG_ARRAY_2D;
+                case DT_FLOAT -> dataType = DataType.DT_FLOAT_ARRAY_2D;
+                case DT_DOUBLE -> dataType = DataType.DT_DOUBLE_ARRAY_2D;
+                case DT_BOOL -> dataType = DataType.DT_BOOL_ARRAY_2D;
+                case DT_STRING -> dataType = DataType.DT_STRING_ARRAY_2D;
+            }
+        }
+        else if (dimension > 2){
+            switch(type){
+                case DT_BYTE -> dataType = DataType.DT_BYTE_MULTI_ARRAY;
+                case DT_SHORT -> dataType = DataType.DT_SHORT_MULTI_ARRAY;
+                case DT_INT -> dataType = DataType.DT_INT_MULTI_ARRAY;
+                case DT_LONG -> dataType = DataType.DT_LONG_MULTI_ARRAY;
+                case DT_FLOAT -> dataType = DataType.DT_FLOAT_MULTI_ARRAY;
+                case DT_DOUBLE -> dataType = DataType.DT_DOUBLE_MULTI_ARRAY;
+                case DT_BOOL -> dataType = DataType.DT_BOOL_MULTI_ARRAY;
+                case DT_STRING -> dataType = DataType.DT_STRING_MULTI_ARRAY;
+            }
+        }
+        else{
+            //TODO: Unsupported type
+        }
+
+        return dataType;
+    }
 
     //TODO: multidimension support
     private static JavaDataContainer deserialiseArray(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor) {
@@ -76,12 +117,12 @@ public final class LVDataDeserialiser {
 
         LVTypeDescriptor arrayType = arrayDescriptor.getArrayType();
         JavaDataContainer[] javaData = new JavaDataContainer[arrayLen];
-        System.out.println(arrayType);
+
         for (int i = 0; i< arrayLen; i++){
             javaData[i] = deserialise(buffer, arrayType);
-
         }
-        JavaDataContainer javaDataContainer = new JavaDataContainer(lvTypeDescriptor.getFieldName(), javaData, DataType.DT_DATA);
+        DataType DT_arrayType = getArrayType(javaData[0].getDataType(), dimension);
+        JavaDataContainer javaDataContainer = new JavaDataContainer(lvTypeDescriptor.getFieldName(), javaData, DT_arrayType);
 
         return javaDataContainer;
     }
