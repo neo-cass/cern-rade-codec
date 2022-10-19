@@ -1,11 +1,10 @@
 package codec.javatocmw;
 import cern.cmw.data.Data;
 import cern.cmw.data.DataFactory;
-import cern.cmw.data.DataType;
 import types.JavaDataContainer;
 
-public class CMWDataEncoder {
-    public CMWDataEncoder(){
+public class JavaToCMWData {
+    public JavaToCMWData(){
 
     }
 
@@ -32,8 +31,6 @@ public class CMWDataEncoder {
         }
         return data;
     }
-
-
 
     private static Data appendEncodedSingle(JavaDataContainer javaData, Data data) {
         switch(javaData.getDataType()){

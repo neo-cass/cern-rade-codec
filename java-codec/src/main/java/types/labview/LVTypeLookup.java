@@ -1,4 +1,6 @@
 package types.labview;
+import cern.cmw.data.DataType;
+
 import java.util.HashMap;
 import java.util.Map;
 import static java.util.Map.entry;
@@ -72,6 +74,27 @@ public final class LVTypeLookup {
             entry(LVType.REFNUM, (byte)0x70),
             entry(LVType.VARIANT, (byte)0x53),
             entry(LVType.UNKNOWN, (byte)-1)
+
+    ));
+
+    private static final HashMap<DataType, Byte> lookupUpByCMWDataType = new HashMap<DataType, Byte>( Map.ofEntries(
+            entry(DataType.DT_BYTE, (byte)0x01),
+            entry(DataType.DT_BOOL, (byte)0x21),
+            entry(DataType.DT_SHORT, (byte)0x02),
+            entry(DataType.DT_INT, (byte)0x03),
+            entry(DataType.DT_LONG, (byte)0x04),
+            entry(DataType.DT_FLOAT, (byte)0x09),
+            entry(DataType.DT_DOUBLE, (byte)0x0A),
+            entry(DataType.DT_STRING, (byte)0x30),
+            entry(DataType.DT_BYTE_ARRAY, (byte)0x40),
+            entry(DataType.DT_BOOL_ARRAY, (byte)0x40),
+            entry(DataType.DT_SHORT_ARRAY, (byte)0x40),
+            entry(DataType.DT_INT_ARRAY, (byte)0x40),
+            entry(DataType.DT_LONG_ARRAY, (byte)0x40),
+            entry(DataType.DT_FLOAT_ARRAY, (byte)0x40),
+            entry(DataType.DT_DOUBLE_ARRAY, (byte)0x40),
+            entry(DataType.DT_STRING_ARRAY, (byte)0x40),
+            entry(DataType.DT_DATA, (byte)0x50)
 
     ));
     private LVTypeLookup() {
