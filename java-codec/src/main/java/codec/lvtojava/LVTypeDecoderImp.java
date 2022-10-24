@@ -15,7 +15,7 @@ public final class LVTypeDecoderImp {
         int fieldNameLen = buffer.get();
         byte[] fieldName = new byte[fieldNameLen];
         buffer.get(fieldName);
-        return new Pair<>(new String(fieldName), fieldNameLen + 1);
+        return new Pair<>(new String(fieldName), fieldNameLen + 1); //+1 because we read the length of the string
     }
 
     private static Pair<String, Integer> getFieldName(ByteBuffer buffer, int typeLen, int bytesRead){

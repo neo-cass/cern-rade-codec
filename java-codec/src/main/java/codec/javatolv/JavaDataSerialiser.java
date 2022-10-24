@@ -8,15 +8,19 @@ import java.nio.ByteBuffer;
 public final class JavaDataSerialiser {
 
     public static byte[] serialise(JavaDataContainer javaDataContainer){
-        ByteBuffer
+        ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[50]);
         switch(javaDataContainer.getDataType()){
-            case DT_DATA -> {serialiseData();}
+            case DT_DATA -> {serialiseData(javaDataContainer);}
+            default -> {serialiseNumeric(javaDataContainer, byteBuffer);}
         }
-        return null;
+        return byteBuffer.array();
     }
 
-    private static byte[] serialiseData(JavaDataContainer javaDataContainer) {
-
+    private static void serialiseData(JavaDataContainer javaDataContainer) {
+        JavaDataContainer[] javaDataContainers = (JavaDataContainer[])javaDataContainer.getData();
+        for(JavaDataContainer nestedJavaDataContainer : javaDataContainers){
+            serialise(nestedJavaDataContainer);
+        }
     }
 
     private static void serialiseNumeric(JavaDataContainer javaDataContainer, ByteBuffer byteBuffer){
@@ -28,7 +32,11 @@ public final class JavaDataSerialiser {
             case DT_FLOAT -> byteBuffer.putFloat((Float) javaDataContainer.getData());
             case DT_DOUBLE -> byteBuffer.putDouble((Double) javaDataContainer.getData());
             case DT_BOOL -> byteBuffer.put((Byte) javaDataContainer.getData());
-            case DT_STRING -> byteBuffer.put(((String) javaDataContainer.getData()).getBytes());
+            case DT_STRING -> {
+                byte[] rawString = ((String) javaDataContainer.getData()).getBytes();
+                byteBuffer.putInt(rawString.length);
+                byteBuffer.put(rawString);
+            }
         }
     }
 }
