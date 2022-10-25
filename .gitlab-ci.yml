@@ -1,6 +1,6 @@
 build:
   image:
-    name: docker:latest
+    name: gitlab-registry.cern.ch/ci-tools/docker-image-builder:latest
     entrypoint: [""]
   stage: build
   script:
