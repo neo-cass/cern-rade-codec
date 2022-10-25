@@ -13,6 +13,7 @@
 build frontend:
   image:
     name: gitlab-registry.cern.ch/ci-tools/docker-image-builder:latest
+    services: tomcat:10-jdk17
     entrypoint: [""]
   stage: build
   script:
