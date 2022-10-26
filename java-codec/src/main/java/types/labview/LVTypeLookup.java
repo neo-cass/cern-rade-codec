@@ -107,4 +107,6 @@ public final class LVTypeLookup {
         return lookupByTypeMap.get(typeDefinition);
     }
 
+    public static byte getByteFromCMW(DataType dataType){return lookupUpByCMWDataType.get(dataType);}
+
 }

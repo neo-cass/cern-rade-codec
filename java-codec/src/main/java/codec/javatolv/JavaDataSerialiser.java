@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 public final class JavaDataSerialiser {
 
     public static byte[] serialise(JavaDataContainer javaDataContainer){
-        ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[50]);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[700]);
         switch(javaDataContainer.getDataType()){
             case DT_DATA -> {serialiseData(javaDataContainer);}
             default -> {serialiseNumeric(javaDataContainer, byteBuffer);}
