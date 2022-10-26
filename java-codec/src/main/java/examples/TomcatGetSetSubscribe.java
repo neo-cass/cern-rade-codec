@@ -37,13 +37,13 @@ public class TomcatGetSetSubscribe extends HttpServlet{
         String requestType = request.getHeader("RequestType");
         //String deviceName = request.getHeader("DeviceName");
         String parameterName = request.getHeader("PropertyName");
-        String valueString = request.getHeader("Value");
+
 
         try {
             switch (requestType) {
                 case "Get" -> get(parameterName, response);
                 case "Subscribe" -> subscribe(parameterName, response);
-                case "Set" -> set(Double.parseDouble(valueString), parameterName, response);
+                case "Set" -> {String valueString = request.getHeader("Value");set(Double.parseDouble(valueString), parameterName, response);}
             }
         }
         catch(ParameterException | IOException e){

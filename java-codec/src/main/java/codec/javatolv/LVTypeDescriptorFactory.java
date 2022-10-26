@@ -40,7 +40,7 @@ public class LVTypeDescriptorFactory {
         byteBuffer.putShort(totalLength);
         byteBuffer.put((byte) 0);
         byteBuffer.put(typeCode);
-        byteBuffer.putLong(4294967295L);
+        byteBuffer.putLong(4294967295L); //FFFF FFFF
         byteBuffer.put((byte) fieldName.length());
         byteBuffer.put(fieldName.getBytes());
         return byteBuffer.array();
