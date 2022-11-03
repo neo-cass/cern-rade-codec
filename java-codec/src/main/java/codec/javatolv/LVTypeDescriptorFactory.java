@@ -2,6 +2,7 @@ package codec.javatolv;
 
 import cern.cmw.data.DataType;
 import types.JavaDataContainer;
+import types.labview.ArrayDescriptor;
 import types.labview.LVTypeLookup;
 
 import java.nio.ByteBuffer;
@@ -62,7 +63,14 @@ public class LVTypeDescriptorFactory {
         byteBuffer.put(0, typeCode);
         byteBuffer.put(0, (byte) 0);
         byteBuffer.putShort(0, totalLength);
+    }
 
+    public static byte[] createArrayType(JavaDataContainer javaDataContainer){
+        byte typeCode = LVTypeLookup.getByteFromCMW(javaDataContainer.getDataType());
+
+        String fieldName = javaDataContainer.getFieldName();
+        //byte[] arrayType = createTypeDescrptor();
+        return null;
 
     }
 }

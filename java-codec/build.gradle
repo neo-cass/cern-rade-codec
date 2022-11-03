@@ -1,9 +1,22 @@
-
 plugins {
     id 'java'
     id 'war'
     id ('cern.devops.cbng.dependency') version "4.0.20"
 }
+repositories {
+    // the CBNG plugin repo
+    maven {
+        url 'https://artifactory.cern.ch/beco-gradle-local'
+
+    }
+
+    // required to resolve CBNG plugin dependencies
+    maven {
+        url 'https://artifactory.cern.ch/release'
+
+    }
+}
+
 
 dependencies {
     implementation ("cern.accsoft.commons:accsoft-commons-util:PRO")
@@ -11,9 +24,9 @@ dependencies {
     implementation ("cern.japc:japc-ext-cmwrda3:PRO")
     implementation ("cern.japc:japc-ext-remote:PRO")
     implementation ("cern.cmw:cmw-data:PRO")
-
     compileOnly('jakarta.servlet:jakarta.servlet-api:5.0.0')
 }
+
 //TODO: exclude non-essential class files from wars
 task createHelloWorldWar(type: War, dependsOn: classes) {
     baseName = 'TomcatHelloWorld'
@@ -26,3 +39,4 @@ task createJAPCWar(type: War, dependsOn: classes) {
     from file('src/main/wars/examples/TomcatJAPC')
     destinationDir = file("$buildDir/wars/examples")
 }
+

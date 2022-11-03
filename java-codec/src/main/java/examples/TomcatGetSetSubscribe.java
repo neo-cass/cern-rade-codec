@@ -102,7 +102,6 @@ public class TomcatGetSetSubscribe extends HttpServlet{
 
     public void destroy() {
         sh.stopMonitoring();
-
     }
     
 }

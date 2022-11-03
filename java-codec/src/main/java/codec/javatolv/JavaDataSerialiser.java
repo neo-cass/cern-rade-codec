@@ -8,11 +8,13 @@ import java.nio.ByteBuffer;
 public final class JavaDataSerialiser {
 
     public static byte[] serialise(JavaDataContainer javaDataContainer){
-        ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[Short.MAX_VALUE]);
+        //TODO: consider calculating byte buffer size before creation
+        ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[1000]);
         switch(javaDataContainer.getDataType()){
             case DT_DATA -> {serialiseData(javaDataContainer);}
             default -> {serialiseNumeric(javaDataContainer, byteBuffer);}
         }
+
         return byteBuffer.array();
     }
 
