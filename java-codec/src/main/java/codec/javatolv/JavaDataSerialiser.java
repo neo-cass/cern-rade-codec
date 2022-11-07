@@ -9,16 +9,16 @@ public final class JavaDataSerialiser {
 
     public static byte[] serialise(JavaDataContainer javaDataContainer){
         //TODO: consider calculating byte buffer size before creation
-        ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[1000]);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[100]);
         switch(javaDataContainer.getDataType()){
-            case DT_DATA -> {serialiseData(javaDataContainer);}
+            case DT_DATA -> {serialiseData(javaDataContainer, byteBuffer);}
             default -> {serialiseNumeric(javaDataContainer, byteBuffer);}
         }
 
         return byteBuffer.array();
     }
 
-    private static void serialiseData(JavaDataContainer javaDataContainer) {
+    private static void serialiseData(JavaDataContainer javaDataContainer, ByteBuffer byteBuffer) {
         JavaDataContainer[] javaDataContainers = (JavaDataContainer[])javaDataContainer.getData();
         for(JavaDataContainer nestedJavaDataContainer : javaDataContainers){
             serialise(nestedJavaDataContainer);
