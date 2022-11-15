@@ -5,13 +5,13 @@
          version="5.0">
 
     <servlet>
-        <servlet-name>GetSetSubscribe</servlet-name>
+        <servlet-name>TomcatGetSetSubscribe</servlet-name>
         <servlet-class>examples.TomcatGetSetSubscribe</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>GetSetSubscribe</servlet-name>
-        <url-pattern>/GetSetSubscribe</url-pattern>
+        <servlet-name>TomcatGetSetSubscribe</servlet-name>
+        <url-pattern>/TomcatGetSetSubscribe</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -24,6 +24,14 @@
         <url-pattern>/EncodeDecode</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>HelloServlet</servlet-name>
+        <servlet-class>examples.HelloServlet</servlet-class>
+    </servlet>
 
+    <servlet-mapping>
+        <servlet-name>HelloServlet</servlet-name>
+        <url-pattern>/HelloServlet</url-pattern>
+    </servlet-mapping>
 
 </web-app>
