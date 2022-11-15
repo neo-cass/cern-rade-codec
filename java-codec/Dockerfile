@@ -3,7 +3,6 @@ WORKDIR /buildDir
 COPY . .
 RUN apk update && apk add openssl
 RUN true | openssl s_client -connect artifactory.cern.ch:443 | openssl x509 > artifactory.cert
-RUN ls certs
 USER root
 RUN keytool -importcert -cacerts -alias artifactory-cert -file artifactory.cert -storepass changeit -noprompt
 RUN gradle clean war --no-daemon -Dorg.gradle.java.home=$JAVA_HOME
