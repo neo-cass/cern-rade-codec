@@ -3,3 +3,4 @@ java-codec/*.log
 java-codec/certs
 java-codec/.idea
 java-codec/.gradle
+java-codec/webapp-build/*.war
