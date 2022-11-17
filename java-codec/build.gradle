@@ -21,6 +21,10 @@ dependencies {
 
 war{
     webAppDirectory = file('src/main/webapp')
+
+    from file('$buildDir/libs/$war')
+    destinationDir = file('webapp-build')
+
 }
 
 // requirement for building this project

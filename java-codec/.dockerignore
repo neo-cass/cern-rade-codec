@@ -4,3 +4,5 @@ build
 gradlew.bat
 *.log
 .gradle
+gradle
+
