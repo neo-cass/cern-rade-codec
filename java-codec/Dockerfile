@@ -1,11 +1,16 @@
-FROM gradle:7.5.1-jdk17 AS build
-ENV buildDir = /app/build
-WORKDIR /app
-COPY --chown=gradle:gradle . .
+FROM gradle:7.5.1-jdk17-alpine AS build
+WORKDIR /buildDir
+COPY . .
+RUN apk update && apk add openssl
+RUN true | openssl s_client -connect artifactory.cern.ch:443 | openssl x509 > artifactory.cert
 USER root
-RUN keytool -import -trustcacerts -alias cern-cert -file cs-ccr-builds-cern-ch-chain.pem -keystore $JAVA_HOME/lib/security/cacerts -storepass changeit -noprompt
-RUN gradle clean build createJAPCWar --no-daemon --debug --info -Dorg.gradle.java.home=$JAVA_HOME -Djavax.net.ssl.keyStore="cs-ccr-builds-cern-ch-chain.pem" -Djavax.net.ssl.keyStoreType=KeychainStore -Djavax.net.ssl.keyStorePassword=changeit
+RUN keytool -importcert -cacerts -alias artifactory-cert -file artifactory.cert -storepass changeit -noprompt
+RUN gradle clean war
 
 FROM tomcat:10-jdk17
-COPY --from=build $buildDir/wars/examples/TomcatJAPC.war $CATALINA_HOME/webapps
+ENV webappDir=/buildDir/webapp-build
+EXPOSE 8080
+WORKDIR $CATALINA_HOME
+COPY --from=build $webappDir/java-codec-1.0.0.war webapps
+COPY --from=build $webappDir/server.xml conf
 CMD ["catalina.sh", "run"]

@@ -1,5 +1,5 @@
 plugins {
-    id 'java'  // or java-library ?
+    id 'java'
     id 'war'
     id ('cern.devops.cbng.dependency') version "4.0.52"
 }
@@ -19,29 +19,34 @@ dependencies {
     implementation('jakarta.servlet:jakarta.servlet-api:5.0.0')
 }
 
-//TODO: exclude non-essential class files from wars
-task createHelloWorldWar(type: War, dependsOn: classes) {
-    baseName = 'TomcatHelloWorld'
-    from file('src/main/wars/examples/TomcatHelloWorld')
-    destinationDir = file("$buildDir/wars/examples")
-}
+war{
+    webAppDirectory = file('src/main/webapp')
 
-task createJAPCWar(type: War, dependsOn: classes) {
-    baseName = 'TomcatJAPC'
-    from file('src/main/wars/examples/TomcatJAPC')
-    destinationDir = file("$buildDir/wars/examples")
-}
+    from file('$buildDir/libs/$war')
+    destinationDir = file('webapp-build')
 
+}
 
 // requirement for building this project
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
-
     withJavadocJar()
     withSourcesJar()
 }
 
 // missing: manifest (see https://docs.gradle.org/7.4.2/userguide/building_java_projects.html#sec:jar_manifest)
 
+////TODO: exclude non-essential class files from wars
+//task createHelloWorldWar(type: War, dependsOn: classes) {
+//    baseName = 'TomcatHelloWorld'
+//    from file('src/main/wars/examples/TomcatHelloWorld')
+//    destinationDir = file("$buildDir/wars/examples")
+//}
+//
+//task createJAPCWar(type: War, dependsOn: classes) {
+//    baseName = 'TomcatJAPC'
+//    from file('src/main/wars/examples/TomcatJAPC')
+//    destinationDir = file("$buildDir/wars/examples")
+//}
