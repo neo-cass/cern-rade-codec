@@ -8,6 +8,7 @@ repositories {
     maven {
         url 'https://artifactory.cern.ch/release'
     }
+    mavenCentral()
 }
 
 dependencies {
@@ -16,6 +17,7 @@ dependencies {
     implementation ("cern.japc:japc-ext-cmwrda3:PRO")
     implementation ("cern.japc:japc-ext-remote:PRO")
     implementation ("cern.cmw:cmw-data:PRO")
+    implementation('org.apache.commons:commons-lang3:3.12.0')
     implementation('jakarta.servlet:jakarta.servlet-api:5.0.0')
 }
 
@@ -24,7 +26,6 @@ war{
 
     from file('$buildDir/libs/$war')
     destinationDir = file('webapp-build')
-
 }
 
 // requirement for building this project
@@ -38,15 +39,3 @@ java {
 
 // missing: manifest (see https://docs.gradle.org/7.4.2/userguide/building_java_projects.html#sec:jar_manifest)
 
-////TODO: exclude non-essential class files from wars
-//task createHelloWorldWar(type: War, dependsOn: classes) {
-//    baseName = 'TomcatHelloWorld'
-//    from file('src/main/wars/examples/TomcatHelloWorld')
-//    destinationDir = file("$buildDir/wars/examples")
-//}
-//
-//task createJAPCWar(type: War, dependsOn: classes) {
-//    baseName = 'TomcatJAPC'
-//    from file('src/main/wars/examples/TomcatJAPC')
-//    destinationDir = file("$buildDir/wars/examples")
-//}

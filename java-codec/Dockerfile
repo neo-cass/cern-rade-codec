@@ -5,7 +5,7 @@ RUN apk update && apk add openssl
 RUN true | openssl s_client -connect artifactory.cern.ch:443 | openssl x509 > artifactory.cert
 USER root
 RUN keytool -importcert -cacerts -alias artifactory-cert -file artifactory.cert -storepass changeit -noprompt
-RUN gradle clean war
+RUN gradle --no-daemon clean war
 
 FROM tomcat:10-jdk17
 ENV webappDir=/buildDir/webapp-build
