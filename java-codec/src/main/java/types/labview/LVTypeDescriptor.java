@@ -2,11 +2,11 @@ package types.labview;
 
 public class LVTypeDescriptor {
     private LVType lvType;
-    private LVTypeSpecificDescription LVTypeSpecificDescription;
+    private LVTypeInfo lVTypeInfo;
     private String fieldName;
-    public LVTypeDescriptor(LVType lvType, LVTypeSpecificDescription LVTypeSpecificDescription, String fieldName){
+    public LVTypeDescriptor(LVType lvType, LVTypeInfo LVTypeInfo, String fieldName){
         this.lvType = lvType;
-        this.LVTypeSpecificDescription = LVTypeSpecificDescription;
+        this.lVTypeInfo = LVTypeInfo;
         this.fieldName = fieldName;
     }
 
@@ -15,14 +15,18 @@ public class LVTypeDescriptor {
         this.fieldName = fieldName;
     }
 
-    public LVType getLvType() {
+    public LVType getType() {
         return lvType;
     }
 
     public String getFieldName() {return fieldName;}
+    public boolean hasTypeInfo(){
+        return lVTypeInfo !=null;
+    }
 
-    public LVTypeSpecificDescription getTypeSpecificInfo() {return LVTypeSpecificDescription;}
+    public LVTypeInfo getTypeSpecificInfo() {return lVTypeInfo;}
 
+    //TODO: correct
     public String toString(){
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Field Name: ");
@@ -30,8 +34,8 @@ public class LVTypeDescriptor {
         stringBuilder.append(", Type: ");
         stringBuilder.append(lvType);
         stringBuilder.append(" | ");
-        if(LVTypeSpecificDescription != null) {
-            stringBuilder.append(LVTypeSpecificDescription.toString());
+        if(lVTypeInfo != null) {
+            stringBuilder.append(lVTypeInfo.toString());
         }
         return stringBuilder.toString();
     }

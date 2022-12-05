@@ -1,28 +1,25 @@
 package codec.javatolv;
 
-import cern.cmw.data.DataType;
-import types.JavaDataContainer;
-import types.labview.ArrayDescriptor;
+import types.JavaContainer;
 import types.labview.LVTypeLookup;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class LVTypeDescriptorFactory {
-    public static byte[] createTypeDescrptor(JavaDataContainer javaDataContainer){
+    public static byte[] createTypeDescrptor(JavaContainer javaContainer){
         ByteBuffer byteBuffer = ByteBuffer.allocate(2048);
-        switch(javaDataContainer.getDataType()){
-            case DT_DATA -> byteBuffer.put(createClusterType(javaDataContainer));
-            case DT_BYTE, DT_BOOL, DT_SHORT, DT_INT, DT_FLOAT, DT_DOUBLE -> byteBuffer.put(createNumericType(javaDataContainer));
-            case DT_STRING -> byteBuffer.put(createStringType(javaDataContainer));
+        switch(javaContainer.getDataType()){
+            case DT_DATA -> byteBuffer.put(createClusterType(javaContainer));
+            case DT_BYTE, DT_BOOL, DT_SHORT, DT_INT, DT_FLOAT, DT_DOUBLE -> byteBuffer.put(createNumericType(javaContainer));
+            case DT_STRING -> byteBuffer.put(createStringType(javaContainer));
         }
-
         return byteBuffer.array();
     }
 
-    private static byte[] createNumericType(JavaDataContainer javaDataContainer) {
-        byte typeCode = LVTypeLookup.getByteFromCMW(javaDataContainer.getDataType());
-        String fieldName = javaDataContainer.getFieldName();
+    private static byte[] createNumericType(JavaContainer javaContainer) {
+        byte typeCode = LVTypeLookup.getByteFromCMW(javaContainer.getDataType());
+        String fieldName = javaContainer.getFieldName();
         short totalLength = (short) (fieldName.length() + 1 + 4);
         byte [] typeDesc = new byte[totalLength];
         ByteBuffer byteBuffer = ByteBuffer.wrap(typeDesc);
@@ -34,10 +31,10 @@ public class LVTypeDescriptorFactory {
         return byteBuffer.array();
     }
 
-    private static byte[] createStringType(JavaDataContainer javaDataContainer){
+    private static byte[] createStringType(JavaContainer javaContainer){
         System.out.println("decoding string");
-        byte typeCode = LVTypeLookup.getByteFromCMW(javaDataContainer.getDataType());
-        String fieldName = javaDataContainer.getFieldName();
+        byte typeCode = LVTypeLookup.getByteFromCMW(javaContainer.getDataType());
+        String fieldName = javaContainer.getFieldName();
         short totalLength = (short) (fieldName.length() + 1 + 8);
         byte [] typeDesc = new byte[totalLength];
         ByteBuffer byteBuffer = ByteBuffer.wrap(typeDesc);
@@ -51,15 +48,15 @@ public class LVTypeDescriptorFactory {
         return byteBuffer.array();
     }
 
-    public static byte[] createClusterType(JavaDataContainer javaDataContainer){
+    public static byte[] createClusterType(JavaContainer javaContainer){
         System.out.println("decoding cluster");
         ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
-        byte typeCode = LVTypeLookup.getByteFromCMW(javaDataContainer.getDataType());
-        String fieldName = javaDataContainer.getFieldName();
+        byte typeCode = LVTypeLookup.getByteFromCMW(javaContainer.getDataType());
+        String fieldName = javaContainer.getFieldName();
         short totalLength = 0;
-        short nTDs = (short) ((JavaDataContainer[])(javaDataContainer.getData())).length;
-        JavaDataContainer[] javaDataContainers = (JavaDataContainer[])javaDataContainer.getData();
-        for (JavaDataContainer javaData : javaDataContainers){
+        short nTDs = (short) ((JavaContainer[])(javaContainer.getData())).length;
+        JavaContainer[] javaContainers = (JavaContainer[]) javaContainer.getData();
+        for (JavaContainer javaData : javaContainers){
             byte[] nestedtypeDesc = createTypeDescrptor(javaData);
             totalLength+=nestedtypeDesc.length;
 
@@ -73,10 +70,10 @@ public class LVTypeDescriptorFactory {
         return Arrays.copyOfRange(byteBuffer.array(), 0, totalLength);
     }
 
-    public static byte[] createArrayType(JavaDataContainer javaDataContainer){
-        byte typeCode = LVTypeLookup.getByteFromCMW(javaDataContainer.getDataType());
+    public static byte[] createArrayType(JavaContainer javaContainer){
+        byte typeCode = LVTypeLookup.getByteFromCMW(javaContainer.getDataType());
 
-        String fieldName = javaDataContainer.getFieldName();
+        String fieldName = javaContainer.getFieldName();
         //byte[] arrayType = createTypeDescrptor();
         return null;
 

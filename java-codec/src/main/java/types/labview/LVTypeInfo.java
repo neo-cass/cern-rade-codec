@@ -1,9 +1,8 @@
 package types.labview;
 
-public class LVTypeSpecificDescription {
-    public LVTypeSpecificDescription(){
+public class LVTypeInfo {
+    public LVTypeInfo(){
     }
-
     public String toString(){
         return null;
     }

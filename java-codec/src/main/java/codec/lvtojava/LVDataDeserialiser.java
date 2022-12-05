@@ -1,9 +1,9 @@
 package codec.lvtojava;
 
 import cern.cmw.data.DataType;
-import types.JavaDataContainer;
-import types.labview.ArrayDescriptor;
-import types.labview.ClusterDescriptor;
+import types.JavaContainer;
+import types.labview.LVArrayInfo;
+import types.labview.LVClusterInfo;
 import types.labview.LVType;
 import types.labview.LVTypeDescriptor;
 
@@ -11,21 +11,21 @@ import java.nio.ByteBuffer;
 
 public final class LVDataDeserialiser {
 
-    private static JavaDataContainer deserialiseCluster(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor){
-        ClusterDescriptor clusterDescriptor = (ClusterDescriptor) lvTypeDescriptor.getTypeSpecificInfo();
-        int nTDs = clusterDescriptor.getnTypeDescriptors();
-        LVTypeDescriptor[] lvTypeDescriptors = clusterDescriptor.getTypeDescriptors();
-        JavaDataContainer[] javaData = new JavaDataContainer[nTDs];
+    private static JavaContainer deserialiseCluster(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor){
+        LVClusterInfo LVClusterInfo = (LVClusterInfo) lvTypeDescriptor.getTypeSpecificInfo();
+        int nTDs = LVClusterInfo.getnTypeDescriptors();
+        LVTypeDescriptor[] lvTypeDescriptors = LVClusterInfo.getTypeDescriptors();
+        JavaContainer[] javaData = new JavaContainer[nTDs];
         for (int i = 0; i< nTDs; i++){
             javaData[i] = deserialise(buffer, lvTypeDescriptors[i]);
         }
-        JavaDataContainer javaDataContainer = new JavaDataContainer(lvTypeDescriptor.getFieldName(), javaData, DataType.DT_DATA);
+        JavaContainer javaContainer = new JavaContainer(lvTypeDescriptor.getFieldName(), javaData, DataType.DT_DATA);
 
-        return javaDataContainer;
+        return javaContainer;
     }
 
-    private static JavaDataContainer deserialiseNumeric(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor){
-        LVType type = lvTypeDescriptor.getLvType();
+    private static JavaContainer deserialiseNumeric(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor){
+        LVType type = lvTypeDescriptor.getType();
         Object javaData = null;
         DataType dataType = null;
         switch(type){
@@ -41,27 +41,31 @@ public final class LVDataDeserialiser {
             case BOOL -> {javaData = buffer.get();dataType = DataType.DT_BYTE;}
         }
 
-        return new JavaDataContainer(lvTypeDescriptor.getFieldName(), javaData, dataType);
+        return new JavaContainer(lvTypeDescriptor.getFieldName(), javaData, dataType);
 
     }
 
-    private static JavaDataContainer deserialiseString(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor){
+    private static JavaContainer deserialiseString(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor){
         int stringLen = buffer.getInt();
         byte[] rawString = new byte[stringLen];
         buffer.get(rawString);
         String string = new String(rawString);
-        return new JavaDataContainer(lvTypeDescriptor.getFieldName(), string, DataType.DT_STRING);
+        return new JavaContainer(lvTypeDescriptor.getFieldName(), string, DataType.DT_STRING);
     }
 
-    public static JavaDataContainer deserialise(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor){
-        JavaDataContainer javaDataContainer = null;
-        switch(lvTypeDescriptor.getLvType()){
-            case CLUSTER -> {javaDataContainer = deserialiseCluster(buffer,lvTypeDescriptor);}
-            case INT_8, INT_16, INT_32, INT_64, UINT_8, UINT_16, UINT_32, BOOL, SGL, DBL -> {javaDataContainer = deserialiseNumeric(buffer,lvTypeDescriptor);}
-            case STRING -> {javaDataContainer = deserialiseString(buffer, lvTypeDescriptor);}
-            case ARRAY -> {javaDataContainer = deserialiseArray(buffer,lvTypeDescriptor);}
+    public static JavaContainer deserialise(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor){
+        JavaContainer javaContainer = null;
+        switch(lvTypeDescriptor.getType()){
+            case CLUSTER -> {
+                javaContainer = deserialiseCluster(buffer,lvTypeDescriptor);}
+            case INT_8, INT_16, INT_32, INT_64, UINT_8, UINT_16, UINT_32, BOOL, SGL, DBL -> {
+                javaContainer = deserialiseNumeric(buffer,lvTypeDescriptor);}
+            case STRING -> {
+                javaContainer = deserialiseString(buffer, lvTypeDescriptor);}
+            case ARRAY -> {
+                javaContainer = deserialiseArray(buffer,lvTypeDescriptor);}
         }
-        return javaDataContainer;
+        return javaContainer;
     }
 
     private static DataType getArrayType(DataType type, int dimension){
@@ -110,20 +114,20 @@ public final class LVDataDeserialiser {
     }
 
     //TODO: multidimension support
-    private static JavaDataContainer deserialiseArray(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor) {
-        ArrayDescriptor arrayDescriptor = (ArrayDescriptor) lvTypeDescriptor.getTypeSpecificInfo();
-        int dimension = arrayDescriptor.getArrayDim();
+    private static JavaContainer deserialiseArray(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor) {
+        LVArrayInfo LVArrayInfo = (LVArrayInfo) lvTypeDescriptor.getTypeSpecificInfo();
+        int dimension = LVArrayInfo.getArrayDim();
         int arrayLen = buffer.getInt();
 
-        LVTypeDescriptor arrayType = arrayDescriptor.getArrayType();
-        JavaDataContainer[] javaData = new JavaDataContainer[arrayLen];
+        LVTypeDescriptor arrayType = LVArrayInfo.getArrayType();
+        JavaContainer[] javaData = new JavaContainer[arrayLen];
 
         for (int i = 0; i< arrayLen; i++){
             javaData[i] = deserialise(buffer, arrayType);
         }
         DataType DT_arrayType = getArrayType(javaData[0].getDataType(), dimension);
-        JavaDataContainer javaDataContainer = new JavaDataContainer(lvTypeDescriptor.getFieldName(), javaData, DT_arrayType);
+        JavaContainer javaContainer = new JavaContainer(lvTypeDescriptor.getFieldName(), javaData, DT_arrayType);
 
-        return javaDataContainer;
+        return javaContainer;
     }
 }

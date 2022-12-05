@@ -1,14 +1,14 @@
 package codec.javatocmw;
 import cern.cmw.data.Data;
 import cern.cmw.data.DataFactory;
-import types.JavaDataContainer;
+import types.JavaContainer;
 
 public class JavaToCMWData {
     public JavaToCMWData(){
 
     }
 
-    public static Data encode(JavaDataContainer javaData){
+    public static Data encode(JavaContainer javaData){
         Data data = null;
         switch(javaData.getDataType()){
             case DT_DATA -> data = encodeCluster(javaData);
@@ -17,7 +17,7 @@ public class JavaToCMWData {
         return data;
     }
 
-    public static Data encode(JavaDataContainer javaData, Data data){
+    public static Data encode(JavaContainer javaData, Data data){
         switch(javaData.getDataType()){
             //TODO: possible issue with data inside data when not required (e.g. no nesting present)
             case DT_DATA -> {data.append(javaData.getFieldName(), encodeCluster(javaData));}
@@ -32,7 +32,7 @@ public class JavaToCMWData {
         return data;
     }
 
-    private static Data appendEncodedSingle(JavaDataContainer javaData, Data data) {
+    private static Data appendEncodedSingle(JavaContainer javaData, Data data) {
         switch(javaData.getDataType()){
             case DT_BYTE -> data.append(javaData.getFieldName(), (byte)javaData.getData());
             case DT_SHORT -> data.append(javaData.getFieldName(), (short)javaData.getData());
@@ -46,83 +46,83 @@ public class JavaToCMWData {
         return data;
     }
 
-    private static Data encodeCluster(JavaDataContainer javaData) {
-        JavaDataContainer[] javaDataContainers = (JavaDataContainer[])javaData.getData();
+    private static Data encodeCluster(JavaContainer javaData) {
+        JavaContainer[] javaContainers = (JavaContainer[])javaData.getData();
         Data clusterData = DataFactory.createData();
 
-        for (JavaDataContainer javaDataContainer : javaDataContainers) {
-            encode(javaDataContainer, clusterData);
+        for (JavaContainer javaContainer : javaContainers) {
+            encode(javaContainer, clusterData);
         }
         return clusterData;
     }
 
-    private static void appendEncodedArray(JavaDataContainer javaData, Data data) {
-        JavaDataContainer[] javaDataContainers = (JavaDataContainer[])javaData.getData();
-        int arrayLen = javaDataContainers.length;
+    private static void appendEncodedArray(JavaContainer javaData, Data data) {
+        JavaContainer[] javaContainers = (JavaContainer[])javaData.getData();
+        int arrayLen = javaContainers.length;
         switch(javaData.getDataType()){
             case DT_BYTE_ARRAY -> {
                 byte[] newArray = new byte[arrayLen];
                 for (int i = 0; i<arrayLen; i++){
-                    newArray[i] = (byte)javaDataContainers[i].getData();
+                    newArray[i] = (byte) javaContainers[i].getData();
                 }
                 data.appendArray(javaData.getFieldName(), newArray);
             }
             case DT_SHORT_ARRAY -> {
                 short[] newArray = new short[arrayLen];
                 for (int i = 0; i<arrayLen; i++){
-                    newArray[i] = (short)javaDataContainers[i].getData();
+                    newArray[i] = (short) javaContainers[i].getData();
                 }
                 data.appendArray(javaData.getFieldName(), newArray);
             }
             case DT_INT_ARRAY -> {
                 int[] newArray = new int[arrayLen];
                 for (int i = 0; i<arrayLen; i++){
-                    newArray[i] = (int)javaDataContainers[i].getData();
+                    newArray[i] = (int) javaContainers[i].getData();
                 }
                 data.appendArray(javaData.getFieldName(), newArray);
             }
             case DT_LONG_ARRAY -> {
                 long[] newArray = new long[arrayLen];
                 for (int i = 0; i<arrayLen; i++){
-                    newArray[i] = (long)javaDataContainers[i].getData();
+                    newArray[i] = (long) javaContainers[i].getData();
                 }
                 data.appendArray(javaData.getFieldName(), newArray);
             }
             case DT_FLOAT_ARRAY -> {
                 float[] newArray = new float[arrayLen];
                 for (int i = 0; i<arrayLen; i++){
-                    newArray[i] = (float)javaDataContainers[i].getData();
+                    newArray[i] = (float) javaContainers[i].getData();
                 }
                 data.appendArray(javaData.getFieldName(), newArray);
             }
             case DT_DOUBLE_ARRAY -> {
                 double[] newArray = new double[arrayLen];
                 for (int i = 0; i<arrayLen; i++){
-                    newArray[i] = (double)javaDataContainers[i].getData();
+                    newArray[i] = (double) javaContainers[i].getData();
                 }
                 data.appendArray(javaData.getFieldName(), newArray);
             }
             case DT_BOOL_ARRAY -> {
                 boolean[] newArray = new boolean[arrayLen];
                 for (int i = 0; i<arrayLen; i++){
-                    newArray[i] = (boolean)javaDataContainers[i].getData();
+                    newArray[i] = (boolean) javaContainers[i].getData();
                 }
                 data.appendArray(javaData.getFieldName(), newArray);
             }
             case DT_STRING_ARRAY -> {
                 String[] newArray = new String[arrayLen];
                 for (int i = 0; i<arrayLen; i++){
-                    newArray[i] = (String)javaDataContainers[i].getData();
+                    newArray[i] = (String) javaContainers[i].getData();
                 }
                 data.appendArray(javaData.getFieldName(), newArray);
             }
         }
     }
 
-    private static void appendEncodedArray2D(JavaDataContainer javaData, Data data) {
+    private static void appendEncodedArray2D(JavaContainer javaData, Data data) {
     }
 
-    private static void appendEncodedArrayMulti(JavaDataContainer javaData, Data data) {
+    private static void appendEncodedArrayMulti(JavaContainer javaData, Data data) {
     }
 
 }

@@ -95,7 +95,6 @@ public final class LVTypeLookup {
             entry(DataType.DT_DOUBLE_ARRAY, (byte)0x40),
             entry(DataType.DT_STRING_ARRAY, (byte)0x40),
             entry(DataType.DT_DATA, (byte)0x50)
-
     ));
     private LVTypeLookup() {
 

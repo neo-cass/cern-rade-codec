@@ -2,14 +2,12 @@ package types;
 
 import cern.cmw.data.DataType;
 
-import java.lang.reflect.Type;
-
-public class JavaDataContainer {
+public class JavaContainer<T> {
     private String fieldName;
-    private Object data;
+    private T data;
     private DataType dataType;
 
-    public JavaDataContainer(String fieldName, Object data, DataType dataType){
+    public JavaContainer(String fieldName, T data, DataType dataType){
         this.fieldName = fieldName;
         this.data = data;
         this.dataType = dataType;
@@ -19,7 +17,7 @@ public class JavaDataContainer {
         return fieldName;
     }
 
-    public Object getData() {
+    public T getData() {
         return data;
     }
 
@@ -33,7 +31,7 @@ public class JavaDataContainer {
         stringBuilder.append("FIELD NAME: ");
         stringBuilder.append(fieldName);
         stringBuilder.append(" | DATA: ");
-        if(data instanceof JavaDataContainer[]){
+        if(data instanceof JavaContainer[]){
             stringBuilder.append("ITEMS IN ARRAY: ");
             clusterToString(stringBuilder);
 
@@ -46,12 +44,11 @@ public class JavaDataContainer {
     }
 
     private StringBuilder clusterToString(StringBuilder stringBuilder){
-        JavaDataContainer[] javaData = (JavaDataContainer[]) data;
-        for (JavaDataContainer item : javaData){
+        JavaContainer[] javaData = (JavaContainer[]) data;
+        for (JavaContainer item : javaData){
             stringBuilder.append(item.toString());
             stringBuilder.append(", ");
         }
         return stringBuilder;
-
     }
 }

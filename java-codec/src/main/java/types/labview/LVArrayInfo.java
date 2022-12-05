@@ -1,9 +1,9 @@
 package types.labview;
 
-public class ArrayDescriptor extends LVTypeSpecificDescription {
+public class LVArrayInfo extends LVTypeInfo {
     private int arrayDim;
     private LVTypeDescriptor arrayType;
-    public ArrayDescriptor(int arrayDim, LVTypeDescriptor arrayType){
+    public LVArrayInfo(int arrayDim, LVTypeDescriptor arrayType){
         this.arrayDim = arrayDim;
         this.arrayType = arrayType;
     }

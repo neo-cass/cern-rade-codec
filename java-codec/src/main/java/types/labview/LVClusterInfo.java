@@ -1,17 +1,17 @@
 package types.labview;
 
-public class ClusterDescriptor extends LVTypeSpecificDescription {
+public class LVClusterInfo extends LVTypeInfo {
     private int nTypeDescriptors;
-    private LVTypeDescriptor[] LVTypeDescriptors;
+    private LVTypeDescriptor[] lVTypeDescriptors;
     private int currentIndex = 0;
-    public ClusterDescriptor(int nTypeDescriptors){
+    public LVClusterInfo(int nTypeDescriptors){
         this.nTypeDescriptors = nTypeDescriptors;
-        this.LVTypeDescriptors = new LVTypeDescriptor[nTypeDescriptors];
+        this.lVTypeDescriptors = new LVTypeDescriptor[nTypeDescriptors];
     }
 
     public boolean addNewTypeDescriptor(LVTypeDescriptor LVTypeDescriptor){
         if (currentIndex < nTypeDescriptors) {
-            LVTypeDescriptors[currentIndex] = LVTypeDescriptor;
+            lVTypeDescriptors[currentIndex] = LVTypeDescriptor;
             currentIndex++;
             return true;
         }
@@ -21,7 +21,7 @@ public class ClusterDescriptor extends LVTypeSpecificDescription {
     }
 
     public LVTypeDescriptor[] getTypeDescriptors() {
-        return LVTypeDescriptors;
+        return lVTypeDescriptors;
     }
 
     public int getnTypeDescriptors(){
@@ -32,7 +32,7 @@ public class ClusterDescriptor extends LVTypeSpecificDescription {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("\n-----CLUSTER INFO-----\n");
         for (int i = 0; i<nTypeDescriptors; i++){
-            stringBuilder.append(LVTypeDescriptors[i].toString());
+            stringBuilder.append(lVTypeDescriptors[i].toString());
         }
         stringBuilder.append("\n----------------------\n");
         return stringBuilder.toString();
