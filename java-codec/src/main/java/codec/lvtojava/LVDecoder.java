@@ -1,14 +1,17 @@
 package codec.lvtojava;
 
 import types.*;
-import types.labview.LVTypeDescriptor;
 
 import java.nio.ByteBuffer;
 
-public class LVDecoder {
+public final class LVDecoder {
     private LVDecoder(){}
-    public JavaContainer decode(byte[] bytes){
-        return null;
+    public static JavaContainer decode(byte[] bytes){
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        int length = buffer.getShort();
+        ByteBuffer typeBuffer = buffer.slice(0, length);
+        ByteBuffer dataBuffer = buffer.slice(length, bytes.length - length);
+        return LVDataDeserialiser.deserialise(dataBuffer, LVTypeDecoder.decode(typeBuffer));
     }
 
 }

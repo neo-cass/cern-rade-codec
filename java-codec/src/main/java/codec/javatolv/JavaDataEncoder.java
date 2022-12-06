@@ -1,6 +1,6 @@
 package codec.javatolv;
 
-public class LVDataEncoder {
+public class JavaDataEncoder {
 
 //    public static Pair<Byte[], Byte[]> createConcatType(JavaDataContainer javaDataContainer){
 //        byte [] data = JavaDataSerialiser.serialise(javaDataContainer);
