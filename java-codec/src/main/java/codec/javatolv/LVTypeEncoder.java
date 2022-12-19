@@ -4,28 +4,38 @@ import types.JavaContainer;
 import types.labview.LVTypeLookup;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
 
-public class LVTypeDescEncoder {
-    public static byte[] createTypeDescrptor(JavaContainer javaContainer, ByteArrayOutputStream outStream){
+public final class LVTypeEncoder {
+    public static byte[] createTypeDescrptor(JavaContainer javaContainer) throws IOException {
         byte[] typeDesc = new byte[0];
         switch(javaContainer.getDataType()){
-            case DT_DATA -> typeDesc = createClusterType(javaContainer, outStream);
-            case DT_BYTE, DT_BOOL, DT_SHORT, DT_INT, DT_FLOAT, DT_DOUBLE -> typeDesc = createNumericType(javaContainer,outStream);
-            case DT_STRING -> typeDesc = createStringType(javaContainer,outStream);
+            case DT_DATA -> typeDesc = createClusterType(javaContainer);
+            case DT_BYTE, DT_BOOL, DT_SHORT, DT_INT, DT_FLOAT, DT_DOUBLE -> typeDesc = createNumericType(javaContainer);
+            case DT_STRING -> typeDesc = createStringType(javaContainer);
         }
         return typeDesc;
     }
 
-    private static byte[] createNumericType(JavaContainer javaContainer, ByteArrayOutputStream outStream) {
+    public static ByteBuffer padWithZeros(int totalLength ){
+        if(totalLength%2==0){
+            return ByteBuffer.allocate(totalLength);
+        }
+        else{
+            ByteBuffer byteBuffer = ByteBuffer.allocate(totalLength+1);
+            byteBuffer.put(totalLength-1, (byte) 0);
+            return byteBuffer;
+        }
+    }
+
+    private static byte[] createNumericType(JavaContainer javaContainer ) {
         byte typeCode = LVTypeLookup.getByteFromCMW(javaContainer.getDataType());
         String fieldName = javaContainer.getFieldName();
         short totalLength = (short) (fieldName.length() + 1 + 4);
-        byte [] typeDesc = new byte[totalLength];
-        ByteBuffer byteBuffer = ByteBuffer.wrap(typeDesc);
-        byteBuffer.putShort(totalLength);
+        ByteBuffer byteBuffer = padWithZeros(totalLength);
+        byteBuffer.putShort((short) byteBuffer.capacity());
         byteBuffer.put((byte) 0);
         byteBuffer.put(typeCode);
         byteBuffer.put((byte) fieldName.length());
@@ -33,13 +43,12 @@ public class LVTypeDescEncoder {
         return byteBuffer.array();
     }
 
-    private static byte[] createStringType(JavaContainer javaContainer, ByteArrayOutputStream outStream){
+    private static byte[] createStringType(JavaContainer javaContainer){
         byte typeCode = LVTypeLookup.getByteFromCMW(javaContainer.getDataType());
         String fieldName = javaContainer.getFieldName();
         short totalLength = (short) (fieldName.length() + 1 + 8);
-        byte [] typeDesc = new byte[totalLength];
-        ByteBuffer byteBuffer = ByteBuffer.wrap(typeDesc);
-        byteBuffer.putShort(totalLength);
+        ByteBuffer byteBuffer = padWithZeros(totalLength);
+        byteBuffer.putShort((short) byteBuffer.capacity());
         byteBuffer.put((byte) 0);
         byteBuffer.put(typeCode);
         byteBuffer.putShort((short) 0xFFFF); //FFFF FFFF
@@ -49,28 +58,32 @@ public class LVTypeDescEncoder {
         return byteBuffer.array();
     }
 
-    public static byte[] createClusterType(JavaContainer javaContainer, ByteArrayOutputStream outStream){
-        ArrayList<Byte> byteArray = new ArrayList<>();
+    public static byte[] createClusterType(JavaContainer javaContainer) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(bos);
         byte typeCode = LVTypeLookup.getByteFromCMW(javaContainer.getDataType());
         String fieldName = javaContainer.getFieldName();
         short totalLength = 0;
         short nTDs = (short) ((JavaContainer[])(javaContainer.getData())).length;
         JavaContainer[] javaContainers = (JavaContainer[]) javaContainer.getData();
         for (JavaContainer javaData : javaContainers){
-            byte[] nestedtypeDesc = createTypeDescrptor(javaData, outStream);
+            byte[] nestedtypeDesc = createTypeDescrptor(javaData);
             totalLength+=nestedtypeDesc.length;
-
-            byteArray.addAll(nestedtypeDesc);
+            dos.write(nestedtypeDesc);
         }
+
         totalLength += (short) (fieldName.length() + 1 + 6);
+        ByteBuffer byteBuffer = padWithZeros(totalLength);
+
         byteBuffer.putShort(0, nTDs);
         byteBuffer.put(0, typeCode);
         byteBuffer.put(0, (byte) 0);
-        byteBuffer.putShort(0, totalLength);
-        return Arrays.copyOfRange(byteBuffer.array(), 0, totalLength);
+        byteBuffer.putShort(0, (short) byteBuffer.capacity());
+        byteBuffer.put(bos.toByteArray());
+        return byteBuffer.array();
     }
 
-    public static byte[] createArrayType(JavaContainer javaContainer, ByteArrayOutputStream outStream){
+    public static byte[] createArrayType(JavaContainer javaContainer ){
         byte typeCode = LVTypeLookup.getByteFromCMW(javaContainer.getDataType());
 
         String fieldName = javaContainer.getFieldName();

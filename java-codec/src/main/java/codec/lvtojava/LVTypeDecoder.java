@@ -77,6 +77,9 @@ public final class LVTypeDecoder {
     }
 
     private static String readFieldName(ByteBuffer buffer){
+        if (!buffer.hasRemaining()){
+            return "";
+        }
         int fieldNameLen = buffer.get();
         byte[] fieldNameBytes = new byte[fieldNameLen];
         buffer.get(fieldNameBytes);
