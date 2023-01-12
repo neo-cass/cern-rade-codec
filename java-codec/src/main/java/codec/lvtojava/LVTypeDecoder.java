@@ -60,9 +60,10 @@ public final class LVTypeDecoder {
 
     private static LVTypeDescriptor decodeArray(ByteBuffer buffer){
         int dimension = buffer.getShort(); // 2 bytes
-        buffer.getShort(); //FFFF - 2 bytes
-        buffer.getShort(); //FFFF - 2 bytes
-
+        for (int i = 0; i<dimension; i++) {
+            buffer.getShort(); //FFFF - 2 bytes
+            buffer.getShort(); //FFFF - 2 bytes
+        }
 
         buffer.mark();
         int nestedLen = buffer.getShort();

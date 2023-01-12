@@ -16,7 +16,9 @@ public final class LVDataEncoder {
         switch(javaContainer.getDataType()){
             case DT_DATA -> {serialiseData(javaContainer, dos);}
             case DT_BYTE, DT_BOOL, DT_SHORT, DT_INT, DT_LONG, DT_FLOAT, DT_DOUBLE, DT_STRING -> serialiseNumeric(javaContainer,dos);
-            case DT_BYTE_ARRAY, DT_BOOL_ARRAY, DT_SHORT_ARRAY, DT_INT_ARRAY, DT_LONG_ARRAY, DT_FLOAT_ARRAY, DT_DOUBLE_ARRAY, DT_STRING_ARRAY -> serialiseArray(javaContainer,dos);
+            case DT_BYTE_ARRAY, DT_BOOL_ARRAY, DT_SHORT_ARRAY, DT_INT_ARRAY, DT_LONG_ARRAY, DT_FLOAT_ARRAY, DT_DOUBLE_ARRAY, DT_STRING_ARRAY,
+                    DT_BYTE_ARRAY_2D, DT_BOOL_ARRAY_2D, DT_SHORT_ARRAY_2D, DT_INT_ARRAY_2D, DT_LONG_ARRAY_2D, DT_FLOAT_ARRAY_2D, DT_DOUBLE_ARRAY_2D, DT_STRING_ARRAY_2D,
+                    DT_BYTE_MULTI_ARRAY, DT_BOOL_MULTI_ARRAY, DT_SHORT_MULTI_ARRAY, DT_INT_MULTI_ARRAY, DT_LONG_MULTI_ARRAY, DT_FLOAT_MULTI_ARRAY, DT_DOUBLE_MULTI_ARRAY, DT_STRING_MULTI_ARRAY -> serialiseArray(javaContainer,dos);
         }
 
         return bos.toByteArray();
@@ -65,26 +67,27 @@ public final class LVDataEncoder {
     }
 
     private static void serialiseArray(JavaContainer javaContainer, DataOutputStream dos) throws IOException {
-        int dimension = dimensionOf(javaContainer.getData());
-        if (dimension > 1){serialiseArray(javaContainer.getData()[0]);}
-        DataType arrType = ((JavaContainer)getArrayElem(javaContainer)).getDataType();
-        for (int i = 0; i< dimension; i++){
-            JavaContainer[] row = (JavaContainer[]) Array.get(javaContainer.getData(), i);
-            for (int j = 0; j< row.)
-            switch(arrType){
-                case DT_BYTE, DT_BOOL -> {dos.writeByte((Byte) javaContainer.getData()); }
-                case DT_SHORT -> {dos.writeShort((Short) javaContainer.getData()); }
-                case DT_INT -> {dos.writeInt((Integer) javaContainer.getData()); }
-                case DT_LONG -> {dos.writeLong((Long) javaContainer.getData());}
-                case DT_FLOAT -> {dos.writeFloat((Float) javaContainer.getData());}
-                case DT_DOUBLE -> {dos.writeDouble((Double) javaContainer.getData()); }
-                case DT_STRING -> {
-                    byte[] rawString = ((String) javaContainer.getData()).getBytes();
-                    dos.writeInt(rawString.length);
-                    dos.write(rawString);
-                }
-            }
-        }
+        Object data = javaContainer.getData();
+        serialiseJavaContainerArray(data, dos);
+    }
 
+    private static void serialiseJavaContainerArray(Object arr, DataOutputStream dos) throws IOException {
+        if (dimensionOf(arr)==1){
+            serialise1DArr(arr, dos);
+            return;
+        }
+        int dimLength=Array.getLength(arr);
+        dos.writeInt(dimLength);
+        for (int i = 0; i<dimLength; i++){
+            serialiseJavaContainerArray(Array.get(arr, i), dos);
+        }
+    }
+
+    private static void serialise1DArr(Object arr, DataOutputStream dos) throws IOException {
+        int dimLength = Array.getLength(arr);
+        dos.writeInt(dimLength);
+        for(int i = 0; i<dimLength; i++){
+            dos.write(serialise((JavaContainer) Array.get(arr, i)));
+        }
     }
 }

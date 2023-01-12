@@ -108,18 +108,48 @@ public final class LVDataDeserialiser {
     //TODO: multidimension support and empty array will break this
     private static JavaContainer deserialiseArray(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor) {
         LVArrayInfo arrayInfo = (LVArrayInfo) lvTypeDescriptor.getTypeSpecificInfo();
-        int dimension = arrayInfo.getArrayDim();
-        int arrayLen = buffer.getInt();
 
-        LVTypeDescriptor lvArrayType = arrayInfo.getArrayType();
-        JavaContainer[] nestedContainers = new JavaContainer[arrayLen];
-
-        for (int i = 0; i< arrayLen; i++){
-            nestedContainers[i] = deserialise(buffer, lvArrayType);
-        }
-        DataType arrayType = getArrayType(nestedContainers[0].getDataType(), dimension);
+        DataType arrayType = getArrayType(arrayType, dimension);
         JavaContainer javaContainer = new JavaContainer<>(lvTypeDescriptor.getFieldName(), nestedContainers, arrayType);
         return javaContainer;
+    }
+
+    private static JavaContainer spike(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor){
+        LVArrayInfo arrInfo = (LVArrayInfo) lvTypeDescriptor.getTypeSpecificInfo();
+        int dimension = arrInfo.getArrayDim();
+        LVTypeDescriptor arrayType = arrInfo.getArrayType();
+        int[] dimLens = new int[dimension];
+        for (int i = 0; i<dimension; i++){
+            dimLens[i] = buffer.getInt();
+        }
+
+        for (int i = 0; i<dimension; i++){
+
+        }
+
+    }
+
+    private static JavaContainer[] deserialiseNDArray(ByteBuffer buffer, LVArrayInfo arrInfo) {
+        Object nestedContainers = null;
+        int dimension = arrInfo.getArrayDim();
+        LVTypeDescriptor arrayType = arrInfo.getArrayType();
+        if(dimension==1){
+            nestedContainers = deserialise1DArr(buffer, arrayType);
+        }
+
+        for (int i = 0; i<dimension; i++){
+            deserialiseNDArray(buffer, arrInfo);
+        }
+    }
+
+
+    private static JavaContainer[] deserialise1DArr(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor){
+        int len = buffer.getInt();
+        JavaContainer[] javaContainers = new JavaContainer[len];
+        for (int i = 0; i<len; i++){
+            javaContainers[i] = deserialise(buffer, lvTypeDescriptor);
+        }
+        return javaContainers;
     }
 
 }
