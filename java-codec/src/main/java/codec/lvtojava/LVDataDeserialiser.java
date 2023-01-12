@@ -59,6 +59,7 @@ public final class LVDataDeserialiser {
         String string = new String(rawString);
         return new JavaContainer<String>(lvTypeDescriptor.getFieldName(), string, DataType.DT_STRING);
     }
+
     private static DataType getArrayType(DataType type, int dimension){
         DataType dataType = null;
         if (dimension == 1){
