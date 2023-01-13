@@ -27,7 +27,12 @@ public final class LVDataDeserialiser {
         DataType dataType = null;
         JavaContainer data = null;
         switch(type){
-            case INT_8, BOOL -> {data =  new JavaContainer<Byte>(lvTypeDescriptor.getFieldName(), buffer.get(),DataType.DT_BYTE);}
+            case INT_8 -> {data =  new JavaContainer<Byte>(lvTypeDescriptor.getFieldName(), buffer.get(),DataType.DT_BYTE);}
+            case BOOL -> {
+                byte dataByte = buffer.get();
+                boolean bool = ((int)dataByte) == 1;
+                data = new JavaContainer<Boolean>(lvTypeDescriptor.getFieldName(), bool, DataType.DT_BOOL);
+            }
             case INT_16, UINT_8 -> {data =  new JavaContainer<Short>(lvTypeDescriptor.getFieldName(), buffer.getShort(),DataType.DT_SHORT);}
             case INT_32, UINT_16 -> {data = new JavaContainer<Integer>(lvTypeDescriptor.getFieldName(), buffer.getInt(),DataType.DT_INT);}
             case INT_64, UINT_32 -> {data = new JavaContainer<Long>(lvTypeDescriptor.getFieldName(), buffer.getLong(),DataType.DT_LONG);}

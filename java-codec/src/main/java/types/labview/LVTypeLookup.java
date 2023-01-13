@@ -94,6 +94,22 @@ public final class LVTypeLookup {
             entry(DataType.DT_FLOAT_ARRAY, (byte)0x40),
             entry(DataType.DT_DOUBLE_ARRAY, (byte)0x40),
             entry(DataType.DT_STRING_ARRAY, (byte)0x40),
+            entry(DataType.DT_BYTE_ARRAY_2D, (byte)0x40),
+            entry(DataType.DT_BOOL_ARRAY_2D, (byte)0x40),
+            entry(DataType.DT_SHORT_ARRAY_2D, (byte)0x40),
+            entry(DataType.DT_INT_ARRAY_2D, (byte)0x40),
+            entry(DataType.DT_LONG_ARRAY_2D, (byte)0x40),
+            entry(DataType.DT_FLOAT_ARRAY_2D, (byte)0x40),
+            entry(DataType.DT_DOUBLE_ARRAY_2D, (byte)0x40),
+            entry(DataType.DT_STRING_ARRAY_2D, (byte)0x40),
+            entry(DataType.DT_BYTE_MULTI_ARRAY, (byte)0x40),
+            entry(DataType.DT_BOOL_MULTI_ARRAY, (byte)0x40),
+            entry(DataType.DT_SHORT_MULTI_ARRAY, (byte)0x40),
+            entry(DataType.DT_INT_MULTI_ARRAY, (byte)0x40),
+            entry(DataType.DT_LONG_MULTI_ARRAY, (byte)0x40),
+            entry(DataType.DT_FLOAT_MULTI_ARRAY, (byte)0x40),
+            entry(DataType.DT_DOUBLE_MULTI_ARRAY, (byte)0x40),
+            entry(DataType.DT_STRING_MULTI_ARRAY, (byte)0x40),
             entry(DataType.DT_DATA, (byte)0x50)
     ));
     private LVTypeLookup() {

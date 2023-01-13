@@ -4,6 +4,7 @@ import types.JavaContainer;
 import types.labview.LVArrayInfo;
 import types.labview.LVTypeLookup;
 
+import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -11,37 +12,20 @@ import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 
 public final class LVTypeEncoder {
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+
     public static byte[] createTypeDescrptor(JavaContainer javaContainer) throws IOException {
         byte[] typeDesc = new byte[0];
         switch(javaContainer.getDataType()){
             case DT_DATA -> typeDesc = createClusterType(javaContainer);
             case DT_BYTE, DT_BOOL, DT_SHORT, DT_INT, DT_FLOAT, DT_DOUBLE -> typeDesc = createNumericType(javaContainer);
             case DT_STRING -> typeDesc = createStringType(javaContainer);
-            case DT_BYTE_ARRAY, DT_BOOL_ARRAY , DT_SHORT_ARRAY, DT_INT_ARRAY, DT_FLOAT_ARRAY, DT_DOUBLE_ARRAY -> createArrayType(javaContainer);
+            case DT_BYTE_ARRAY, DT_BOOL_ARRAY, DT_SHORT_ARRAY, DT_INT_ARRAY, DT_LONG_ARRAY, DT_FLOAT_ARRAY, DT_DOUBLE_ARRAY, DT_STRING_ARRAY,
+                    DT_BYTE_ARRAY_2D, DT_BOOL_ARRAY_2D, DT_SHORT_ARRAY_2D, DT_INT_ARRAY_2D, DT_LONG_ARRAY_2D, DT_FLOAT_ARRAY_2D, DT_DOUBLE_ARRAY_2D, DT_STRING_ARRAY_2D,
+                    DT_BYTE_MULTI_ARRAY, DT_BOOL_MULTI_ARRAY, DT_SHORT_MULTI_ARRAY, DT_INT_MULTI_ARRAY, DT_LONG_MULTI_ARRAY, DT_FLOAT_MULTI_ARRAY, DT_DOUBLE_MULTI_ARRAY, DT_STRING_MULTI_ARRAY -> typeDesc = createArrayType(javaContainer);
         }
         return typeDesc;
     }
-
-    private static int dimensionOf(Object arr) {
-        int dimensionCount = 0;
-        Class c = arr.getClass(); // getting the runtime class of an object
-        while (c.isArray()) // check whether the object is an array {
-            c = c.getComponentType(); // returns the class denoting the component type of the array
-        dimensionCount++;
-        return dimensionCount;
-    }
-
-    private static Object getArrayElem(Object arr) {
-        if(!arr.getClass().isArray()){return null;}
-
-        Object data = Array.get(arr, 0);
-        while (data.getClass().isArray()) {
-            data = Array.get(data, 0);
-        }
-        return data;
-    }
-
-
 
     public static ByteBuffer padWithZeros(int totalLength ){
         if(totalLength%2==0){
@@ -56,21 +40,24 @@ public final class LVTypeEncoder {
 
     private static byte[] createNumericType(JavaContainer javaContainer ) {
         byte typeCode = LVTypeLookup.getByteFromCMW(javaContainer.getDataType());
+        System.out.println(javaContainer.getDataType());
         String fieldName = javaContainer.getFieldName();
-        short totalLength = (short) (fieldName.length() + 1 + 4);
+        byte [] fieldNameBytes = fieldName.getBytes();
+        short totalLength = (short) (fieldNameBytes.length + 1 + 4);
         ByteBuffer byteBuffer = padWithZeros(totalLength);
         byteBuffer.putShort((short) byteBuffer.capacity());
         byteBuffer.put((byte) 0);
         byteBuffer.put(typeCode);
         byteBuffer.put((byte) fieldName.length());
-        byteBuffer.put(fieldName.getBytes());
+        byteBuffer.put(fieldNameBytes);
         return byteBuffer.array();
     }
 
     private static byte[] createStringType(JavaContainer javaContainer){
         byte typeCode = LVTypeLookup.getByteFromCMW(javaContainer.getDataType());
         String fieldName = javaContainer.getFieldName();
-        short totalLength = (short) (fieldName.length() + 1 + 8);
+        byte[] fieldNameBytes = fieldName.getBytes();
+        short totalLength = (short) (fieldNameBytes.length + 1 + 8);
         ByteBuffer byteBuffer = padWithZeros(totalLength);
         byteBuffer.putShort((short) byteBuffer.capacity());
         byteBuffer.put((byte) 0);
@@ -78,7 +65,7 @@ public final class LVTypeEncoder {
         byteBuffer.putShort((short) 0xFFFF); //FFFF FFFF
         byteBuffer.putShort((short) 0xFFFF);
         byteBuffer.put((byte) fieldName.length());
-        byteBuffer.put(fieldName.getBytes());
+        byteBuffer.put(fieldNameBytes);
         return byteBuffer.array();
     }
 
@@ -87,6 +74,7 @@ public final class LVTypeEncoder {
         DataOutputStream dos = new DataOutputStream(bos);
         byte typeCode = LVTypeLookup.getByteFromCMW(javaContainer.getDataType());
         String fieldName = javaContainer.getFieldName();
+        byte[] fieldNameBytes = fieldName.getBytes();
         short totalLength = 0;
         short nTDs = (short) ((JavaContainer[])(javaContainer.getData())).length;
         JavaContainer[] javaContainers = (JavaContainer[]) javaContainer.getData();
@@ -96,39 +84,53 @@ public final class LVTypeEncoder {
             dos.write(nestedtypeDesc);
         }
 
-        totalLength += (short) (fieldName.length() + 1 + 6);
+        totalLength += (short) (fieldNameBytes.length + 1 + 6);
         ByteBuffer byteBuffer = padWithZeros(totalLength);
-
-        byteBuffer.putShort(0, nTDs);
-        byteBuffer.put(0, typeCode);
-        byteBuffer.put(0, (byte) 0);
-        byteBuffer.putShort(0, (short) byteBuffer.capacity());
+        byteBuffer.putShort((short) byteBuffer.capacity());
+        byteBuffer.put((byte) 0);
+        byteBuffer.put(typeCode);
+        byteBuffer.putShort(nTDs);
         byteBuffer.put(bos.toByteArray());
-        byteBuffer.put(fieldName.getBytes());
+        byteBuffer.put((byte) fieldName.length());
+        byteBuffer.put(fieldNameBytes);
         return byteBuffer.array();
     }
 
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
+
     public static byte[] createArrayType(JavaContainer javaContainer) throws IOException {
-        Object arr =  javaContainer.getData();
-        int dimension = dimensionOf(arr);
+
+        JavaContainer[] arr = (JavaContainer[]) javaContainer.getData();
+        int[] dimensions = javaContainer.getDimensions();
+        int dimension = dimensions.length;
         byte typeCode = LVTypeLookup.getByteFromCMW(javaContainer.getDataType());
         String fieldName = javaContainer.getFieldName();
+        byte[] fieldNameBytes = fieldName.getBytes();
         short totalLength = 0;
-        byte[] arrTypeDesc = createTypeDescrptor((JavaContainer) getArrayElem(arr));
+        byte[] arrTypeDesc = createTypeDescrptor(arr[0]);
 
-        totalLength += (short) (fieldName.length() + 1 + 6 + (dimension*4) + arrTypeDesc.length);
+        totalLength += (short) (fieldNameBytes.length + 1 + 6 + (dimension*4) + arrTypeDesc.length);
         ByteBuffer byteBuffer = padWithZeros(totalLength);
 
+        byteBuffer.putShort( (short) byteBuffer.capacity());
+        byteBuffer.put((byte) 0);
+        byteBuffer.put(typeCode);
+        byteBuffer.putShort((short) dimension);
         for(int i = 0; i<dimension*2; i++){
-            byteBuffer.putShort(0, (short) 0xFFFF);
+            byteBuffer.putShort((short) 0xFFFF);
         }
-
-        byteBuffer.putShort(0, (short) dimension);
-        byteBuffer.put(0, typeCode);
-        byteBuffer.put(0, (byte) 0);
-        byteBuffer.putShort(0, (short) byteBuffer.capacity());
         byteBuffer.put(arrTypeDesc);
-        byteBuffer.put(fieldName.getBytes());
+        byteBuffer.put((byte) fieldName.length());
+        byteBuffer.put(fieldNameBytes);
         return byteBuffer.array();
     }
 }

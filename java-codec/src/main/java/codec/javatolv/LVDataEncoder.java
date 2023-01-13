@@ -52,7 +52,13 @@ public final class LVDataEncoder {
 
     private static void serialiseNumeric(JavaContainer javaContainer, DataOutputStream dos) throws IOException {
         switch(javaContainer.getDataType()){
-            case DT_BYTE, DT_BOOL -> {dos.writeByte((Byte) javaContainer.getData()); }
+            case DT_BYTE -> {dos.writeByte((Byte) javaContainer.getData()); }
+            case DT_BOOL -> {
+                boolean bool = (Boolean) javaContainer.getData();
+                byte boolByte = 0;
+                if (bool){boolByte = 1;}
+                dos.writeByte(boolByte);
+            }
             case DT_SHORT -> {dos.writeShort((Short) javaContainer.getData()); }
             case DT_INT -> {dos.writeInt((Integer) javaContainer.getData()); }
             case DT_LONG -> {dos.writeLong((Long) javaContainer.getData());}
@@ -69,11 +75,11 @@ public final class LVDataEncoder {
     private static void serialiseArray(JavaContainer javaContainer, DataOutputStream dos) throws IOException {
         JavaContainer[] data =  (JavaContainer[]) javaContainer.getData();
         int[] dimensions = javaContainer.getDimensions();
-        if (dimensions.length!=0){
-            for (int dimension : dimensions) {
-                dos.writeInt(dimension);
-            }
+
+        for (int dimension : dimensions) {
+            dos.writeInt(dimension);
         }
+
         for (JavaContainer datum : data) {
             dos.write(serialise(datum));
         }
