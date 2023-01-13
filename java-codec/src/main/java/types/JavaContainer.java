@@ -6,12 +6,21 @@ public class JavaContainer<T> {
     private String fieldName;
     private T data;
     private DataType dataType;
+    private int[] dimensions;
 
     public JavaContainer(String fieldName, T data, DataType dataType){
         this.fieldName = fieldName;
         this.data = data;
         this.dataType = dataType;
+        this.dimensions = new int[0];
     }
+    public JavaContainer(String fieldName, T data, int[] dimensions, DataType dataType){
+        this.fieldName = fieldName;
+        this.data = data;
+        this.dataType = dataType;
+        this.dimensions = dimensions;
+    }
+
 
     public String getFieldName() {
         return fieldName;
@@ -19,6 +28,10 @@ public class JavaContainer<T> {
 
     public T getData() {
         return data;
+    }
+
+    public int[] getDimensions() {
+        return dimensions;
     }
 
     public DataType getDataType() {

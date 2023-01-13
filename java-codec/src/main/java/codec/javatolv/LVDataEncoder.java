@@ -67,27 +67,15 @@ public final class LVDataEncoder {
     }
 
     private static void serialiseArray(JavaContainer javaContainer, DataOutputStream dos) throws IOException {
-        Object data = javaContainer.getData();
-        serialiseJavaContainerArray(data, dos);
-    }
-
-    private static void serialiseJavaContainerArray(Object arr, DataOutputStream dos) throws IOException {
-        if (dimensionOf(arr)==1){
-            serialise1DArr(arr, dos);
-            return;
+        JavaContainer[] data =  (JavaContainer[]) javaContainer.getData();
+        int[] dimensions = javaContainer.getDimensions();
+        if (dimensions.length!=0){
+            for (int dimension : dimensions) {
+                dos.writeInt(dimension);
+            }
         }
-        int dimLength=Array.getLength(arr);
-        dos.writeInt(dimLength);
-        for (int i = 0; i<dimLength; i++){
-            serialiseJavaContainerArray(Array.get(arr, i), dos);
-        }
-    }
-
-    private static void serialise1DArr(Object arr, DataOutputStream dos) throws IOException {
-        int dimLength = Array.getLength(arr);
-        dos.writeInt(dimLength);
-        for(int i = 0; i<dimLength; i++){
-            dos.write(serialise((JavaContainer) Array.get(arr, i)));
+        for (JavaContainer datum : data) {
+            dos.write(serialise(datum));
         }
     }
 }

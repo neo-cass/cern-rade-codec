@@ -2,10 +2,7 @@ package codec.lvtojava;
 
 import cern.cmw.data.DataType;
 import types.JavaContainer;
-import types.labview.LVArrayInfo;
-import types.labview.LVClusterInfo;
-import types.labview.LVType;
-import types.labview.LVTypeDescriptor;
+import types.labview.*;
 
 import java.nio.ByteBuffer;
 
@@ -105,51 +102,25 @@ public final class LVDataDeserialiser {
         return dataType;
     }
 
-    //TODO: multidimension support and empty array will break this
     private static JavaContainer deserialiseArray(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor) {
         LVArrayInfo arrayInfo = (LVArrayInfo) lvTypeDescriptor.getTypeSpecificInfo();
+        LVTypeDescriptor arrType = arrayInfo.getArrayType();
+        int dim = arrayInfo.getArrayDim();
+        int[] dimensionLens = new int[dim];
+        int arrLen = 1;
 
-        DataType arrayType = getArrayType(arrayType, dimension);
-        JavaContainer javaContainer = new JavaContainer<>(lvTypeDescriptor.getFieldName(), nestedContainers, arrayType);
-        return javaContainer;
-    }
-
-    private static JavaContainer spike(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor){
-        LVArrayInfo arrInfo = (LVArrayInfo) lvTypeDescriptor.getTypeSpecificInfo();
-        int dimension = arrInfo.getArrayDim();
-        LVTypeDescriptor arrayType = arrInfo.getArrayType();
-        int[] dimLens = new int[dimension];
-        for (int i = 0; i<dimension; i++){
-            dimLens[i] = buffer.getInt();
+        for (int i=0; i<dim; i++){
+            dimensionLens[i] = buffer.getInt();
+            arrLen*=dimensionLens[i];
         }
 
-        for (int i = 0; i<dimension; i++){
+        JavaContainer[] arr = new JavaContainer[arrLen];
 
+        for(int i = 0; i<arrLen; i++){
+            arr[i] = deserialise(buffer, arrType);
         }
-
-    }
-
-    private static JavaContainer[] deserialiseNDArray(ByteBuffer buffer, LVArrayInfo arrInfo) {
-        Object nestedContainers = null;
-        int dimension = arrInfo.getArrayDim();
-        LVTypeDescriptor arrayType = arrInfo.getArrayType();
-        if(dimension==1){
-            nestedContainers = deserialise1DArr(buffer, arrayType);
-        }
-
-        for (int i = 0; i<dimension; i++){
-            deserialiseNDArray(buffer, arrInfo);
-        }
-    }
-
-
-    private static JavaContainer[] deserialise1DArr(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor){
-        int len = buffer.getInt();
-        JavaContainer[] javaContainers = new JavaContainer[len];
-        for (int i = 0; i<len; i++){
-            javaContainers[i] = deserialise(buffer, lvTypeDescriptor);
-        }
-        return javaContainers;
+        DataType DT_arrType = getArrayType(arr[0].getDataType(), dim);
+        return new JavaContainer<>(lvTypeDescriptor.getFieldName(), arr, dimensionLens, DT_arrType);
     }
 
 }
