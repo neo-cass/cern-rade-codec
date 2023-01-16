@@ -2,6 +2,8 @@ package types;
 
 import cern.cmw.data.DataType;
 
+import java.lang.reflect.Array;
+
 public class JavaContainer<T> {
     private String fieldName;
     private T data;
@@ -35,6 +37,20 @@ public class JavaContainer<T> {
 
     public DataType getDataType() {
         return dataType;
+    }
+
+    public Object getRawData(){
+        if (!data.getClass().isArray()){
+            return data;
+        }
+        int len = Array.getLength(data);
+        Object[] arr = new Object[len];
+        for(int i=0; i<len; i++){
+            arr[i] = Array.get(data, i);
+        }
+
+        return arr;
+
     }
 
     public String toString(){
