@@ -40,7 +40,6 @@ public final class LVTypeEncoder {
 
     private static byte[] createNumericType(JavaContainer javaContainer ) {
         byte typeCode = LVTypeLookup.getByteFromCMW(javaContainer.getDataType());
-        System.out.println(javaContainer.getDataType());
         String fieldName = javaContainer.getFieldName();
         byte [] fieldNameBytes = fieldName.getBytes();
         short totalLength = (short) (fieldNameBytes.length + 1 + 4);

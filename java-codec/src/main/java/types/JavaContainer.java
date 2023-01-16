@@ -8,12 +8,14 @@ public class JavaContainer<T> {
     private String fieldName;
     private T data;
     private DataType dataType;
+
     private int[] dimensions;
 
     public JavaContainer(String fieldName, T data, DataType dataType){
         this.fieldName = fieldName;
         this.data = data;
         this.dataType = dataType;
+
     }
     public JavaContainer(String fieldName, T data, int[] dimensions, DataType dataType){
         this.fieldName = fieldName;
@@ -39,16 +41,17 @@ public class JavaContainer<T> {
         return dataType;
     }
 
-    public Object getRawData(){
-        if (!data.getClass().isArray()){
-            return data;
+
+    //TODO: this wont work well if called on a cluster, also bad for non arrays
+    public Object[] getRawData(){
+        if (!(data.getClass().isArray())){
+            return null;
         }
         int len = Array.getLength(data);
         Object[] arr = new Object[len];
         for(int i=0; i<len; i++){
-            arr[i] = Array.get(data, i);
+            arr[i] = ((JavaContainer)Array.get(data, i)).getData();
         }
-
         return arr;
 
     }

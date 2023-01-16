@@ -1,13 +1,12 @@
 package codec;
+import cern.cmw.data.Array2D;
 import cern.cmw.data.Data;
 import cern.cmw.data.DataFactory;
 import types.JavaContainer;
 
-public class JavaToCMWD {
-    public JavaToCMWD(){
+import java.lang.reflect.Array;
 
-    }
-
+public final class JavaToCMWD {
     public static Data encode(JavaContainer javaData){
         Data data = null;
         switch(javaData.getDataType()){
@@ -17,7 +16,7 @@ public class JavaToCMWD {
         return data;
     }
 
-    public static Data encode(JavaContainer javaData, Data data){
+    private static Data encode(JavaContainer javaData, Data data){
         switch(javaData.getDataType()){
             //TODO: possible issue with data inside data when not required (e.g. no nesting present)
             case DT_DATA -> {data.append(javaData.getFieldName(), encodeCluster(javaData));}
@@ -58,10 +57,14 @@ public class JavaToCMWD {
 
     //TODO: find a way to sepearate the dimension code into a function
     private static void appendEncodedArray(JavaContainer javaContainer, Data data) {
-       Object javaData = javaContainer.getRawData();
+
+       Object[] javaData = javaContainer.getRawData();
         switch(javaContainer.getDataType()){
             case DT_BYTE_ARRAY, DT_BYTE_ARRAY_2D, DT_BYTE_MULTI_ARRAY -> {
-                byte[] arr = (byte[]) javaData;
+                byte[] arr = new byte[javaData.length];
+                for (int i =0; i< javaData.length; i++){
+                    arr[i] = (byte)javaData[i];
+                }
                 int[] dimensions = javaContainer.getDimensions();
                 if(dimensions==null){
                     data.appendArray(javaContainer.getFieldName(), arr);
@@ -74,7 +77,10 @@ public class JavaToCMWD {
                 }
             }
             case DT_SHORT_ARRAY, DT_SHORT_ARRAY_2D, DT_SHORT_MULTI_ARRAY -> {
-                short[] arr = (short[]) javaData;
+                short[] arr = new short[javaData.length];
+                for (int i =0; i< javaData.length; i++){
+                    arr[i] = (short)javaData[i];
+                }
                 int[] dimensions = javaContainer.getDimensions();
                 if(dimensions==null){
                     data.appendArray(javaContainer.getFieldName(), arr);
@@ -87,7 +93,10 @@ public class JavaToCMWD {
                 }
             }
             case DT_INT_ARRAY, DT_INT_ARRAY_2D, DT_INT_MULTI_ARRAY -> {
-                int[] arr = (int[]) javaData;
+                int[] arr = new int[javaData.length];
+                for (int i =0; i< javaData.length; i++){
+                    arr[i] = (int)javaData[i];
+                }
                 int[] dimensions = javaContainer.getDimensions();
                 if(dimensions==null){
                     data.appendArray(javaContainer.getFieldName(), arr);
@@ -100,7 +109,10 @@ public class JavaToCMWD {
                 }
             }
             case DT_LONG_ARRAY, DT_LONG_ARRAY_2D, DT_LONG_MULTI_ARRAY -> {
-                long[] arr = (long[]) javaData;
+                long[] arr = new long[javaData.length];
+                for (int i =0; i< javaData.length; i++){
+                    arr[i] = (long)javaData[i];
+                }
                 int[] dimensions = javaContainer.getDimensions();
                 if(dimensions==null){
                     data.appendArray(javaContainer.getFieldName(), arr);
@@ -113,7 +125,10 @@ public class JavaToCMWD {
                 }
             }
             case DT_FLOAT_ARRAY, DT_FLOAT_ARRAY_2D, DT_FLOAT_MULTI_ARRAY -> {
-                float[] arr = (float[]) javaData;
+                float[] arr = new float[javaData.length];
+                for (int i =0; i< javaData.length; i++){
+                    arr[i] = (float)javaData[i];
+                }
                 int[] dimensions = javaContainer.getDimensions();
                 if(dimensions==null){
                     data.appendArray(javaContainer.getFieldName(), arr);
@@ -126,7 +141,11 @@ public class JavaToCMWD {
                 }
             }
             case DT_DOUBLE_ARRAY, DT_DOUBLE_ARRAY_2D, DT_DOUBLE_MULTI_ARRAY -> {
-                double[] arr = (double[]) javaData;
+                double[] arr = new double[javaData.length];
+                for (int i =0; i< javaData.length; i++){
+                    arr[i] = (double)javaData[i];
+                }
+
                 int[] dimensions = javaContainer.getDimensions();
                 if(dimensions==null){
                     data.appendArray(javaContainer.getFieldName(), arr);
@@ -139,7 +158,10 @@ public class JavaToCMWD {
                 }
             }
             case DT_BOOL_ARRAY, DT_BOOL_ARRAY_2D, DT_BOOL_MULTI_ARRAY -> {
-                boolean[] arr = (boolean[]) javaData;
+                boolean[] arr = new boolean[javaData.length];
+                for (int i =0; i< javaData.length; i++){
+                    arr[i] = (boolean)javaData[i];
+                }
                 int[] dimensions = javaContainer.getDimensions();
                 if(dimensions==null){
                     data.appendArray(javaContainer.getFieldName(), arr);
@@ -152,9 +174,11 @@ public class JavaToCMWD {
                 }
             }
             case DT_STRING_ARRAY, DT_STRING_ARRAY_2D, DT_STRING_MULTI_ARRAY -> {
-                String[] arr = (String[]) javaData;
+                String[] arr = new String[javaData.length];
+                for (int i =0; i< javaData.length; i++){
+                    arr[i] = (String)javaData[i];
+                }
                 int[] dimensions = javaContainer.getDimensions();
-
                 if(dimensions==null){
                     data.appendArray(javaContainer.getFieldName(), arr);
                 }
