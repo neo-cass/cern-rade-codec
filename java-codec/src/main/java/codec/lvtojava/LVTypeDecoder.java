@@ -1,5 +1,6 @@
 package codec.lvtojava;
 
+import types.TypeLookup;
 import types.labview.*;
 
 import java.nio.ByteBuffer;
@@ -9,7 +10,7 @@ public final class LVTypeDecoder {
         int length = buffer.getShort();
         buffer.get();//As per the NI documentation, the first 2 bytes are the length of the type descriptor and the next 2 bytes are the type code but the first of these bytes is reserved for use by LabVIEW
         byte typeCode = buffer.get();
-        LVType type = LVTypeLookup.getType(typeCode);
+        LVType type = TypeLookup.getType(typeCode);
         LVTypeDescriptor lvTypeDescriptor = null;
 
         switch(type){

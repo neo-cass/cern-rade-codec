@@ -27,7 +27,7 @@ public final class CMWDToJava {
             javaContainers[i] = decode(entries.get(i).getData());
         }
 
-        return new JavaContainer("CMW Data", javaContainers, DataType.DT_DATA);
+        return new JavaContainer("CMW Data", javaContainers, DataType.DT_DATA, ctor);
     }
 
     private static JavaContainer decodeSingle(Entry entry){
@@ -47,7 +47,7 @@ public final class CMWDToJava {
                     DT_BOOL_ARRAY_2D, DT_BYTE_ARRAY_2D, DT_DOUBLE_ARRAY_2D, DT_FLOAT_ARRAY_2D, DT_STRING_ARRAY_2D, DT_INT_ARRAY_2D, DT_SHORT_ARRAY_2D, DT_LONG_ARRAY_2D,
                     DT_BOOL_MULTI_ARRAY, DT_BYTE_MULTI_ARRAY, DT_DOUBLE_MULTI_ARRAY, DT_FLOAT_MULTI_ARRAY, DT_STRING_MULTI_ARRAY, DT_INT_MULTI_ARRAY, DT_SHORT_MULTI_ARRAY, DT_LONG_MULTI_ARRAY -> {return decodeNDArray(entry);}
         }
-        return new JavaContainer(entry.getName(), data, type);
+        return new JavaContainer(entry.getName(), data, type, ctor);
     }
 
 
@@ -55,7 +55,7 @@ public final class CMWDToJava {
         int len = Array.getLength(data);
         JavaContainer[] javaContainers = new JavaContainer[len];
         for(int i = 0; i<len; i++){
-            javaContainers[i] = new JavaContainer(fieldName, Array.get(data, i), type);
+            javaContainers[i] = new JavaContainer(fieldName, Array.get(data, i), type, ctor);
         }
         return javaContainers;
     }

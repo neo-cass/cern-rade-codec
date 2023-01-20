@@ -2,28 +2,25 @@ package types;
 
 import cern.cmw.data.DataType;
 
-import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.util.function.Supplier;
 
 public class JavaContainer<T> {
-    private String fieldName;
-    private T data;
-    private DataType dataType;
-
-    private int[] dimensions;
-
-    public JavaContainer(String fieldName, T data, DataType dataType){
+    protected String fieldName;
+    protected T data;
+    protected DataType dataType;
+    protected StorageType storageType;
+    public JavaContainer(String fieldName, T data, DataType dataType) throws NoSuchMethodException {
         this.fieldName = fieldName;
         this.data = data;
         this.dataType = dataType;
-
     }
-    public JavaContainer(String fieldName, T data, int[] dimensions, DataType dataType){
+    public JavaContainer(String fieldName, T data, DataType dataType, StorageType storageType) throws NoSuchMethodException {
         this.fieldName = fieldName;
         this.data = data;
         this.dataType = dataType;
-        this.dimensions = dimensions;
+        this.storageType = storageType;
     }
-
 
     public String getFieldName() {
         return fieldName;
@@ -33,54 +30,20 @@ public class JavaContainer<T> {
         return data;
     }
 
-    public int[] getDimensions() {
-        return dimensions;
-    }
-
     public DataType getDataType() {
         return dataType;
     }
 
-
-    //TODO: this wont work well if called on a cluster, also bad for non arrays
-    public Object[] getRawData(){
-        if (!(data.getClass().isArray())){
-            return null;
-        }
-        int len = Array.getLength(data);
-        Object[] arr = new Object[len];
-        for(int i=0; i<len; i++){
-            arr[i] = ((JavaContainer)Array.get(data, i)).getData();
-        }
-        return arr;
-
+    public StorageType getStorageType() {
+        return storageType;
     }
 
     public String toString(){
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("FIELD NAME: ");
-        stringBuilder.append(fieldName);
-        stringBuilder.append(" | DATA: ");
-        if(data instanceof JavaContainer[]){
-            clusterToString(stringBuilder);
-        }
-        else{
-            stringBuilder.append(data.toString());
-        }
-        stringBuilder.append(" | ");
-        return stringBuilder.toString();
-    }
-
-    private StringBuilder clusterToString(StringBuilder stringBuilder){
-        stringBuilder.append("START of ");
-        stringBuilder.append("\"" + fieldName + "\" ");
-        JavaContainer[] javaData = (JavaContainer[]) data;
-        for (JavaContainer item : javaData){
-            stringBuilder.append(item.toString());
-            stringBuilder.append(", ");
-        }
-        stringBuilder.append("END of ");
-        stringBuilder.append("\"" + fieldName + "\"\n");
-        return stringBuilder;
+        StringBuilder strB = new StringBuilder();
+        strB.append("Name: ").append(fieldName).append("\n");
+        strB.append("Data: ").append(data.toString()).append("\n");
+        strB.append("Data Type: ").append(dataType).append("\n");
+        strB.append("Storage Type: ").append(storageType).append("\n");
+        return strB.toString();
     }
 }

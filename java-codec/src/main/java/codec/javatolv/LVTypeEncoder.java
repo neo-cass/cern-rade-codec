@@ -1,14 +1,13 @@
 package codec.javatolv;
 
+import types.ArrayContainer;
 import types.JavaContainer;
-import types.labview.LVArrayInfo;
-import types.labview.LVTypeLookup;
+import types.PropertyContainer;
+import types.TypeLookup;
 
-import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 
 public final class LVTypeEncoder {
@@ -17,12 +16,12 @@ public final class LVTypeEncoder {
     public static byte[] createTypeDescrptor(JavaContainer javaContainer) throws IOException {
         byte[] typeDesc = new byte[0];
         switch(javaContainer.getDataType()){
-            case DT_DATA -> typeDesc = createClusterType(javaContainer);
+            case DT_DATA -> typeDesc = createClusterType((PropertyContainer) javaContainer);
             case DT_BYTE, DT_BOOL, DT_SHORT, DT_INT, DT_FLOAT, DT_DOUBLE -> typeDesc = createNumericType(javaContainer);
             case DT_STRING -> typeDesc = createStringType(javaContainer);
             case DT_BYTE_ARRAY, DT_BOOL_ARRAY, DT_SHORT_ARRAY, DT_INT_ARRAY, DT_LONG_ARRAY, DT_FLOAT_ARRAY, DT_DOUBLE_ARRAY, DT_STRING_ARRAY,
                     DT_BYTE_ARRAY_2D, DT_BOOL_ARRAY_2D, DT_SHORT_ARRAY_2D, DT_INT_ARRAY_2D, DT_LONG_ARRAY_2D, DT_FLOAT_ARRAY_2D, DT_DOUBLE_ARRAY_2D, DT_STRING_ARRAY_2D,
-                    DT_BYTE_MULTI_ARRAY, DT_BOOL_MULTI_ARRAY, DT_SHORT_MULTI_ARRAY, DT_INT_MULTI_ARRAY, DT_LONG_MULTI_ARRAY, DT_FLOAT_MULTI_ARRAY, DT_DOUBLE_MULTI_ARRAY, DT_STRING_MULTI_ARRAY -> typeDesc = createArrayType(javaContainer);
+                    DT_BYTE_MULTI_ARRAY, DT_BOOL_MULTI_ARRAY, DT_SHORT_MULTI_ARRAY, DT_INT_MULTI_ARRAY, DT_LONG_MULTI_ARRAY, DT_FLOAT_MULTI_ARRAY, DT_DOUBLE_MULTI_ARRAY, DT_STRING_MULTI_ARRAY -> typeDesc = createArrayType((ArrayContainer) javaContainer);
         }
         return typeDesc;
     }
@@ -39,7 +38,7 @@ public final class LVTypeEncoder {
     }
 
     private static byte[] createNumericType(JavaContainer javaContainer ) {
-        byte typeCode = LVTypeLookup.getByteFromCMW(javaContainer.getDataType());
+        byte typeCode = TypeLookup.getByteFromCMW(javaContainer.getDataType());
         String fieldName = javaContainer.getFieldName();
         byte [] fieldNameBytes = fieldName.getBytes();
         short totalLength = (short) (fieldNameBytes.length + 1 + 4);
@@ -53,7 +52,7 @@ public final class LVTypeEncoder {
     }
 
     private static byte[] createStringType(JavaContainer javaContainer){
-        byte typeCode = LVTypeLookup.getByteFromCMW(javaContainer.getDataType());
+        byte typeCode = TypeLookup.getByteFromCMW(javaContainer.getDataType());
         String fieldName = javaContainer.getFieldName();
         byte[] fieldNameBytes = fieldName.getBytes();
         short totalLength = (short) (fieldNameBytes.length + 1 + 8);
@@ -68,15 +67,15 @@ public final class LVTypeEncoder {
         return byteBuffer.array();
     }
 
-    public static byte[] createClusterType(JavaContainer javaContainer) throws IOException {
+    public static byte[] createClusterType(PropertyContainer propertyContainer) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(bos);
-        byte typeCode = LVTypeLookup.getByteFromCMW(javaContainer.getDataType());
-        String fieldName = javaContainer.getFieldName();
+        byte typeCode = TypeLookup.getByteFromCMW(propertyContainer.getDataType());
+        String fieldName = propertyContainer.getFieldName();
         byte[] fieldNameBytes = fieldName.getBytes();
         short totalLength = 0;
-        short nTDs = (short) ((JavaContainer[])(javaContainer.getData())).length;
-        JavaContainer[] javaContainers = (JavaContainer[]) javaContainer.getData();
+        short nTDs = (short) propertyContainer.getData().length;
+        JavaContainer[] javaContainers = propertyContainer.getData();
         for (JavaContainer javaData : javaContainers){
             byte[] nestedtypeDesc = createTypeDescrptor(javaData);
             totalLength+=nestedtypeDesc.length;
@@ -106,13 +105,12 @@ public final class LVTypeEncoder {
     }
 
 
-    public static byte[] createArrayType(JavaContainer javaContainer) throws IOException {
-
-        JavaContainer[] arr = (JavaContainer[]) javaContainer.getData();
-        int[] dimensions = javaContainer.getDimensions();
+    public static byte[] createArrayType(ArrayContainer arrayContainer) throws IOException {
+        JavaContainer[] arr = arrayContainer.getData();
+        int[] dimensions = arrayContainer.getDimensions();
         int dimension = dimensions.length;
-        byte typeCode = LVTypeLookup.getByteFromCMW(javaContainer.getDataType());
-        String fieldName = javaContainer.getFieldName();
+        byte typeCode = TypeLookup.getByteFromCMW(arrayContainer.getDataType());
+        String fieldName = arrayContainer.getFieldName();
         byte[] fieldNameBytes = fieldName.getBytes();
         short totalLength = 0;
         byte[] arrTypeDesc = createTypeDescrptor(arr[0]);
