@@ -57,12 +57,21 @@ public final class LVDataEncoder {
 
     private static void serialiseArray(ArrayContainer arrayContainer, DataOutputStream dos) throws IOException {
         int[] dimensions = arrayContainer.getDimensions();
-        JavaContainer[] data = arrayContainer.getData();
+        JavaContainer[] data = (JavaContainer[]) arrayContainer.getData();
         for (int dimension : dimensions) {
             dos.writeInt(dimension);
         }
-        for (JavaContainer datum : data) {
-            dos.write(serialise(datum));
+        DataType elemType = arrayContainer.getElemType();
+        if(elemType == DataType.DT_DATA){
+            for (JavaContainer datum : data) {
+                dos.write(serialise(datum));
+            }
         }
+        else{
+            for (JavaContainer datum : data) {
+                dos.write(serialise(datum));
+            }
+        }
+
     }
 }

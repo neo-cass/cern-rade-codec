@@ -27,10 +27,10 @@ public final class LVTypeDecoder {
         return lvTypeDescriptor;
     }
 
-    private static LVTypeDescriptor decodeCluster(ByteBuffer buffer){
+    private static LVClusterDescriptor decodeCluster(ByteBuffer buffer){
         int nTDs = buffer.getShort();
         LVTypeDescriptor nestedType;
-        LVClusterInfo clusterInfo = new LVClusterInfo(nTDs);
+        LVTypeDescriptor[] nestedTypes = new LVTypeDescriptor[nTDs];
         int nestedlen;
         for (int i = 0; i<nTDs; i++){
             buffer.mark();
@@ -38,14 +38,14 @@ public final class LVTypeDecoder {
             nestedlen = buffer.getShort();
             buffer.reset();
             nestedType = decode(buffer.slice(buffer.position(), nestedlen));
-            clusterInfo.addNewTypeDescriptor(nestedType);
+            nestedTypes[i] = nestedType;
 
             buffer.position(buffer.position() + nestedlen);
         }
 
         String fieldName = readFieldName(buffer);
 
-        return new LVTypeDescriptor(LVType.CLUSTER, clusterInfo, fieldName);
+        return new LVClusterDescriptor(fieldName, nestedTypes);
     }
 
     private static LVTypeDescriptor decodeBasic(ByteBuffer buffer, LVType lVType){
@@ -59,7 +59,7 @@ public final class LVTypeDecoder {
         return new LVTypeDescriptor(LVType.STRING, fieldName);
     }
 
-    private static LVTypeDescriptor decodeArray(ByteBuffer buffer){
+    private static LVArrayDescriptor decodeArray(ByteBuffer buffer){
         int dimension = buffer.getShort(); // 2 bytes
         for (int i = 0; i<dimension; i++) {
             buffer.getShort(); //FFFF - 2 bytes
@@ -72,10 +72,9 @@ public final class LVTypeDecoder {
 
         LVTypeDescriptor arrayType = decode(buffer.slice(buffer.position(), nestedLen));
         buffer.position(buffer.position() + nestedLen);
-        LVArrayInfo LVArrayInfo = new LVArrayInfo(dimension, arrayType);
 
         String fieldName = readFieldName(buffer);
-        return new LVTypeDescriptor(LVType.ARRAY, LVArrayInfo, fieldName);
+        return new LVArrayDescriptor(fieldName, dimension, arrayType);
     }
 
     private static String readFieldName(ByteBuffer buffer){
