@@ -20,9 +20,6 @@ public class ArrayContainer<T> extends JavaContainer<T[]>{
         return dimensions;
     }
     public String getElemName() {return elemName;}
-    public T[] getRawData(){
-        T[] arr = new T[4];
-    }
     public DataType getElemType() {return elemType;}
     public String toString(){
         StringBuilder strB = new StringBuilder();
