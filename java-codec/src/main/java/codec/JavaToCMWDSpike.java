@@ -35,16 +35,16 @@ public class JavaToCMWDSpike<T> implements Function<JavaContainer<T>, Data> {
     }
 
 
-    private void encodeSingle(JavaContainer<T> javaContainer, CMWDataWrapper cmwDataW){
+    private void encodeSingle(JavaContainer javaContainer, CMWDataWrapper cmwDataW){
         switch(javaContainer.getDataType()){
             case DT_BYTE -> cmwDataW.appendByte((JavaContainer<Byte>) javaContainer);
-            case DT_SHORT -> data.append(cmwDataW.getFieldName(), (short)javaData.getData());
-            case DT_INT -> data.append(cmwDataW.getFieldName(), (int)javaData.getData());
-            case DT_LONG -> data.append(cmwDataW.getFieldName(), (long)javaData.getData());
-            case DT_FLOAT -> data.append(javaData.getFieldName(), (float)javaData.getData());
-            case DT_DOUBLE -> data.append(javaData.getFieldName(), (double)javaData.getData());
-            case DT_BOOL -> data.append(javaData.getFieldName(), (boolean)javaData.getData());
-            case DT_STRING -> data.append(javaData.getFieldName(), (String)javaData.getData());
+            case DT_SHORT -> cmwDataW.appendShort(cmwDataW.getFieldName(), (short)javaData.getData());
+            case DT_INT -> cmwDataW.appendInt(cmwDataW.getFieldName(), (int)javaData.getData());
+            case DT_LONG -> cmwDataW.appendLong(cmwDataW.getFieldName(), (long)javaData.getData());
+            case DT_FLOAT -> cmwDataW.appendFloat(javaData.getFieldName(), (float)javaData.getData());
+            case DT_DOUBLE -> cmwDataW.appendDouble(javaData.getFieldName(), (double)javaData.getData());
+            case DT_BOOL -> cmwDataW.appendBool(javaData.getFieldName(), (boolean)javaData.getData());
+            case DT_STRING -> cmwDataW.appendString(javaData.getFieldName(), (String)javaData.getData());
         }
 
     }

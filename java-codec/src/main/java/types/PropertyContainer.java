@@ -2,8 +2,8 @@ package types;
 
 import cern.cmw.data.DataType;
 
-public class PropertyContainer extends JavaContainer<JavaContainer<Object>[]>{
-    public PropertyContainer(String fieldName, JavaContainer<Object>[] data, DataType dataType) throws NoSuchMethodException {
+public class PropertyContainer extends JavaContainer<JavaContainer<?>[]>{
+    public PropertyContainer(String fieldName, JavaContainer<?>[] data, DataType dataType)   {
         super(fieldName, data, dataType);
     }
 
