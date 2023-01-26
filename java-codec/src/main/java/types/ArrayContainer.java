@@ -1,24 +1,17 @@
 package types;
 
 import cern.cmw.data.DataType;
-
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
 public class ArrayContainer<T> extends JavaContainer<T[]>{
     private int[] dimensions;
     private String elemName;
     private DataType elemType;
-    public ArrayContainer(String fieldName, T[] data, DataType dataType, int[] dimensions, String elemName, DataType elemType)   {
+    public ArrayContainer(String fieldName, String elemName, T[] data, int[] dimensions, DataType dataType, DataType elemType)   {
         super(fieldName, data, dataType);
         this.dimensions = dimensions;
         this.elemName = elemName;
         this.elemType = elemType;
     }
-    public int[] getDimensions() {
-        return dimensions;
-    }
+    public int[] getDimensions() {return dimensions;}
     public String getElemName() {return elemName;}
     public DataType getElemType() {return elemType;}
     public String toString(){

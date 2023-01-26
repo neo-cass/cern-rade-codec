@@ -18,7 +18,7 @@ public class LVArrayDescriptor extends LVTypeDescriptor {
         stringBuilder.append("\n--------------------------------------\n");
         return stringBuilder.toString();
     }
-    public LVTypeDescriptor getArrayTypeDesc() {
+    public LVTypeDescriptor getElemDescriptor() {
         return arrTypeDesc;
     }
 

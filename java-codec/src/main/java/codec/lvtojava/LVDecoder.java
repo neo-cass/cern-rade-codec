@@ -13,5 +13,4 @@ public final class LVDecoder {
         ByteBuffer dataBuffer = buffer.slice(length, bytes.length - length);
         return LVDataDecoder.deserialise(dataBuffer, LVTypeDecoder.decode(typeBuffer));
     }
-
 }
