@@ -2,7 +2,7 @@ package types;
 
 import cern.cmw.data.Data;
 import cern.cmw.data.DataFactory;
-import codec.JavaToCMWD;
+import codec.CMWDEncoder;
 import org.apache.commons.lang3.ArrayUtils;
 
 public class CMWDW {
@@ -40,7 +40,7 @@ public class CMWDW {
         cmwData.append(propertyContainer.getFieldName(), encodeProperty(propertyContainer));
     }
     private Data encodeProperty(PropertyContainer propertyContainer){
-        return JavaToCMWD.encode(propertyContainer);
+        return CMWDEncoder.encode(propertyContainer);
     }
     public void appendByteArray(ArrayContainer<Byte> arrayContainer) {
         int[] dimensions = arrayContainer.getDimensions();

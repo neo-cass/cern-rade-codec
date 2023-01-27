@@ -7,12 +7,12 @@ import types.JavaContainer;
 import types.PropertyContainer;
 import java.util.function.Function;
 
-public final class JavaToCMWD<T> implements Function<JavaContainer<T>, Data> {
+public final class CMWDEncoder implements Function<JavaContainer<?>, Data> {
     @Override
-    public Data apply(JavaContainer<T> javaContainer) {
+    public Data apply(JavaContainer<?> javaContainer) {
         return encode(javaContainer);
     }
-    public static Data encode(JavaContainer javaContainer){
+    public static Data encode(JavaContainer<?> javaContainer){
         CMWDW cmwDataW;
         switch(javaContainer.getDataType()){
             case DT_DATA -> cmwDataW = encodeCluster((PropertyContainer) javaContainer);
@@ -44,6 +44,8 @@ public final class JavaToCMWD<T> implements Function<JavaContainer<T>, Data> {
             case DT_STRING_ARRAY, DT_STRING_ARRAY_2D, DT_STRING_MULTI_ARRAY -> cmwDataW.appendStringArray(arrayContainer);
             case DT_DATA_ARRAY, DT_DATA_ARRAY_2D, DT_DATA_MULTI_ARRAY -> cmwDataW.appendDataArray(arrayContainer);
         }
+
+
     }
 
     @SuppressWarnings("unchecked")
@@ -62,8 +64,8 @@ public final class JavaToCMWD<T> implements Function<JavaContainer<T>, Data> {
 
     private static CMWDW encodeCluster(PropertyContainer propertyContainer){
         CMWDW cmwDataW = new CMWDW();
-        JavaContainer[] javaContainers = propertyContainer.getData();
-        for (JavaContainer javaContainer : javaContainers) {encode(javaContainer, cmwDataW);}
+        JavaContainer<?>[] javaContainers = propertyContainer.getData();
+        for (JavaContainer<?> javaContainer : javaContainers) {encode(javaContainer, cmwDataW);}
         return cmwDataW;
     }
 

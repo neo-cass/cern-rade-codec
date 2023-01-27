@@ -40,7 +40,6 @@ public class TomcatGetSetSubscribe extends HttpServlet{
         //String deviceName = request.getHeader("DeviceName");
         String parameterName = request.getHeader("PropertyName");
 
-
         try {
             switch (requestType) {
                 case "Get" -> get(parameterName, response);
