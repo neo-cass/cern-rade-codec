@@ -29,12 +29,13 @@ public class TomcatGetSetSubscribe extends HttpServlet{
         }
     }
 
-    public void doPost(HttpServletRequest request, HttpServletResponse response){
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String requestType = request.getHeader("RequestType");
         //String deviceName = request.getHeader("DeviceName");
         String propertyName = request.getHeader("PropertyName");
         String deviceName = request.getHeader("DeviceName");
         String fieldName = request.getHeader("FieldName");
+        System.out.println(propertyName + deviceName + fieldName);
         try {
             switch (requestType) {
                 case "Get" -> get(fieldName, deviceName, propertyName, response);
@@ -45,6 +46,7 @@ public class TomcatGetSetSubscribe extends HttpServlet{
         catch(ParameterException | IOException e){
             e.printStackTrace();
         }
+        response.getWriter().println("Build Successful");
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -56,6 +58,7 @@ public class TomcatGetSetSubscribe extends HttpServlet{
     private void get(String fieldName, String deviceName, String propertyName, HttpServletResponse response) throws ParameterException, IOException {
         PrintWriter out = response.getWriter();
         String name = Parameters.buildParameterName(deviceName, propertyName, fieldName);
+        System.out.println(name);
         Parameter p = ParameterFactory.newInstance().newParameter(name);
         cern.japc.core.Selector s = SelectorFactory.newSelector("");
         AcquiredParameterValue apv = p.getValue(s);
