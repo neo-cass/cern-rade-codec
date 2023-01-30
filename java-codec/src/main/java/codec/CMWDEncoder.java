@@ -21,13 +21,13 @@ public final class CMWDEncoder implements Function<JavaContainer<?>, Data> {
         return cmwDataW.getCmwData();
     }
 
-    private static void encode(JavaContainer javaContainer, CMWDW cmwDataW){
+    private static void encode(JavaContainer<?> javaContainer, CMWDW cmwDataW){
         switch(javaContainer.getDataType()){
-            case DT_DATA -> {cmwDataW.appendProperty((PropertyContainer) javaContainer);}
+            case DT_DATA -> cmwDataW.appendProperty((PropertyContainer) javaContainer);
             case DT_BOOL_ARRAY, DT_BYTE_ARRAY, DT_DOUBLE_ARRAY, DT_FLOAT_ARRAY, DT_STRING_ARRAY, DT_INT_ARRAY, DT_SHORT_ARRAY, DT_LONG_ARRAY, DT_DATA_ARRAY,
                     DT_BOOL_ARRAY_2D, DT_BYTE_ARRAY_2D, DT_DOUBLE_ARRAY_2D, DT_FLOAT_ARRAY_2D, DT_STRING_ARRAY_2D, DT_INT_ARRAY_2D, DT_SHORT_ARRAY_2D, DT_LONG_ARRAY_2D, DT_DATA_ARRAY_2D,
-                    DT_BOOL_MULTI_ARRAY, DT_BYTE_MULTI_ARRAY, DT_DOUBLE_MULTI_ARRAY, DT_FLOAT_MULTI_ARRAY, DT_STRING_MULTI_ARRAY, DT_INT_MULTI_ARRAY, DT_SHORT_MULTI_ARRAY, DT_LONG_MULTI_ARRAY, DT_DATA_MULTI_ARRAY -> {encodeArray((ArrayContainer) javaContainer, cmwDataW);}
-            case DT_BYTE, DT_SHORT, DT_INT, DT_LONG, DT_FLOAT, DT_DOUBLE, DT_BOOL, DT_STRING -> {encodeSingle(javaContainer, cmwDataW);}
+                    DT_BOOL_MULTI_ARRAY, DT_BYTE_MULTI_ARRAY, DT_DOUBLE_MULTI_ARRAY, DT_FLOAT_MULTI_ARRAY, DT_STRING_MULTI_ARRAY, DT_INT_MULTI_ARRAY, DT_SHORT_MULTI_ARRAY, DT_LONG_MULTI_ARRAY, DT_DATA_MULTI_ARRAY -> encodeArray((ArrayContainer) javaContainer, cmwDataW);
+            case DT_BYTE, DT_SHORT, DT_INT, DT_LONG, DT_FLOAT, DT_DOUBLE, DT_BOOL, DT_STRING -> encodeSingle(javaContainer, cmwDataW);
         }
     }
 
@@ -49,7 +49,7 @@ public final class CMWDEncoder implements Function<JavaContainer<?>, Data> {
     }
 
     @SuppressWarnings("unchecked")
-    private static void encodeSingle(JavaContainer javaContainer, CMWDW cmwDataW){
+    private static void encodeSingle(JavaContainer<?> javaContainer, CMWDW cmwDataW){
         switch(javaContainer.getDataType()){
             case DT_BYTE -> cmwDataW.appendByte((JavaContainer<Byte>) javaContainer);
             case DT_SHORT -> cmwDataW.appendShort((JavaContainer<Short>) javaContainer);

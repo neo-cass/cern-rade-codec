@@ -12,7 +12,7 @@ import types.labview.LVType;
 import types.labview.LVTypeDescriptor;
 import java.nio.ByteBuffer;
 
-public class LVDataDecoder {
+public final class LVDataDecoder {
     public static JavaContainer<?> deserialise(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor)   {
         switch(lvTypeDescriptor.getType()){
             case CLUSTER -> {

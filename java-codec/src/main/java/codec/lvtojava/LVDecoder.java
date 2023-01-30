@@ -5,8 +5,7 @@ import types.*;
 import java.nio.ByteBuffer;
 
 public final class LVDecoder {
-    private LVDecoder(){}
-    public static JavaContainer decode(byte[] bytes) throws ClassNotFoundException, NoSuchMethodException {
+    public static JavaContainer<?> decode(byte[] bytes) throws ClassNotFoundException, NoSuchMethodException {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
         int length = buffer.getShort();
         ByteBuffer typeBuffer = buffer.slice(0, length);

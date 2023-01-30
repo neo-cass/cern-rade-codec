@@ -12,9 +12,10 @@ repositories {
 }
 
 dependencies {
-    implementation ("cern.accsoft.commons:accsoft-commons-util:PRO")
+    //implementation ("cern.accsoft.commons:accsoft-commons-util:PRO")
     implementation ("cern.japc:japc:PRO")
     implementation ("cern.japc:japc-ext-cmwrda3:PRO")
+    implementation ("cern.japc:japc-value:PRO")
     implementation ("cern.japc:japc-ext-remote:PRO")
     implementation ("cern.cmw:cmw-data:PRO")
     implementation('org.apache.commons:commons-lang3:3.12.0')

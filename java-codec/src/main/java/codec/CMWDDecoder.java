@@ -20,6 +20,16 @@ public final class CMWDDecoder {
         }
     }
 
+    public static JavaContainer<?> decode(Data cmwData, PropertyContainer propertyContainer){
+        ArrayList<Entry> entries = (ArrayList<Entry>) cmwData.getEntries();
+        if (entries.size()==1){
+            return decodeEntry(entries.get(0));
+        }
+        else{
+            return decodeData(cmwData, "CMW Data");
+        }
+    }
+
    private static PropertyContainer decodeData(Data cmwData, String fieldName){
         ArrayList<Entry> entries = (ArrayList<Entry>) cmwData.getEntries();
         int len = entries.size();
@@ -30,6 +40,8 @@ public final class CMWDDecoder {
         }
         return new PropertyContainer(fieldName, javaContainers, DataType.DT_DATA);
     }
+
+
 
     private static JavaContainer<?> decodeEntry(Entry entry){
         DataType type = entry.getType();

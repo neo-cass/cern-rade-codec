@@ -1,8 +1,6 @@
 package examples;
 
-import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
-
 import cern.japc.core.AcquiredParameterValue;
 import cern.japc.core.ParameterException;
 import cern.japc.core.ParameterValueListener;

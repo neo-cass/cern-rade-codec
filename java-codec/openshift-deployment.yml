@@ -1,0 +1,121 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: japc-test
+  annotations:
+    description: "test japc on TN trusted openshift instance"
+objects:
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: rade-codec-pull-secret
+      namespace: rade-services
+    data:
+      .dockerconfigjson: >-
+        eyJhdXRocyI6eyJnaXRsYWItcmVnaXN0cnkuY2Vybi5jaCI6eyJ1c2VybmFtZSI6InJvc29vcyIsInBhc3N3b3JkIjoicm9YaWJhYmExNDg4IiwiYXV0aCI6ImNtOXpiMjl6T25KdldHbGlZV0poTVRRNE9BPT0iLCJlbWFpbCI6IiJ9fX0=
+    type: kubernetes.io/dockerconfigjson
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      annotations:
+      name: japc-test-conf
+      namespace: rade-services
+      labels:
+        app: japc-test
+    spec:
+      strategy:
+        type: Recreate
+        recreateParams:
+          timeoutSeconds: 600
+        resources: {}
+        activeDeadlineSeconds: 21600
+      triggers:
+        - type: ConfigChange
+      replicas: 1
+      revisionHistoryLimit: 10
+      selector:
+        app: japc-test
+        deploymentconfig: japc-test-conf
+      template:
+        metadata:
+          labels:
+            app: japc-test
+            deploymentconfig: japc-test-conf
+        spec:
+          containers:
+            - name: japc-test
+              image: >-
+                gitlab-registry.cern.ch/rade/rade-core/services/rade-codec:${IMAGE_VERSION}
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              resources:
+                limits:
+                  cpu: 400m
+                  memory: 1Gi
+                requests:
+                  cpu: 200m
+                  memory: 512Mi
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 30
+                timeoutSeconds: 5
+                periodSeconds: 30
+                successThreshold: 1
+                failureThreshold: 5
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+              imagePullPolicy: Always
+          restartPolicy: Always
+          terminationGracePeriodSeconds: 30
+          dnsPolicy: ClusterFirst
+          securityContext: {}
+          imagePullSecrets:
+            - name: rade-codec-pull-secret
+          schedulerName: default-scheduler
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: japc-test-route
+      namespace: ${NAMESPACE}
+      labels:
+        app: japc-test
+    spec:
+      host: ${NAMESPACE}.web.cern.ch
+      to:
+        kind: Service
+        name: bid-mon-service
+        weight: 100
+      port:
+        targetPort: 8080-tcp
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: japc-test-service
+      namespace: ${NAMESPACE}
+      labels:
+        app: japc-test
+    spec:
+      ports:
+        - name: 8080-tcp
+          protocol: TCP
+          port: 8080
+          targetPort: 8080
+      type: ClusterIP
+      sessionAffinity: None
+      selector:
+        deploymentconfig: japc-test-conf
+parameters:
+  - name: IMAGE_VERSION
+    description: Image tag to deploy
+    value: develop
+  - name: NAMESPACE
+    description: Application instance namespace
+    value: bid-monitoring

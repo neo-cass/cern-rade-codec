@@ -19,7 +19,7 @@ public final class LVDataEncoder {
 
     public static void serialise(JavaContainer<?> javaContainer, DataOutputStream dos) throws IOException {
         switch(javaContainer.getDataType()){
-            case DT_DATA -> {serialiseData((PropertyContainer) javaContainer, dos);}
+            case DT_DATA -> serialiseData((PropertyContainer) javaContainer, dos);
             case DT_BYTE, DT_BOOL, DT_SHORT, DT_INT, DT_LONG, DT_FLOAT, DT_DOUBLE, DT_STRING -> serialiseSingle(javaContainer.getDataType(), javaContainer.getData(),dos);
             case DT_BYTE_ARRAY, DT_BOOL_ARRAY, DT_SHORT_ARRAY, DT_INT_ARRAY, DT_LONG_ARRAY, DT_FLOAT_ARRAY, DT_DOUBLE_ARRAY, DT_STRING_ARRAY, DT_DATA_ARRAY,
                     DT_BYTE_ARRAY_2D, DT_BOOL_ARRAY_2D, DT_SHORT_ARRAY_2D, DT_INT_ARRAY_2D, DT_LONG_ARRAY_2D, DT_FLOAT_ARRAY_2D, DT_DOUBLE_ARRAY_2D, DT_STRING_ARRAY_2D, DT_DATA_ARRAY_2D,
@@ -54,6 +54,7 @@ public final class LVDataEncoder {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static void serialiseArray(ArrayContainer arrayContainer, DataOutputStream dos) throws IOException {
         int[] dimensions = arrayContainer.getDimensions();
         for (int dimension : dimensions) {dos.writeInt(dimension);}
@@ -69,7 +70,7 @@ public final class LVDataEncoder {
         for(PropertyContainer propertyContainer : propertyContainers){dos.write(serialise(propertyContainer));}
     }
 
-    private static void serialiseSingleArray(ArrayContainer<Object> arrayContainer, DataOutputStream dos) throws IOException {
+    private static void serialiseSingleArray(ArrayContainer<?> arrayContainer, DataOutputStream dos) throws IOException {
         Object[] datum = arrayContainer.getData();
         for(Object data : datum){serialiseSingle(arrayContainer.getElemType(), data, dos);}
     }

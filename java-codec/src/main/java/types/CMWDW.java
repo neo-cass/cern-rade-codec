@@ -32,7 +32,6 @@ public class CMWDW {
     public void appendLong(JavaContainer<Long> javaContainer){
         cmwData.append(javaContainer.getFieldName(), javaContainer.getData());
     }
-
     public void appendString(JavaContainer<String> javaContainer){
         cmwData.append(javaContainer.getFieldName(), javaContainer.getData());
     }

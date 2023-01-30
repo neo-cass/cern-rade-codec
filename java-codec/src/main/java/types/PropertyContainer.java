@@ -6,6 +6,7 @@ public class PropertyContainer extends JavaContainer<JavaContainer[]>{
     public PropertyContainer(String fieldName, JavaContainer<?>[] data, DataType dataType)   {
         super(fieldName, data, dataType);
     }
+
     public String toString(){
         StringBuilder strB = new StringBuilder();
         strB.append("Name: ").append(fieldName).append("\n");

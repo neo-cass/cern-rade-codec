@@ -1,17 +1,11 @@
 package examples;
 
-import cern.japc.core.AcquiredParameterValue;
-import cern.japc.core.Parameter;
-import cern.japc.core.ParameterException;
-import cern.japc.core.SubscriptionHandle;
-import cern.japc.core.factory.MapParameterValueFactory;
+import cern.japc.core.*;
 import cern.japc.core.factory.ParameterFactory;
 import cern.japc.core.factory.SelectorFactory;
-import cern.japc.core.Selector;
 import cern.japc.core.factory.SimpleParameterValueFactory;
+import cern.japc.core.spi.factory.ParameterCreator;
 import cern.japc.value.ParameterValue;
-import cern.japc.value.SimpleParameterValue;
-import cern.japc.value.Type;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,13 +32,14 @@ public class TomcatGetSetSubscribe extends HttpServlet{
     public void doPost(HttpServletRequest request, HttpServletResponse response){
         String requestType = request.getHeader("RequestType");
         //String deviceName = request.getHeader("DeviceName");
-        String parameterName = request.getHeader("PropertyName");
-
+        String propertyName = request.getHeader("PropertyName");
+        String deviceName = request.getHeader("DeviceName");
+        String fieldName = request.getHeader("FieldName");
         try {
             switch (requestType) {
-                case "Get" -> get(parameterName, response);
-                case "Subscribe" -> subscribe(parameterName, response);
-                case "Set" -> {String valueString = request.getHeader("Value");set(Double.parseDouble(valueString), parameterName, response);}
+                case "Get" -> get(fieldName, deviceName, propertyName, response);
+                case "Subscribe" -> subscribe(propertyName, response);
+                case "Set" -> {String valueString = request.getHeader("Value");set(Double.parseDouble(valueString), propertyName, response);}
             }
         }
         catch(ParameterException | IOException e){
@@ -58,13 +53,13 @@ public class TomcatGetSetSubscribe extends HttpServlet{
     }
 
 
-    private void get(String parameterName, HttpServletResponse response) throws ParameterException, IOException {
+    private void get(String fieldName, String deviceName, String propertyName, HttpServletResponse response) throws ParameterException, IOException {
         PrintWriter out = response.getWriter();
-        Parameter p = ParameterFactory.newInstance().newParameter(parameterName);
+        String name = Parameters.buildParameterName(deviceName, propertyName, fieldName);
+        Parameter p = ParameterFactory.newInstance().newParameter(name);
         cern.japc.core.Selector s = SelectorFactory.newSelector("");
         AcquiredParameterValue apv = p.getValue(s);
-        out.println(apv.getValue());
-        apv.getValue().castAsSimple().getDouble();
+        out.println(apv.getValue().castAsSimple().getDouble());
     }
 
     private void set(double value, String parameterName, HttpServletResponse response) throws ParameterException, IOException {
