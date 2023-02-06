@@ -7,10 +7,13 @@ USER root
 RUN keytool -importcert -cacerts -alias artifactory-cert -file artifactory.cert -storepass changeit -noprompt
 RUN gradle --no-daemon clean war
 
+
 FROM tomcat:10-jdk17
 ENV webappDir=/buildDir/webapp-build
-EXPOSE 8080
+EXPOSE 9090
 WORKDIR $CATALINA_HOME
 COPY --from=build $webappDir/java-codec-1.0.0.war webapps
 COPY --from=build $webappDir/server.xml conf
+
+
 CMD ["catalina.sh", "run"]
