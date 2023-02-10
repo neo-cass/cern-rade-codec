@@ -8,7 +8,7 @@ RUN keytool -importcert -cacerts -alias artifactory-cert -file artifactory.cert 
 RUN gradle --no-daemon clean war
 
 
-FROM tomcat:11.0.0-jdk17
+FROM tomcat:9-jdk17
 ENV webappDir=/buildDir/webapp-build
 EXPOSE 9090
 WORKDIR $CATALINA_HOME
