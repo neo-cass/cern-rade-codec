@@ -12,4 +12,5 @@ deploy:
   stage: deploy
   script:
     - oc login --token=${openshift_token} --server=https://api.paas.okd.cern.ch
+    - oc project rade-services
     - oc rollout restart deployment/japc-dev
