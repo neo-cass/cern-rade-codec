@@ -146,7 +146,7 @@
                prefix="localhost_access_log" suffix=".txt"
                pattern="%h %l %u %t &quot;%r&quot; %s %b" />
 
-        <!--<Context path="" docBase="java-codec-1.0.0"/>-->
+        <Context path="" docBase="java-codec-1.0.0"/>
 
       </Host>
     </Engine>
