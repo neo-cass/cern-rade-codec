@@ -15,5 +15,4 @@ WORKDIR $CATALINA_HOME
 COPY --from=build $webappDir/java-codec-1.0.0.war webapps
 COPY --from=build $webappDir/server.xml conf
 
-
 CMD ["catalina.sh", "run"]
