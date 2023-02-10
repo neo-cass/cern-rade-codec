@@ -8,17 +8,17 @@ RUN keytool -importcert -cacerts -alias artifactory-cert -file artifactory.cert 
 RUN gradle --no-daemon clean war
 
 
-FROM tomcat:8.5.85-jdk17
+FROM tomcat:11.0.0-jdk17
 ENV webappDir=/buildDir/webapp-build
 EXPOSE 9090
 WORKDIR $CATALINA_HOME
+
+COPY --from=build $webappDir/java-codec-1.0.0.war webapps
+COPY --from=build $webappDir/server.xml conf
 
 RUN groupadd -r myuser -g 501
 RUN useradd -d /home/myuser -u 501 -m -s /bin/bash -g myuser myuser
 RUN chown -R myuser:myuser /usr/local/tomcat
 USER myuser
-
-COPY --from=build $webappDir/java-codec-1.0.0.war webapps
-COPY --from=build $webappDir/server.xml conf
 
 CMD ["catalina.sh", "run"]
