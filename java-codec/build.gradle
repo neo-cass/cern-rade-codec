@@ -4,11 +4,11 @@ plugins {
     id ('cern.devops.cbng.dependency') version "4.0.52"
 }
 repositories {
+    mavenCentral()
     // our package index to resolve dependencies
     maven {
         url 'https://artifactory.cern.ch/release'
     }
-    mavenCentral()
 }
 
 dependencies {

@@ -15,13 +15,23 @@
 <!--    </servlet-mapping>-->
 
     <servlet>
-        <servlet-name>JAPCTest</servlet-name>
+        <servlet-name>japcTest</servlet-name>
         <servlet-class>examples.TomcatGetSetSubscribe</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>JAPCTest</servlet-name>
-        <url-pattern>/JAPCTest</url-pattern>
+        <servlet-name>japcTest</servlet-name>
+        <url-pattern>/japcTest</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>entryPoint</servlet-name>
+        <servlet-class>communication.LVEntryPoint</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>entryPoint</servlet-name>
+        <url-pattern>/entryPoint</url-pattern>
     </servlet-mapping>
 
     <servlet>

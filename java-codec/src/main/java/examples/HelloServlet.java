@@ -18,7 +18,7 @@ public class HelloServlet extends HttpServlet {
 
         // Hello
         PrintWriter out = response.getWriter();
-        out.println("hi 2");
+        out.println("Hello World!");
 
     }
     public void destroy() {
