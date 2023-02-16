@@ -1,5 +1,6 @@
 java-codec/build
 java-codec/*.log
+java-codec/jar-build
 java-codec/.idea
 java-codec/.gradle
 java-codec/jar-build/*.jar
