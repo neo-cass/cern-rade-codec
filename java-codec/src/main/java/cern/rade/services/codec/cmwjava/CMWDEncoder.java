@@ -7,11 +7,7 @@ import cern.rade.services.common.types.PropertyContainer;
 import java.util.function.Function;
 
 
-public final class CMWDEncoder implements Function<JavaContainer<?>, Data> {
-    @Override
-    public Data apply(JavaContainer<?> javaContainer) {
-        return encode(javaContainer);
-    }
+public final class CMWDEncoder {
     public static Data encode(JavaContainer<?> javaContainer){
         CMWDW cmwDataW;
         switch(javaContainer.getDataType()){

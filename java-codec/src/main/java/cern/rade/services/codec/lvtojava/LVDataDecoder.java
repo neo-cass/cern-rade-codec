@@ -14,21 +14,21 @@ import java.nio.ByteBuffer;
 
 public final class LVDataDecoder {
 
-    public static JavaContainer<?> deserialise(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor)   {
+    public static JavaContainer<?> decode(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor)   {
         switch(lvTypeDescriptor.getType()){
             case CLUSTER -> {
-                return deserialiseCluster(buffer, (LVClusterDescriptor) lvTypeDescriptor);}
+                return decodeCluster(buffer, (LVClusterDescriptor) lvTypeDescriptor);}
             case INT_8, INT_16, INT_32, INT_64, UINT_8, UINT_16, UINT_32, BOOL, SGL, DBL, STRING -> {
-                return deserialiseSingle(buffer,lvTypeDescriptor);}
+                return decodeSingle(buffer,lvTypeDescriptor);}
             case ARRAY -> {
-                return deserialiseArray(buffer, (LVArrayDescriptor) lvTypeDescriptor);}
+                return decodeArray(buffer, (LVArrayDescriptor) lvTypeDescriptor);}
             default -> {return null;}
         }
     }
 
-    private static JavaContainer<?> deserialiseSingle(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor){
+    private static JavaContainer<?> decodeSingle(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor){
         LVType type = lvTypeDescriptor.getType();
-        String fieldName = lvTypeDescriptor.getFieldName();
+        String fieldName = lvTypeDescriptor.getName();
         switch(type){
             case INT_8 -> {return new JavaContainer<Byte>(fieldName, (Byte) buffer.get(), DataType.DT_BYTE);}
             case BOOL -> {return new JavaContainer<Boolean>(fieldName, (Boolean) getBool(buffer), DataType.DT_BOOL);}
@@ -37,46 +37,46 @@ public final class LVDataDecoder {
             case INT_64, UINT_32 -> {return new JavaContainer<Long>(fieldName, (Long) buffer.getLong(),DataType.DT_LONG);}
             case SGL -> {return new JavaContainer<Float>(fieldName, (Float) buffer.getFloat(),DataType.DT_FLOAT);}
             case DBL -> {return new JavaContainer<Double>(fieldName, (Double) buffer.getDouble(), DataType.DT_DOUBLE);}
-            case STRING -> {return new JavaContainer<String>(lvTypeDescriptor.getFieldName(), getString(buffer), DataType.DT_STRING);}
+            case STRING -> {return new JavaContainer<String>(lvTypeDescriptor.getName(), getString(buffer), DataType.DT_STRING);}
             default -> {return null;}
         }
     }
 
-    private static ArrayContainer<?> deserialiseArray(ByteBuffer buffer, LVArrayDescriptor lvArrayDescriptor){
+    private static ArrayContainer<?> decodeArray(ByteBuffer buffer, LVArrayDescriptor lvArrayDescriptor){
         LVTypeDescriptor lvElemDescriptor = lvArrayDescriptor.getElemDescriptor();
         int[] dimensions = getDims(buffer, lvArrayDescriptor);
         int len = getArrLen(dimensions);
-        DataType elemDt = TypeLookup.getType(lvElemDescriptor.getType());
-        DataType dt = TypeLookup.getArrType(elemDt, dimensions.length);
+        DataType elemDt = TypeLookup.getCMWType(lvElemDescriptor.getType());
+        DataType dt = TypeLookup.getCMWType(elemDt, dimensions.length);
 
         switch(lvElemDescriptor.getType()){
-            case INT_8 -> {return new ArrayContainer<>(lvArrayDescriptor.getFieldName(), lvElemDescriptor.getFieldName(), getByteArr(buffer, len), dimensions, dt, elemDt);}
-            case BOOL -> {return new ArrayContainer<>(lvArrayDescriptor.getFieldName(), lvElemDescriptor.getFieldName(), getBoolArr(buffer, len), dimensions, dt, elemDt);}
-            case INT_16, UINT_8 -> {return new ArrayContainer<>(lvArrayDescriptor.getFieldName(), lvElemDescriptor.getFieldName(), getShortArr(buffer, len), dimensions, dt, elemDt);}
-            case INT_32, UINT_16 -> {return new ArrayContainer<>(lvArrayDescriptor.getFieldName(), lvElemDescriptor.getFieldName(), getIntArr(buffer, len), dimensions, dt, elemDt);}
-            case INT_64, UINT_32 -> {return new ArrayContainer<>(lvArrayDescriptor.getFieldName(), lvElemDescriptor.getFieldName(), getLongArr(buffer, len), dimensions, dt, elemDt);}
-            case SGL -> {return new ArrayContainer<>(lvArrayDescriptor.getFieldName(), lvElemDescriptor.getFieldName(), getFloatArr(buffer, len), dimensions, dt, elemDt);}
-            case DBL -> {return new ArrayContainer<>(lvArrayDescriptor.getFieldName(), lvElemDescriptor.getFieldName(), getDoubleArr(buffer, len), dimensions, dt, elemDt);}
-            case STRING -> {return new ArrayContainer<>(lvArrayDescriptor.getFieldName(), lvElemDescriptor.getFieldName(), getStringArr(buffer, len), dimensions, dt, elemDt);}
-            case CLUSTER -> {return new ArrayContainer<>(lvArrayDescriptor.getFieldName(), lvElemDescriptor.getFieldName(), getClusterArr(buffer, len, (LVClusterDescriptor) lvElemDescriptor), dimensions, dt, elemDt);}
+            case INT_8 -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getByteArr(buffer, len), dimensions, dt, elemDt);}
+            case BOOL -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getBoolArr(buffer, len), dimensions, dt, elemDt);}
+            case INT_16, UINT_8 -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getShortArr(buffer, len), dimensions, dt, elemDt);}
+            case INT_32, UINT_16 -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getIntArr(buffer, len), dimensions, dt, elemDt);}
+            case INT_64, UINT_32 -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getLongArr(buffer, len), dimensions, dt, elemDt);}
+            case SGL -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getFloatArr(buffer, len), dimensions, dt, elemDt);}
+            case DBL -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getDoubleArr(buffer, len), dimensions, dt, elemDt);}
+            case STRING -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getStringArr(buffer, len), dimensions, dt, elemDt);}
+            case CLUSTER -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getClusterArr(buffer, len, (LVClusterDescriptor) lvElemDescriptor), dimensions, dt, elemDt);}
         }
 
         return null;
     }
 
-    private static PropertyContainer deserialiseCluster(ByteBuffer buffer, LVClusterDescriptor lvClusterDescriptor){
-        LVTypeDescriptor[] lvTypeDescriptors = lvClusterDescriptor.getTypeDescs();
+    private static PropertyContainer decodeCluster(ByteBuffer buffer, LVClusterDescriptor lvClusterDescriptor){
+        LVTypeDescriptor[] lvTypeDescriptors = lvClusterDescriptor.getFieldDescriptors();
         JavaContainer<?>[] javaContainers = new JavaContainer[lvTypeDescriptors.length];
         for(int i = 0; i< lvTypeDescriptors.length; i++){
-            javaContainers[i] = deserialise(buffer, lvTypeDescriptors[i]);
+            javaContainers[i] = decode(buffer, lvTypeDescriptors[i]);
         }
-        return new PropertyContainer(lvClusterDescriptor.getFieldName(), javaContainers, DataType.DT_DATA);
+        return new PropertyContainer(lvClusterDescriptor.getName(), javaContainers, DataType.DT_DATA);
     }
 
     private static PropertyContainer[] getClusterArr(ByteBuffer buffer, int len, LVClusterDescriptor lvClusterDescriptor) {
         PropertyContainer[] propertyContainers = new PropertyContainer[len];
         for(int i = 0; i<len; i++){
-            propertyContainers[i] = deserialiseCluster(buffer, lvClusterDescriptor);
+            propertyContainers[i] = decodeCluster(buffer, lvClusterDescriptor);
         }
         return propertyContainers;
     }
@@ -139,7 +139,7 @@ public final class LVDataDecoder {
     }
 
     private static int[] getDims(ByteBuffer buffer, LVArrayDescriptor lvArrayDescriptor){
-        int dim = lvArrayDescriptor.getArrayDim();
+        int dim = lvArrayDescriptor.getDimension();
         int[] dimensions = new int[dim];
         for (int i=0; i<dim; i++) {dimensions[i] = buffer.getInt();}
         return dimensions;
