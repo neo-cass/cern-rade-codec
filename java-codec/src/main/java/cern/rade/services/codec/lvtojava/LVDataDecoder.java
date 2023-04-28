@@ -2,19 +2,19 @@ package cern.rade.services.codec.lvtojava;
 
 import cern.cmw.data.DataType;
 import org.apache.commons.lang3.ArrayUtils;
-import cern.rade.services.common.types.ArrayContainer;
-import cern.rade.services.common.types.JavaContainer;
-import cern.rade.services.common.types.PropertyContainer;
-import cern.rade.services.common.types.TypeLookup;
-import cern.rade.services.common.types.labview.LVArrayDescriptor;
-import cern.rade.services.common.types.labview.LVClusterDescriptor;
-import cern.rade.services.common.types.labview.LVType;
-import cern.rade.services.common.types.labview.LVTypeDescriptor;
+import cern.rade.services.common.containers.java.ArrayContainer;
+import cern.rade.services.common.containers.java.DataContainer;
+import cern.rade.services.common.containers.java.PropertyContainer;
+import cern.rade.services.common.containers.TypeLookup;
+import cern.rade.services.common.containers.labview.LVArrayDescriptor;
+import cern.rade.services.common.containers.labview.LVClusterDescriptor;
+import cern.rade.services.common.containers.labview.LVType;
+import cern.rade.services.common.containers.labview.LVTypeDescriptor;
 import java.nio.ByteBuffer;
 
 public final class LVDataDecoder {
 
-    public static JavaContainer<?> decode(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor)   {
+    public static DataContainer<?> decode(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor)   {
         switch(lvTypeDescriptor.getType()){
             case CLUSTER -> {
                 return decodeCluster(buffer, (LVClusterDescriptor) lvTypeDescriptor);}
@@ -26,18 +26,18 @@ public final class LVDataDecoder {
         }
     }
 
-    private static JavaContainer<?> decodeSingle(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor){
+    private static DataContainer<?> decodeSingle(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor){
         LVType type = lvTypeDescriptor.getType();
         String fieldName = lvTypeDescriptor.getName();
         switch(type){
-            case INT_8 -> {return new JavaContainer<Byte>(fieldName, (Byte) buffer.get(), DataType.DT_BYTE);}
-            case BOOL -> {return new JavaContainer<Boolean>(fieldName, (Boolean) getBool(buffer), DataType.DT_BOOL);}
-            case INT_16, UINT_8 -> {return new JavaContainer<Short>(fieldName, (Short) buffer.getShort(),DataType.DT_SHORT);}
-            case INT_32, UINT_16 -> {return new JavaContainer<Integer>(fieldName, (Integer) buffer.getInt(),DataType.DT_INT);}
-            case INT_64, UINT_32 -> {return new JavaContainer<Long>(fieldName, (Long) buffer.getLong(),DataType.DT_LONG);}
-            case SGL -> {return new JavaContainer<Float>(fieldName, (Float) buffer.getFloat(),DataType.DT_FLOAT);}
-            case DBL -> {return new JavaContainer<Double>(fieldName, (Double) buffer.getDouble(), DataType.DT_DOUBLE);}
-            case STRING -> {return new JavaContainer<String>(lvTypeDescriptor.getName(), getString(buffer), DataType.DT_STRING);}
+            case INT_8 -> {return new DataContainer<Byte>(fieldName, (Byte) buffer.get(), DataType.DT_BYTE);}
+            case BOOL -> {return new DataContainer<Boolean>(fieldName, (Boolean) getBool(buffer), DataType.DT_BOOL);}
+            case INT_16, UINT_8 -> {return new DataContainer<Short>(fieldName, (Short) buffer.getShort(),DataType.DT_SHORT);}
+            case INT_32, UINT_16 -> {return new DataContainer<Integer>(fieldName, (Integer) buffer.getInt(),DataType.DT_INT);}
+            case INT_64, UINT_32 -> {return new DataContainer<Long>(fieldName, (Long) buffer.getLong(),DataType.DT_LONG);}
+            case SGL -> {return new DataContainer<Float>(fieldName, (Float) buffer.getFloat(),DataType.DT_FLOAT);}
+            case DBL -> {return new DataContainer<Double>(fieldName, (Double) buffer.getDouble(), DataType.DT_DOUBLE);}
+            case STRING -> {return new DataContainer<String>(lvTypeDescriptor.getName(), getString(buffer), DataType.DT_STRING);}
             default -> {return null;}
         }
     }
@@ -66,11 +66,11 @@ public final class LVDataDecoder {
 
     private static PropertyContainer decodeCluster(ByteBuffer buffer, LVClusterDescriptor lvClusterDescriptor){
         LVTypeDescriptor[] lvTypeDescriptors = lvClusterDescriptor.getFieldDescriptors();
-        JavaContainer<?>[] javaContainers = new JavaContainer[lvTypeDescriptors.length];
+        DataContainer<?>[] DataContainers = new DataContainer[lvTypeDescriptors.length];
         for(int i = 0; i< lvTypeDescriptors.length; i++){
-            javaContainers[i] = decode(buffer, lvTypeDescriptors[i]);
+            DataContainers[i] = decode(buffer, lvTypeDescriptors[i]);
         }
-        return new PropertyContainer(lvClusterDescriptor.getName(), javaContainers, DataType.DT_DATA);
+        return new PropertyContainer(lvClusterDescriptor.getName(), DataContainers, DataType.DT_DATA);
     }
 
     private static PropertyContainer[] getClusterArr(ByteBuffer buffer, int len, LVClusterDescriptor lvClusterDescriptor) {

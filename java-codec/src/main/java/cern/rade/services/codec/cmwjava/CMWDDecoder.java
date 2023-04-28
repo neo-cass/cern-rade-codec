@@ -2,15 +2,15 @@ package cern.rade.services.codec.cmwjava;
 
 import cern.cmw.data.*;
 import org.apache.commons.lang3.ArrayUtils;
-import cern.rade.services.common.types.ArrayContainer;
-import cern.rade.services.common.types.JavaContainer;
-import cern.rade.services.common.types.PropertyContainer;
+import cern.rade.services.common.containers.java.ArrayContainer;
+import cern.rade.services.common.containers.java.DataContainer;
+import cern.rade.services.common.containers.java.PropertyContainer;
 
 import java.util.ArrayList;
 
 public final class CMWDDecoder {
 
-    public static JavaContainer<?> decode(Data cmwData){
+    public static DataContainer<?> decode(Data cmwData){
         ArrayList<Entry> entries = (ArrayList<Entry>) cmwData.getEntries();
         if (entries.size()==1){
             return decodeEntry(entries.get(0));
@@ -20,7 +20,7 @@ public final class CMWDDecoder {
         }
     }
 
-    public static JavaContainer<?> decode(Data cmwData, PropertyContainer propertyContainer){
+    public static DataContainer<?> decode(Data cmwData, PropertyContainer propertyContainer){
         ArrayList<Entry> entries = (ArrayList<Entry>) cmwData.getEntries();
         if (entries.size()==1){
             return decodeEntry(entries.get(0));
@@ -33,27 +33,27 @@ public final class CMWDDecoder {
    private static PropertyContainer decodeData(Data cmwData, String fieldName){
         ArrayList<Entry> entries = (ArrayList<Entry>) cmwData.getEntries();
         int len = entries.size();
-        JavaContainer<?>[] javaContainers  = new JavaContainer[len];
+        DataContainer<?>[] DataContainers  = new DataContainer[len];
 
         for (int i = 0; i<len; i++){
-            javaContainers[i] = decodeEntry(entries.get(i));
+            DataContainers[i] = decodeEntry(entries.get(i));
         }
-        return new PropertyContainer(fieldName, javaContainers, DataType.DT_DATA);
+        return new PropertyContainer(fieldName, DataContainers, DataType.DT_DATA);
     }
 
 
 
-    private static JavaContainer<?> decodeEntry(Entry entry){
+    private static DataContainer<?> decodeEntry(Entry entry){
         DataType type = entry.getType();
         switch(type){
-            case DT_BYTE -> {return new JavaContainer<>(entry.getName(), entry.getByte(), type);}
-            case DT_BOOL ->{return new JavaContainer<>(entry.getName(), entry.getBool(), type);}
-            case DT_SHORT -> {return new JavaContainer<>(entry.getName(), entry.getShort(), type);}
-            case DT_INT -> {return new JavaContainer<>(entry.getName(), entry.getInt(), type);}
-            case DT_LONG -> {return new JavaContainer<>(entry.getName(), entry.getLong(), type);}
-            case DT_FLOAT -> {return new JavaContainer<>(entry.getName(), entry.getFloat(), type);}
-            case DT_DOUBLE -> {return new JavaContainer<>(entry.getName(), entry.getDouble(), type);}
-            case DT_STRING -> {return new JavaContainer<>(entry.getName(), entry.getString(), type);}
+            case DT_BYTE -> {return new DataContainer<>(entry.getName(), entry.getByte(), type);}
+            case DT_BOOL ->{return new DataContainer<>(entry.getName(), entry.getBool(), type);}
+            case DT_SHORT -> {return new DataContainer<>(entry.getName(), entry.getShort(), type);}
+            case DT_INT -> {return new DataContainer<>(entry.getName(), entry.getInt(), type);}
+            case DT_LONG -> {return new DataContainer<>(entry.getName(), entry.getLong(), type);}
+            case DT_FLOAT -> {return new DataContainer<>(entry.getName(), entry.getFloat(), type);}
+            case DT_DOUBLE -> {return new DataContainer<>(entry.getName(), entry.getDouble(), type);}
+            case DT_STRING -> {return new DataContainer<>(entry.getName(), entry.getString(), type);}
             case DT_DATA -> {return decodeData(entry.getData(), entry.getName());}
             case DT_BOOL_ARRAY, DT_BYTE_ARRAY, DT_DOUBLE_ARRAY, DT_FLOAT_ARRAY, DT_STRING_ARRAY, DT_INT_ARRAY, DT_SHORT_ARRAY, DT_LONG_ARRAY,
                     DT_BOOL_ARRAY_2D, DT_BYTE_ARRAY_2D, DT_DOUBLE_ARRAY_2D, DT_FLOAT_ARRAY_2D, DT_STRING_ARRAY_2D, DT_INT_ARRAY_2D, DT_SHORT_ARRAY_2D, DT_LONG_ARRAY_2D,

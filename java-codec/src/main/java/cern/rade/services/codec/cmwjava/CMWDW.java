@@ -3,39 +3,39 @@ package cern.rade.services.codec.cmwjava;
 import cern.cmw.data.Data;
 import cern.cmw.data.DataFactory;
 import org.apache.commons.lang3.ArrayUtils;
-import cern.rade.services.common.types.ArrayContainer;
-import cern.rade.services.common.types.JavaContainer;
-import cern.rade.services.common.types.PropertyContainer;
+import cern.rade.services.common.containers.java.ArrayContainer;
+import cern.rade.services.common.containers.java.DataContainer;
+import cern.rade.services.common.containers.java.PropertyContainer;
 
 public class CMWDW {
     Data cmwData;
     public CMWDW(){cmwData = DataFactory.createData();}
     public Data getCmwData() {return cmwData;}
-    public void appendByte(JavaContainer<Byte> javaContainer){
-        cmwData.append(javaContainer.getName(), javaContainer.getData());
+    public void appendByte(DataContainer<Byte> DataContainer){
+        cmwData.append(DataContainer.getName(), DataContainer.getData());
     }
-    public void appendBool(JavaContainer<Boolean> javaContainer){
-        cmwData.append(javaContainer.getName(), javaContainer.getData());
+    public void appendBool(DataContainer<Boolean> DataContainer){
+        cmwData.append(DataContainer.getName(), DataContainer.getData());
     }
-    public void appendShort(JavaContainer<Short> javaContainer){
-        cmwData.append(javaContainer.getName(), javaContainer.getData());
+    public void appendShort(DataContainer<Short> DataContainer){
+        cmwData.append(DataContainer.getName(), DataContainer.getData());
     }
-    public void appendInt(JavaContainer<Integer> javaContainer){
-        cmwData.append(javaContainer.getName(), javaContainer.getData());
+    public void appendInt(DataContainer<Integer> DataContainer){
+        cmwData.append(DataContainer.getName(), DataContainer.getData());
     }
-    public void appendFloat(JavaContainer<Float> javaContainer){
-        cmwData.append(javaContainer.getName(), javaContainer.getData());
-    }
-
-    public void appendDouble(JavaContainer<Double> javaContainer){
-        cmwData.append(javaContainer.getName(), javaContainer.getData());
+    public void appendFloat(DataContainer<Float> DataContainer){
+        cmwData.append(DataContainer.getName(), DataContainer.getData());
     }
 
-    public void appendLong(JavaContainer<Long> javaContainer){
-        cmwData.append(javaContainer.getName(), javaContainer.getData());
+    public void appendDouble(DataContainer<Double> DataContainer){
+        cmwData.append(DataContainer.getName(), DataContainer.getData());
     }
-    public void appendString(JavaContainer<String> javaContainer){
-        cmwData.append(javaContainer.getName(), javaContainer.getData());
+
+    public void appendLong(DataContainer<Long> DataContainer){
+        cmwData.append(DataContainer.getName(), DataContainer.getData());
+    }
+    public void appendString(DataContainer<String> DataContainer){
+        cmwData.append(DataContainer.getName(), DataContainer.getData());
     }
     public void appendProperty(PropertyContainer propertyContainer){
         cmwData.append(propertyContainer.getName(), encodeProperty(propertyContainer));

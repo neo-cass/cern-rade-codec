@@ -4,16 +4,16 @@ import cern.cmw.data.DataType;
 import cern.japc.core.AcquiredParameterValue;
 import cern.japc.value.MapParameterValue;
 import cern.japc.value.SimpleParameterValue;
-import cern.rade.services.common.types.JavaContainer;
-import cern.rade.services.common.types.PropertyContainer;
-import cern.rade.services.common.types.TypeLookup;
+import cern.rade.services.common.containers.java.DataContainer;
+import cern.rade.services.common.containers.java.PropertyContainer;
+import cern.rade.services.common.containers.TypeLookup;
 
 
 public final class JAPCDecoder {
-    public static JavaContainer<?> decode(PropertyContainer property, AcquiredParameterValue apv){
-        JavaContainer<Object>[] fields = property.getData();
+    public static DataContainer<?> decode(PropertyContainer property, AcquiredParameterValue apv){
+        DataContainer<Object>[] fields = (DataContainer<Object>[]) property.getData();
         MapParameterValue mpv = apv.getValue().castAsMap();
-        for(JavaContainer<Object> field : fields){
+        for(DataContainer<Object> field : fields){
            decodeSimple(mpv.get(field.getName()), field);
         }
         return property;
@@ -22,7 +22,7 @@ public final class JAPCDecoder {
     public static PropertyContainer decode(AcquiredParameterValue apv){
         MapParameterValue mpv = apv.getValue().castAsMap();
         String[] names = mpv.getNames();
-        JavaContainer<Object>[] fields = new JavaContainer[names.length];
+        DataContainer<Object>[] fields = new DataContainer[names.length];
         int counter = 0;
         for (String name : names){
             fields[counter] = decodeSimple(mpv.get(name), name);
@@ -31,14 +31,14 @@ public final class JAPCDecoder {
         return new PropertyContainer(apv.getParameterName(), fields, DataType.DT_DATA);
     }
 
-    private static JavaContainer<Object> decodeSimple(SimpleParameterValue spv, String name){
+    private static DataContainer<Object> decodeSimple(SimpleParameterValue spv, String name){
         DataType dataType = TypeLookup.getCMWType(spv.getValueType(name));
-        JavaContainer<Object> field = new JavaContainer<>(name, null, dataType);
+        DataContainer<Object> field = new DataContainer<>(name, null, dataType);
         decodeSimple(spv, field);
         return field;
     }
 
-    private static void decodeSimple(SimpleParameterValue spv, JavaContainer<Object> field){
+    private static void decodeSimple(SimpleParameterValue spv, DataContainer<Object> field){
         String name = field.getName();
         switch(field.getDataType()){
             case DT_BYTE -> field.setData(spv.getByte(name));

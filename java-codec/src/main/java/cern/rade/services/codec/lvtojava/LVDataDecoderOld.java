@@ -1,7 +1,7 @@
 package cern.rade.services.codec.lvtojava;
 
 public final class LVDataDecoderOld {
-//    public static JavaContainer<?> deserialise(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor) throws NoSuchMethodException, ClassNotFoundException {
+//    public static DataContainer<?> deserialise(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor) throws NoSuchMethodException, ClassNotFoundException {
 //        switch(lvTypeDescriptor.getType()){
 //            case CLUSTER -> {
 //                return deserialiseCluster(buffer, (LVClusterDescriptor) lvTypeDescriptor);}
@@ -13,25 +13,25 @@ public final class LVDataDecoderOld {
 //        }
 //    }
 //
-//    private static JavaContainer<?> deserialiseSingle(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor) throws ClassNotFoundException, NoSuchMethodException {
+//    private static DataContainer<?> deserialiseSingle(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor) throws ClassNotFoundException, NoSuchMethodException {
 //        LVType type = lvTypeDescriptor.getType();
 //        String fieldName = lvTypeDescriptor.getFieldName();
 //        switch(type){
-//            case INT_8 -> {return new JavaContainer<Byte>(fieldName, (Byte) getSingle(type, buffer),DataType.DT_BYTE);}
-//            case BOOL -> {return new JavaContainer<Boolean>(fieldName, (Boolean) getSingle(type, buffer), DataType.DT_BOOL);}
-//            case INT_16, UINT_8 -> {return new JavaContainer<Short>(fieldName, (Short) getSingle(type, buffer),DataType.DT_SHORT);}
-//            case INT_32, UINT_16 -> {return new JavaContainer<Integer>(fieldName, (Integer) getSingle(type,buffer),DataType.DT_INT);}
-//            case INT_64, UINT_32 -> {return new JavaContainer<Long>(fieldName, (Long) getSingle(type,buffer),DataType.DT_LONG);}
-//            case SGL -> {return new JavaContainer<Float>(fieldName, (Float) getSingle(type,buffer),DataType.DT_FLOAT);}
-//            case DBL -> {return new JavaContainer<Double>(fieldName, (Double) getSingle(type,buffer), DataType.DT_DOUBLE);}
-//            case STRING -> {return new JavaContainer<String>(lvTypeDescriptor.getFieldName(), getString(buffer), DataType.DT_STRING);}
+//            case INT_8 -> {return new DataContainer<Byte>(fieldName, (Byte) getSingle(type, buffer),DataType.DT_BYTE);}
+//            case BOOL -> {return new DataContainer<Boolean>(fieldName, (Boolean) getSingle(type, buffer), DataType.DT_BOOL);}
+//            case INT_16, UINT_8 -> {return new DataContainer<Short>(fieldName, (Short) getSingle(type, buffer),DataType.DT_SHORT);}
+//            case INT_32, UINT_16 -> {return new DataContainer<Integer>(fieldName, (Integer) getSingle(type,buffer),DataType.DT_INT);}
+//            case INT_64, UINT_32 -> {return new DataContainer<Long>(fieldName, (Long) getSingle(type,buffer),DataType.DT_LONG);}
+//            case SGL -> {return new DataContainer<Float>(fieldName, (Float) getSingle(type,buffer),DataType.DT_FLOAT);}
+//            case DBL -> {return new DataContainer<Double>(fieldName, (Double) getSingle(type,buffer), DataType.DT_DOUBLE);}
+//            case STRING -> {return new DataContainer<String>(lvTypeDescriptor.getFieldName(), getString(buffer), DataType.DT_STRING);}
 //            default -> {return null;}
 //        }
 //    }
 //
 //    private static PropertyContainer deserialiseCluster(ByteBuffer buffer, LVClusterDescriptor lvClusterDescriptor) throws NoSuchMethodException, ClassNotFoundException {
 //        LVTypeDescriptor[] lvTypeDescriptors = lvClusterDescriptor.getTypeDescs();
-//        JavaContainer[] nestedContainers = new JavaContainer[lvTypeDescriptors.length];
+//        DataContainer[] nestedContainers = new DataContainer[lvTypeDescriptors.length];
 //        for (int i = 0; i< lvTypeDescriptors.length; i++){
 //            nestedContainers[i] = deserialise(buffer, lvTypeDescriptors[i]);
 //        }

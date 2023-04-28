@@ -1,7 +1,7 @@
 package cern.rade.services.codec.lvtojava;
 
-import cern.rade.services.common.types.TypeLookup;
-import cern.rade.services.common.types.labview.*;
+import cern.rade.services.common.containers.TypeLookup;
+import cern.rade.services.common.containers.labview.*;
 
 import java.nio.ByteBuffer;
 

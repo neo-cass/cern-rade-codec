@@ -6,62 +6,62 @@ import cern.japc.core.factory.SimpleParameterValueFactory;
 import cern.japc.value.MapParameterValue;
 import cern.japc.value.ParameterValue;
 import cern.japc.value.SimpleParameterValue;
-import cern.rade.services.common.types.ArrayContainer;
-import cern.rade.services.common.types.JavaContainer;
-import cern.rade.services.common.types.PropertyContainer;
+import cern.rade.services.common.containers.java.ArrayContainer;
+import cern.rade.services.common.containers.java.DataContainer;
+import cern.rade.services.common.containers.java.PropertyContainer;
 
 public final class JAPCEncoder {
-    public static ParameterValue encode(JavaContainer<?> javaContainer){
+    public static ParameterValue encode(DataContainer<?> DataContainer){
         MapParameterValue mpv = MapParameterValueFactory.newMapParameterValue();
-        switch(javaContainer.getDataType()){
+        switch(DataContainer.getDataType()){
             case DT_DATA -> {
-                encodeData((PropertyContainer) javaContainer, mpv);
+                encodeData((PropertyContainer) DataContainer, mpv);
                 return mpv;
             }
             default -> {
-                encodeSingle(javaContainer, mpv);
+                encodeSingle(DataContainer, mpv);
                 return mpv.castAsSimple();
             }
         }
     }
 
     private static MapParameterValue encodeData(PropertyContainer property, MapParameterValue mpv) {
-        JavaContainer<Object>[] javaContainers = property.getData();
+        DataContainer<?>[] DataContainers = property.getData();
 
-        for (JavaContainer<Object> javaContainer : javaContainers){
-            encodeSingle(javaContainer, mpv);
+        for (DataContainer<?> DataContainer : DataContainers){
+            encodeSingle(DataContainer, mpv);
         }
         return mpv;
     }
 
-    private static void encodeSingle(JavaContainer<?> javaContainer, MapParameterValue mpv){
-        switch(javaContainer.getDataType()){
-            case DT_BYTE -> mpv.setByte(javaContainer.getName(), (byte) javaContainer.getData());
-            case DT_BOOL -> mpv.setBoolean(javaContainer.getName(), (boolean) javaContainer.getData());
-            case DT_SHORT -> mpv.setShort(javaContainer.getName(), (short) javaContainer.getData());
-            case DT_INT -> mpv.setInt(javaContainer.getName(), (int) javaContainer.getData());
-            case DT_FLOAT -> mpv.setFloat(javaContainer.getName(), (float) javaContainer.getData());
-            case DT_DOUBLE -> mpv.setDouble(javaContainer.getName(), (double) javaContainer.getData());
-            case DT_LONG -> mpv.setLong(javaContainer.getName(), (long) javaContainer.getData());
-            case DT_STRING -> mpv.setString(javaContainer.getName(), (String) javaContainer.getData());
+    private static void encodeSingle(DataContainer<?> DataContainer, MapParameterValue mpv){
+        switch(DataContainer.getDataType()){
+            case DT_BYTE -> mpv.setByte(DataContainer.getName(), (byte) DataContainer.getData());
+            case DT_BOOL -> mpv.setBoolean(DataContainer.getName(), (boolean) DataContainer.getData());
+            case DT_SHORT -> mpv.setShort(DataContainer.getName(), (short) DataContainer.getData());
+            case DT_INT -> mpv.setInt(DataContainer.getName(), (int) DataContainer.getData());
+            case DT_FLOAT -> mpv.setFloat(DataContainer.getName(), (float) DataContainer.getData());
+            case DT_DOUBLE -> mpv.setDouble(DataContainer.getName(), (double) DataContainer.getData());
+            case DT_LONG -> mpv.setLong(DataContainer.getName(), (long) DataContainer.getData());
+            case DT_STRING -> mpv.setString(DataContainer.getName(), (String) DataContainer.getData());
 
-            case DT_BYTE_ARRAY -> mpv.setBytes(javaContainer.getName(), (byte[]) javaContainer.getData());
-            case DT_BOOL_ARRAY -> mpv.setBooleans(javaContainer.getName(), (boolean[]) javaContainer.getData());
-            case DT_SHORT_ARRAY -> mpv.setShorts(javaContainer.getName(), (short[]) javaContainer.getData());
-            case DT_INT_ARRAY -> mpv.setInts(javaContainer.getName(), (int[]) javaContainer.getData());
-            case DT_FLOAT_ARRAY -> mpv.setFloats(javaContainer.getName(), (float[]) javaContainer.getData());
-            case DT_DOUBLE_ARRAY -> mpv.setDoubles(javaContainer.getName(), (double[]) javaContainer.getData());
-            case DT_LONG_ARRAY -> mpv.setLongs(javaContainer.getName(), (long[]) javaContainer.getData());
-            case DT_STRING_ARRAY -> mpv.setStrings(javaContainer.getName(), (String[]) javaContainer.getData());
+            case DT_BYTE_ARRAY -> mpv.setBytes(DataContainer.getName(), (byte[]) DataContainer.getData());
+            case DT_BOOL_ARRAY -> mpv.setBooleans(DataContainer.getName(), (boolean[]) DataContainer.getData());
+            case DT_SHORT_ARRAY -> mpv.setShorts(DataContainer.getName(), (short[]) DataContainer.getData());
+            case DT_INT_ARRAY -> mpv.setInts(DataContainer.getName(), (int[]) DataContainer.getData());
+            case DT_FLOAT_ARRAY -> mpv.setFloats(DataContainer.getName(), (float[]) DataContainer.getData());
+            case DT_DOUBLE_ARRAY -> mpv.setDoubles(DataContainer.getName(), (double[]) DataContainer.getData());
+            case DT_LONG_ARRAY -> mpv.setLongs(DataContainer.getName(), (long[]) DataContainer.getData());
+            case DT_STRING_ARRAY -> mpv.setStrings(DataContainer.getName(), (String[]) DataContainer.getData());
 
-            case DT_BYTE_ARRAY_2D -> mpv.setBytes2D(javaContainer.getName(), (byte[]) javaContainer.getData(), ((ArrayContainer)javaContainer).getDimensions());
-            case DT_BOOL_ARRAY_2D -> mpv.setBooleans2D(javaContainer.getName(), (boolean[]) javaContainer.getData(), ((ArrayContainer)javaContainer).getDimensions());
-            case DT_SHORT_ARRAY_2D -> mpv.setShorts2D(javaContainer.getName(), (short[]) javaContainer.getData(), ((ArrayContainer)javaContainer).getDimensions());
-            case DT_INT_ARRAY_2D -> mpv.setInts2D(javaContainer.getName(), (int[]) javaContainer.getData(), ((ArrayContainer)javaContainer).getDimensions());
-            case DT_FLOAT_ARRAY_2D -> mpv.setFloats2D(javaContainer.getName(), (float[]) javaContainer.getData(), ((ArrayContainer)javaContainer).getDimensions());
-            case DT_DOUBLE_ARRAY_2D -> mpv.setDoubles2D(javaContainer.getName(), (double[]) javaContainer.getData(), ((ArrayContainer)javaContainer).getDimensions());
-            case DT_LONG_ARRAY_2D -> mpv.setLongs2D(javaContainer.getName(), (long[]) javaContainer.getData(), ((ArrayContainer)javaContainer).getDimensions());
-            case DT_STRING_ARRAY_2D -> mpv.setStrings2D(javaContainer.getName(), (String[]) javaContainer.getData(), ((ArrayContainer)javaContainer).getDimensions());
+            case DT_BYTE_ARRAY_2D -> mpv.setBytes2D(DataContainer.getName(), (byte[]) DataContainer.getData(), ((ArrayContainer)DataContainer).getDimensions());
+            case DT_BOOL_ARRAY_2D -> mpv.setBooleans2D(DataContainer.getName(), (boolean[]) DataContainer.getData(), ((ArrayContainer)DataContainer).getDimensions());
+            case DT_SHORT_ARRAY_2D -> mpv.setShorts2D(DataContainer.getName(), (short[]) DataContainer.getData(), ((ArrayContainer)DataContainer).getDimensions());
+            case DT_INT_ARRAY_2D -> mpv.setInts2D(DataContainer.getName(), (int[]) DataContainer.getData(), ((ArrayContainer)DataContainer).getDimensions());
+            case DT_FLOAT_ARRAY_2D -> mpv.setFloats2D(DataContainer.getName(), (float[]) DataContainer.getData(), ((ArrayContainer)DataContainer).getDimensions());
+            case DT_DOUBLE_ARRAY_2D -> mpv.setDoubles2D(DataContainer.getName(), (double[]) DataContainer.getData(), ((ArrayContainer)DataContainer).getDimensions());
+            case DT_LONG_ARRAY_2D -> mpv.setLongs2D(DataContainer.getName(), (long[]) DataContainer.getData(), ((ArrayContainer)DataContainer).getDimensions());
+            case DT_STRING_ARRAY_2D -> mpv.setStrings2D(DataContainer.getName(), (String[]) DataContainer.getData(), ((ArrayContainer)DataContainer).getDimensions());
         }
 
     }

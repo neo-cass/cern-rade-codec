@@ -6,31 +6,31 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import cern.rade.services.common.types.ArrayContainer;
-import cern.rade.services.common.types.JavaContainer;
-import cern.rade.services.common.types.PropertyContainer;
+import cern.rade.services.common.containers.java.ArrayContainer;
+import cern.rade.services.common.containers.java.DataContainer;
+import cern.rade.services.common.containers.java.PropertyContainer;
 public final class LVDataEncoder {
-    public static byte[] encode(JavaContainer<?> javaContainer) throws IOException {
+    public static byte[] encode(DataContainer<?> DataContainer) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(bos);
-        encode(javaContainer, dos);
+        encode(DataContainer, dos);
         return bos.toByteArray();
     }
 
-    public static void encode(JavaContainer<?> javaContainer, DataOutputStream dos) throws IOException {
-        switch(javaContainer.getDataType()){
-            case DT_DATA -> encodeData((PropertyContainer) javaContainer, dos);
-            case DT_BYTE, DT_BOOL, DT_SHORT, DT_INT, DT_LONG, DT_FLOAT, DT_DOUBLE, DT_STRING -> serialiseSingle(javaContainer.getDataType(), javaContainer.getData(),dos);
+    public static void encode(DataContainer<?> DataContainer, DataOutputStream dos) throws IOException {
+        switch(DataContainer.getDataType()){
+            case DT_DATA -> encodeData((PropertyContainer) DataContainer, dos);
+            case DT_BYTE, DT_BOOL, DT_SHORT, DT_INT, DT_LONG, DT_FLOAT, DT_DOUBLE, DT_STRING -> serialiseSingle(DataContainer.getDataType(), DataContainer.getData(),dos);
             case DT_BYTE_ARRAY, DT_BOOL_ARRAY, DT_SHORT_ARRAY, DT_INT_ARRAY, DT_LONG_ARRAY, DT_FLOAT_ARRAY, DT_DOUBLE_ARRAY, DT_STRING_ARRAY, DT_DATA_ARRAY,
                     DT_BYTE_ARRAY_2D, DT_BOOL_ARRAY_2D, DT_SHORT_ARRAY_2D, DT_INT_ARRAY_2D, DT_LONG_ARRAY_2D, DT_FLOAT_ARRAY_2D, DT_DOUBLE_ARRAY_2D, DT_STRING_ARRAY_2D, DT_DATA_ARRAY_2D,
                     DT_BYTE_MULTI_ARRAY, DT_BOOL_MULTI_ARRAY, DT_SHORT_MULTI_ARRAY, DT_INT_MULTI_ARRAY, DT_LONG_MULTI_ARRAY, DT_FLOAT_MULTI_ARRAY, DT_DOUBLE_MULTI_ARRAY, DT_STRING_MULTI_ARRAY, DT_DATA_MULTI_ARRAY ->
-                    serialiseArray((ArrayContainer<?>) javaContainer,dos);
+                    serialiseArray((ArrayContainer<?>) DataContainer,dos);
         }
     }
 
     private static void encodeData(PropertyContainer propertyContainer, DataOutputStream dos) throws IOException {
-        JavaContainer<?>[] nestedContainers = propertyContainer.getData();
-        for(JavaContainer<?> nestedJavaContainer : nestedContainers){dos.write(encode(nestedJavaContainer));}
+        DataContainer<?>[] nestedContainers = propertyContainer.getData();
+        for(DataContainer<?> nestedDataContainer : nestedContainers){dos.write(encode(nestedDataContainer));}
     }
 
     private static void serialiseSingle(DataType dataType, Object data, DataOutputStream dos) throws IOException {
