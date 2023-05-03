@@ -16,7 +16,7 @@ import static cern.rade.services.common.BytesUtil.shortArrToByteArr;
 
 
 public final class RequestDecoder {
-    public Request decodeMessage(HttpServletRequest request) throws IOException {
+    public static Request decodeMessage(HttpServletRequest request) throws IOException {
         Gson gson = new Gson();
         String jsonMsg = request.getHeader("MetaData");
 
@@ -29,7 +29,7 @@ public final class RequestDecoder {
         return null;
     }
 
-    private Request decodeLVRequest(HttpServletRequest request, ClientMetaData metaData) throws IOException {
+    private static Request decodeLVRequest(HttpServletRequest request, ClientMetaData metaData) throws IOException {
         ServletInputStream reader = request.getInputStream();
         byte[] data = reader.readAllBytes();
 
@@ -41,7 +41,7 @@ public final class RequestDecoder {
         return new Request(metaData, LVDecoder.decode(typeBuf, dataBuf), metaData.getRequest_action(), metaData.getRequest_language());
     }
 
-    private Request decodePYRequest(HttpServletRequest request, ClientMetaData metaData)  {
+    private static Request decodePYRequest(HttpServletRequest request, ClientMetaData metaData)  {
         return new Request(metaData, null, metaData.getRequest_action(), metaData.getRequest_language());
     }
 
