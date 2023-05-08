@@ -8,8 +8,14 @@ import cern.rade.services.common.containers.java.PropertyContainer;
 
 import java.util.ArrayList;
 
+/**
+ * Decodes {@link Data} into one of the Java container classes {@link cern.rade.services.common.containers.java}.
+ */
 public final class CMWDDecoder {
-
+    /**
+     * @param cmwData the {@link Data} which you want to decode.
+     * @return the {@link Data} decoded into a {@link DataContainer}.
+     */
     public static DataContainer<?> decode(Data cmwData){
         ArrayList<Entry> entries = (ArrayList<Entry>) cmwData.getEntries();
         if (entries.size()==1){
@@ -20,6 +26,13 @@ public final class CMWDDecoder {
         }
     }
 
+    /**
+     * Decodes {@link Data} into the provided {@link PropertyContainer}.
+     * @param cmwData the {@link Data} which you want to decode.
+     * @param propertyContainer the property container you wish to decode the {@link Data} into.
+     * @return the decoded {@link Data}.
+     */
+    //TODO: implement
     public static DataContainer<?> decode(Data cmwData, PropertyContainer propertyContainer){
         ArrayList<Entry> entries = (ArrayList<Entry>) cmwData.getEntries();
         if (entries.size()==1){
@@ -30,6 +43,12 @@ public final class CMWDDecoder {
         }
     }
 
+    /**
+     * Decodes CMW data, where the data has multiple entries. This is why the return is {@link PropertyContainer} not {@link DataContainer}.
+     * @param cmwData the data to be decoded.
+     * @param fieldName the field name of the CMW data being decoded. This is necessary because of nesting. The top level CMW data cannot have a field name, but CMW data within CMW data can have a field name.
+     * @return a {@link PropertyContainer} holding the decoded {@link Data}.
+     */
    private static PropertyContainer decodeData(Data cmwData, String fieldName){
         ArrayList<Entry> entries = (ArrayList<Entry>) cmwData.getEntries();
         int len = entries.size();
@@ -42,7 +61,11 @@ public final class CMWDDecoder {
     }
 
 
-
+    /**
+     * Decodes a single entry in {@link Data}. The entry can also be {@link Data} itself.
+     * @param entry the {@link Entry} you wish to decode.
+     * @return A {@link DataContainer} with the decoded entry inside. The DataContainer can be a PropertyContainer if the CMW data is of type DT_DATA.
+     */
     private static DataContainer<?> decodeEntry(Entry entry){
         DataType type = entry.getType();
         switch(type){
@@ -62,6 +85,11 @@ public final class CMWDDecoder {
         return null;
     }
 
+    /**
+     * Decodes a {@link Data} array into a {@link PropertyContainer} array.
+     * @param data the data array to be decoded.
+     * @return an array of {@link PropertyContainer}s.
+     */
     private static PropertyContainer[] getPropertyArray(Data[] data){
         int len = data.length;
         PropertyContainer[] propertyContainers = new PropertyContainer[len];
@@ -71,9 +99,16 @@ public final class CMWDDecoder {
         return propertyContainers;
     }
 
+    /**
+     * Decodes an n-dimensional array.
+     * @param entry the entry of CMW data which is an array.
+     * @return an {@link ArrayContainer} containing the decoded entry.
+     */
     private static ArrayContainer<?> decodeNDArray(Entry entry){
         DataType type = entry.getType();
         switch(type){
+            //We provide an elemName just for compatibility with LabVIEW. The name is just the type.
+            //1-dimensional cases are simple. Just extract the array and then create the container. The ArrayContainer.dimensions is just a  single length vector container the array size.
             case DT_BYTE_ARRAY -> {Byte[] arr = ArrayUtils.toObject(entry.getByteArray()); return new ArrayContainer<>(entry.getName(), "Byte", arr, new int[]{arr.length}, DataType.DT_BYTE_ARRAY, DataType.DT_BYTE);}
             case DT_BOOL_ARRAY -> {Boolean[] arr = ArrayUtils.toObject(entry.getBoolArray());return new ArrayContainer<>(entry.getName(), "Bool", arr, new int[]{arr.length}, DataType.DT_BOOL_ARRAY, DataType.DT_BOOL);}
             case DT_SHORT_ARRAY -> {Short[] arr = ArrayUtils.toObject(entry.getShortArray()); return new ArrayContainer<>(entry.getName(), "Short", arr, new int[]{arr.length}, DataType.DT_SHORT_ARRAY, DataType.DT_SHORT);}
@@ -87,6 +122,7 @@ public final class CMWDDecoder {
                 return new ArrayContainer<>(entry.getName(), "Property", propertyContainers, new int[]{arr.length}, DataType.DT_DATA_ARRAY, DataType.DT_DATA);
             }
 
+            //The 2-dimensional cases are more complex. We must create the dimensions array as CMW data only provides separate row and column counts.
             case DT_BYTE_ARRAY_2D -> {
                 Array2D<byte[]> array2D = entry.getByteArray2D(); Byte[] elems = ArrayUtils.toObject(array2D.getElements()); int[] dims = getDims2D(array2D);
                 return new ArrayContainer<>(entry.getName(), "Byte", elems, dims, DataType.DT_BYTE_ARRAY_2D, DataType.DT_BYTE);
@@ -124,6 +160,8 @@ public final class CMWDDecoder {
                 return new ArrayContainer<>(entry.getName(), "Property", propertyContainers, dims, DataType.DT_DATA_ARRAY_2D, DataType.DT_DATA);
             }
 
+
+            //The multidimensional case is less complex than the 2-dimensional case. We must just call .getDimensions().
             case DT_BYTE_MULTI_ARRAY -> {
                 MultiArray<byte[]> arrayMulti = entry.getByteMultiArray(); Byte[] elems = ArrayUtils.toObject(arrayMulti.getElements()); int[] dims = arrayMulti.getDimensions();
                 return new ArrayContainer<>(entry.getName(), "Byte", elems, dims, DataType.DT_BYTE_MULTI_ARRAY, DataType.DT_BYTE);
@@ -163,6 +201,12 @@ public final class CMWDDecoder {
         }
         return null;
     }
+
+    /**
+     * Converts a column and row count into the standard array of dimension lengths.
+     * @param array2D the 2D array which we are generating the dimension array for.
+     * @return the array of dimenion lengths.
+     */
     private static int[] getDims2D(Array2D<?> array2D){
         int[] dims = new int[2];
 

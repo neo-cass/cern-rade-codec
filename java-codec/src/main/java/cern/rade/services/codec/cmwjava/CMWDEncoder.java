@@ -4,9 +4,10 @@ import cern.cmw.data.Data;
 import cern.rade.services.common.containers.java.ArrayContainer;
 import cern.rade.services.common.containers.java.DataContainer;
 import cern.rade.services.common.containers.java.PropertyContainer;
-import java.util.function.Function;
 
-
+/**
+ * Encodes containers from {@link cern.rade.services.common.containers.java} into {@link Data}.
+ */
 public final class CMWDEncoder {
     public static Data encode(DataContainer<?> DataContainer){
         CMWDW cmwDataW;
