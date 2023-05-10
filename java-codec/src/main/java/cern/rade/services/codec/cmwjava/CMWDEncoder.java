@@ -9,15 +9,29 @@ import cern.rade.services.common.containers.java.PropertyContainer;
  * Encodes containers from {@link cern.rade.services.common.containers.java} into {@link Data}.
  */
 public final class CMWDEncoder {
+    /**
+     * Due to nesting there are 2 encode functions. If the top level data is not DT_DATA, then we can call {@link CMWDEncoder#encodeData} straight away.
+     * If not, we create the new CMW data object ourselves and then pass it to the other encode function.
+     * We need the distinction because the encodeData function always creates its own CMW data object, whereas when encoding, for example, just a string, we do not want this behaviour.
+     * The CMW data object has weird behaviour. For example, if we have DT_DATA_ARRAY, it must still be appended to a CMW data object.
+     * When I reference CMW data here I do mean the raw CMW data object INSIDE the CMW data wrapper. See {@link CMWDW} for further clarification on what it adds to {@link Data}.
+     * @param DataContainer the DataContainer to be encoded into CMW data.
+     * @return the encoded data.
+     */
     public static Data encode(DataContainer<?> DataContainer){
         CMWDW cmwDataW;
         switch(DataContainer.getDataType()){
-            case DT_DATA -> cmwDataW = encodeCluster((PropertyContainer) DataContainer);
+            case DT_DATA -> cmwDataW = encodeData((PropertyContainer) DataContainer);
             default -> {cmwDataW = new CMWDW(); encode(DataContainer, cmwDataW);}
         }
         return cmwDataW.getCmwData();
     }
 
+    /**
+     * Appends encoded CMW data to the provided CMW data wrapper provided.
+     * @param DataContainer the DataCOntainer to be encoded adn appended.
+     * @param cmwDataW the CMW data wrapper which will be appended to.
+     */
     private static void encode(DataContainer<?> DataContainer, CMWDW cmwDataW){
         switch(DataContainer.getDataType()){
             case DT_DATA -> cmwDataW.appendProperty((PropertyContainer) DataContainer);
@@ -59,7 +73,7 @@ public final class CMWDEncoder {
         }
     }
 
-    private static CMWDW encodeCluster(PropertyContainer propertyContainer){
+    private static CMWDW encodeData(PropertyContainer propertyContainer){
         CMWDW cmwDataW = new CMWDW();
         DataContainer<?>[] DataContainers = propertyContainer.getData();
         for (DataContainer<?> DataContainer : DataContainers) {encode(DataContainer, cmwDataW);}
