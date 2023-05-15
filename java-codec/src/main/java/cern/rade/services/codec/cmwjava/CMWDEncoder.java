@@ -29,7 +29,7 @@ public final class CMWDEncoder {
 
     /**
      * Appends encoded CMW data to the provided CMW data wrapper provided.
-     * @param DataContainer the DataCOntainer to be encoded adn appended.
+     * @param DataContainer the DataCOntainer to be encoded and appended.
      * @param cmwDataW the CMW data wrapper which will be appended to.
      */
     private static void encode(DataContainer<?> DataContainer, CMWDW cmwDataW){
@@ -42,6 +42,11 @@ public final class CMWDEncoder {
         }
     }
 
+    /**
+     * Appends an encoded ArrayContainer to the provided CMW data wrapper provided.
+     * @param arrayContainer the ArrayContainer to be encoded and appended.
+     * @param cmwDataW the CMW data wrapper which will be appended to.
+     */
     @SuppressWarnings("unchecked")
     private static void encodeArray(ArrayContainer arrayContainer, CMWDW cmwDataW) {
         switch(arrayContainer.getDataType()){
@@ -59,20 +64,30 @@ public final class CMWDEncoder {
 
     }
 
+    /**
+     * Appends an encoded DataContainer to the provided CMW data wrapper provided. The DataContainer will contain a "single" type, by this I mean there is no nesting.
+     * @param  dataContainer DataContainer to be encoded and appended.
+     * @param cmwDataW the CMW data wrapper which will be appended to.
+     */
     @SuppressWarnings("unchecked")
-    private static void encodeSingle(DataContainer<?> DataContainer, CMWDW cmwDataW){
-        switch(DataContainer.getDataType()){
-            case DT_BYTE -> cmwDataW.appendByte((DataContainer<Byte>) DataContainer);
-            case DT_SHORT -> cmwDataW.appendShort((DataContainer<Short>) DataContainer);
-            case DT_INT -> cmwDataW.appendInt((DataContainer<Integer>) DataContainer);
-            case DT_LONG -> cmwDataW.appendLong((DataContainer<Long>) DataContainer);
-            case DT_FLOAT -> cmwDataW.appendFloat((DataContainer<Float>) DataContainer);
-            case DT_DOUBLE -> cmwDataW.appendDouble((DataContainer<Double>) DataContainer);
-            case DT_BOOL -> cmwDataW.appendBool((DataContainer<Boolean>) DataContainer);
-            case DT_STRING -> cmwDataW.appendString((DataContainer<String>) DataContainer);
+    private static void encodeSingle(DataContainer<?> dataContainer, CMWDW cmwDataW){
+        switch(dataContainer.getDataType()){
+            case DT_BYTE -> cmwDataW.appendByte((DataContainer<Byte>) dataContainer);
+            case DT_SHORT -> cmwDataW.appendShort((DataContainer<Short>) dataContainer);
+            case DT_INT -> cmwDataW.appendInt((DataContainer<Integer>) dataContainer);
+            case DT_LONG -> cmwDataW.appendLong((DataContainer<Long>) dataContainer);
+            case DT_FLOAT -> cmwDataW.appendFloat((DataContainer<Float>) dataContainer);
+            case DT_DOUBLE -> cmwDataW.appendDouble((DataContainer<Double>) dataContainer);
+            case DT_BOOL -> cmwDataW.appendBool((DataContainer<Boolean>) dataContainer);
+            case DT_STRING -> cmwDataW.appendString((DataContainer<String>) dataContainer);
         }
     }
 
+    /**
+     * Encodes a PropertyContainer into a CMW data wrapper. As mentioned above, this function actually creates a CMW data object, unlike the other functions in this class which only append data.
+     * @param propertyContainer the PropertyContainer to be enocded.
+     * @return the encoded CMW data wrapper.
+     */
     private static CMWDW encodeData(PropertyContainer propertyContainer){
         CMWDW cmwDataW = new CMWDW();
         DataContainer<?>[] DataContainers = propertyContainer.getData();

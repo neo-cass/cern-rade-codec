@@ -7,8 +7,14 @@ import cern.rade.services.common.containers.java.ArrayContainer;
 import cern.rade.services.common.containers.java.DataContainer;
 import cern.rade.services.common.containers.java.PropertyContainer;
 
+/**
+ * This class provides an abstracted view of {@link Data} which allows you to append the internal {@link cern.rade.services.common.containers.java}s.
+ */
 public class CMWDW {
-    Data cmwData;
+    /**
+     * cmwData is the actual raw CMW data which we are wrapping with this class.
+     */
+    private Data cmwData;
     public CMWDW(){cmwData = DataFactory.createData();}
     public Data getCmwData() {return cmwData;}
     public void appendByte(DataContainer<Byte> DataContainer){
@@ -26,7 +32,6 @@ public class CMWDW {
     public void appendFloat(DataContainer<Float> DataContainer){
         cmwData.append(DataContainer.getName(), DataContainer.getData());
     }
-
     public void appendDouble(DataContainer<Double> DataContainer){
         cmwData.append(DataContainer.getName(), DataContainer.getData());
     }
