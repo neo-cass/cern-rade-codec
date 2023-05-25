@@ -12,16 +12,14 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import static cern.rade.services.common.BytesUtil.shortArrToByteArr;
 
 
 public final class RequestDecoder {
-    private static JsonArray jsonArray;
-
     public static Request decodeMessage(HttpServletRequest request) throws IOException {
         String jsonMsg = request.getHeader("MetaData");
-
         MetaData metaData = new MetaData(JsonParser.parseString(jsonMsg).getAsJsonObject());
         switch(RequestLanguage.valueOf(metaData.getRequest_language())){
             case LABVIEW -> {return decodeLVRequest(request, metaData);}
@@ -35,10 +33,10 @@ public final class RequestDecoder {
         DataContainer decodedData = null;
         byte[] data = reader.readAllBytes();
         short[] type_descriptor = metaData.getType_descriptor();
-        if(data != null && type_descriptor != null){
+        if(data.length > 0  && type_descriptor.length > 0){
             decodedData = decodeLVData(data, type_descriptor);
         }
-        return new Request(metaData, decodedData, metaData.getRequest_action(), metaData.getRequest_language());
+        return new Request(metaData, decodedData);
     }
 
     private static DataContainer decodeLVData(byte[] data, short[] type_descriptor){
@@ -48,7 +46,7 @@ public final class RequestDecoder {
     }
 
     private static Request decodePYRequest(HttpServletRequest request, MetaData metaData)  {
-        return new Request(metaData, null, metaData.getRequest_action(), metaData.getRequest_language());
+        return new Request(metaData, null);
     }
 
 }

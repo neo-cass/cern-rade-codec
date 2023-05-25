@@ -50,7 +50,6 @@ public class CMWDW {
     }
     public void appendByteArray(ArrayContainer<Byte> arrayContainer) {
         int[] dimensions = arrayContainer.getDimensions();
-
         byte[] arr = ArrayUtils.toPrimitive(arrayContainer.getData());
         if(dimensions.length==1){cmwData.appendArray(arrayContainer.getName(), arr);}
         else if(dimensions.length==2){cmwData.appendArray2D(arrayContainer.getName(), arr, dimensions[0], dimensions[1]);}
@@ -115,6 +114,8 @@ public class CMWDW {
         PropertyContainer[] arr = arrayContainer.getData();
         Data[] datum = new Data[arr.length];
         for (int i =0; i< arr.length; i++){
+            //this is the reason this class is in the codec and not in common
+            //otherwise common would pull from codec and codec would pull from common
             datum[i] = encodeProperty(arr[i]);
         }
         if(dimensions.length==1){cmwData.appendArray(arrayContainer.getName(), datum);}

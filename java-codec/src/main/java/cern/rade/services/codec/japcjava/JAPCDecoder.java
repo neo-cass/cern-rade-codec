@@ -8,8 +8,16 @@ import cern.rade.services.common.containers.java.DataContainer;
 import cern.rade.services.common.containers.java.PropertyContainer;
 import cern.rade.services.common.containers.TypeLookup;
 
-
+/**
+ * Decodes JAPC types into {@link cern.rade.services.common.containers.java} types.
+ */
 public final class JAPCDecoder {
+    /**
+     * Decodes an {@link AcquiredParameterValue} into the provided {@link PropertyContainer}.
+     * @param property the {@link PropertyContainer} where you want your {@link AcquiredParameterValue} to be decoded into.
+     * @param apv the {@link AcquiredParameterValue} you want to decode.
+     * @return the reference to the {@link PropertyContainer} you decoded into.
+     */
     public static DataContainer<?> decode(PropertyContainer property, AcquiredParameterValue apv){
         DataContainer<Object>[] fields = (DataContainer<Object>[]) property.getData();
         MapParameterValue mpv = apv.getValue().castAsMap();
@@ -19,6 +27,11 @@ public final class JAPCDecoder {
         return property;
     }
 
+    /**
+     * Decodes an {@link AcquiredParameterValue} into a new {@link PropertyContainer}.
+     * @param apv the {@link AcquiredParameterValue} to be deocded.
+     * @return a new {@link PropertyContainer} containing the decoded {@link AcquiredParameterValue}
+     */
     public static PropertyContainer decode(AcquiredParameterValue apv){
         MapParameterValue mpv = apv.getValue().castAsMap();
         String[] names = mpv.getNames();
@@ -31,6 +44,12 @@ public final class JAPCDecoder {
         return new PropertyContainer(apv.getParameterName(), fields, DataType.DT_DATA);
     }
 
+    /**
+     * Decodes a {@link SimpleParameterValue}
+     * @param spv
+     * @param name
+     * @return
+     */
     private static DataContainer<Object> decodeSimple(SimpleParameterValue spv, String name){
         DataType dataType = TypeLookup.getCMWType(spv.getValueType(name));
         DataContainer<Object> field = new DataContainer<>(name, null, dataType);
