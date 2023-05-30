@@ -1,7 +1,7 @@
 package cern.rade.services.codec;
 
 import cern.rade.services.codec.lvtojava.LVDecoder;
-import cern.rade.services.common.communication.client.*;
+import cern.rade.services.common.communication.*;
 import cern.rade.services.common.containers.java.DataContainer;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
