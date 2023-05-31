@@ -3,16 +3,12 @@ package cern.rade.services.codec;
 import cern.rade.services.codec.lvtojava.LVDecoder;
 import cern.rade.services.common.communication.*;
 import cern.rade.services.common.containers.java.DataContainer;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import static cern.rade.services.common.BytesUtil.shortArrToByteArr;
 
