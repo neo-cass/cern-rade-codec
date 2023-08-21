@@ -18,7 +18,7 @@ public final class CMWDEncoder {
      * @param DataContainer the DataContainer to be encoded into CMW data.
      * @return the encoded data.
      */
-    public static Data encode(DataContainer<?> DataContainer){
+    public static Data encode(DataContainer DataContainer){
         CMWDW cmwDataW;
         switch(DataContainer.getDataType()){
             case DT_DATA -> cmwDataW = encodeData((PropertyContainer) DataContainer);
@@ -32,7 +32,7 @@ public final class CMWDEncoder {
      * @param DataContainer the DataCOntainer to be encoded and appended.
      * @param cmwDataW the CMW data wrapper which will be appended to.
      */
-    private static void encode(DataContainer<?> DataContainer, CMWDW cmwDataW){
+    private static void encode(DataContainer DataContainer, CMWDW cmwDataW){
         switch(DataContainer.getDataType()){
             case DT_DATA -> cmwDataW.appendProperty((PropertyContainer) DataContainer);
             case DT_BOOL_ARRAY, DT_BYTE_ARRAY, DT_DOUBLE_ARRAY, DT_FLOAT_ARRAY, DT_STRING_ARRAY, DT_INT_ARRAY, DT_SHORT_ARRAY, DT_LONG_ARRAY, DT_DATA_ARRAY,

@@ -14,69 +14,72 @@ import java.nio.ByteBuffer;
 
 public final class LVDataDecoder {
 
-    public static DataContainer<?> decode(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor)   {
-        switch(lvTypeDescriptor.getType()){
-            case CLUSTER -> {
-                return decodeCluster(buffer, (LVClusterDescriptor) lvTypeDescriptor);}
-            case INT_8, INT_16, INT_32, INT_64, UINT_8, UINT_16, UINT_32, BOOL, SGL, DBL, STRING -> {
-                return decodeSingle(buffer,lvTypeDescriptor);}
-            case ARRAY -> {
-                return decodeArray(buffer, (LVArrayDescriptor) lvTypeDescriptor);}
+    public static DataContainer decode(ByteBuffer buffer, DataContainer dataContainer, LVTypeDescriptor lvTypeDescriptor)   {
+        switch(dataContainer.getDataType()){
+            case DT_DATA -> {
+                return decodeCluster(buffer, (PropertyContainer) dataContainer, (LVClusterDescriptor) lvTypeDescriptor);
+            }
+            case DT_BYTE, DT_BOOL, DT_SHORT, DT_INT, DT_LONG, DT_FLOAT, DT_DOUBLE, DT_STRING -> {
+                return decodeSingle(buffer, dataContainer);
+            }
+            case DT_BOOL_ARRAY, DT_BYTE_ARRAY, DT_DOUBLE_ARRAY, DT_FLOAT_ARRAY, DT_STRING_ARRAY, DT_INT_ARRAY, DT_SHORT_ARRAY, DT_LONG_ARRAY, DT_DATA_ARRAY,
+                    DT_BOOL_ARRAY_2D, DT_BYTE_ARRAY_2D, DT_DOUBLE_ARRAY_2D, DT_FLOAT_ARRAY_2D, DT_STRING_ARRAY_2D, DT_INT_ARRAY_2D, DT_SHORT_ARRAY_2D, DT_LONG_ARRAY_2D, DT_DATA_ARRAY_2D,
+                    DT_BOOL_MULTI_ARRAY, DT_BYTE_MULTI_ARRAY, DT_DOUBLE_MULTI_ARRAY, DT_FLOAT_MULTI_ARRAY, DT_STRING_MULTI_ARRAY, DT_INT_MULTI_ARRAY, DT_SHORT_MULTI_ARRAY, DT_LONG_MULTI_ARRAY, DT_DATA_MULTI_ARRAY -> {
+                return decodeArray(buffer, (ArrayContainer) dataContainer, (LVArrayDescriptor) lvTypeDescriptor);
+            }
             default -> {return null;}
         }
     }
 
-    private static DataContainer<?> decodeSingle(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor){
-        LVType type = lvTypeDescriptor.getType();
-        String fieldName = lvTypeDescriptor.getName();
-        switch(type){
-            case INT_8 -> {return new DataContainer<Byte>(fieldName, (Byte) buffer.get(), DataType.DT_BYTE);}
-            case BOOL -> {return new DataContainer<Boolean>(fieldName, (Boolean) getBool(buffer), DataType.DT_BOOL);}
-            case INT_16, UINT_8 -> {return new DataContainer<Short>(fieldName, (Short) buffer.getShort(),DataType.DT_SHORT);}
-            case INT_32, UINT_16 -> {return new DataContainer<Integer>(fieldName, (Integer) buffer.getInt(),DataType.DT_INT);}
-            case INT_64, UINT_32 -> {return new DataContainer<Long>(fieldName, (Long) buffer.getLong(),DataType.DT_LONG);}
-            case SGL -> {return new DataContainer<Float>(fieldName, (Float) buffer.getFloat(),DataType.DT_FLOAT);}
-            case DBL -> {return new DataContainer<Double>(fieldName, (Double) buffer.getDouble(), DataType.DT_DOUBLE);}
-            case STRING -> {return new DataContainer<String>(lvTypeDescriptor.getName(), getString(buffer), DataType.DT_STRING);}
-            default -> {return null;}
+    private static DataContainer decodeSingle(ByteBuffer buffer, DataContainer dataContainer){
+        switch(dataContainer.getDataType()){
+            case DT_BYTE -> {dataContainer.setData(buffer.get());}
+            case DT_BOOL -> {dataContainer.setData(getBool(buffer));}
+            case DT_SHORT -> {dataContainer.setData(buffer.getShort());}
+            case DT_INT -> {dataContainer.setData(buffer.getInt());}
+            case DT_LONG -> {dataContainer.setData(buffer.getLong());}
+            case DT_FLOAT -> {dataContainer.setData(buffer.getFloat());}
+            case DT_DOUBLE -> {dataContainer.setData(buffer.getDouble());}
+            case DT_STRING -> {dataContainer.setData(getString(buffer));}
         }
+        return dataContainer;
     }
 
-    private static ArrayContainer<?> decodeArray(ByteBuffer buffer, LVArrayDescriptor lvArrayDescriptor){
+    private static ArrayContainer decodeArray(ByteBuffer buffer, ArrayContainer arrayContainer, LVArrayDescriptor lvArrayDescriptor){
         LVTypeDescriptor lvElemDescriptor = lvArrayDescriptor.getElemDescriptor();
         int[] dimensions = getDims(buffer, lvArrayDescriptor);
         int len = getArrLen(dimensions);
-        DataType elemDt = TypeLookup.getCMWType(lvElemDescriptor.getType());
-        DataType dt = TypeLookup.getCMWType(elemDt, dimensions.length);
-
-        switch(lvElemDescriptor.getType()){
-            case INT_8 -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getByteArr(buffer, len), dimensions, dt, elemDt);}
-            case BOOL -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getBoolArr(buffer, len), dimensions, dt, elemDt);}
-            case INT_16, UINT_8 -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getShortArr(buffer, len), dimensions, dt, elemDt);}
-            case INT_32, UINT_16 -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getIntArr(buffer, len), dimensions, dt, elemDt);}
-            case INT_64, UINT_32 -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getLongArr(buffer, len), dimensions, dt, elemDt);}
-            case SGL -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getFloatArr(buffer, len), dimensions, dt, elemDt);}
-            case DBL -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getDoubleArr(buffer, len), dimensions, dt, elemDt);}
-            case STRING -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getStringArr(buffer, len), dimensions, dt, elemDt);}
-            case CLUSTER -> {return new ArrayContainer<>(lvArrayDescriptor.getName(), lvElemDescriptor.getName(), getClusterArr(buffer, len, (LVClusterDescriptor) lvElemDescriptor), dimensions, dt, elemDt);}
+        arrayContainer.setElemName(lvElemDescriptor.getName());
+        arrayContainer.setDimensions(dimensions);
+        switch(arrayContainer.getElemType()){
+            case DT_BYTE -> {arrayContainer.setData(getByteArr(buffer, len), dimensions);}
+            case DT_BOOL -> {arrayContainer.setData(getBoolArr(buffer, len), dimensions);}
+            case DT_SHORT -> {arrayContainer.setData(getShortArr(buffer, len), dimensions);}
+            case DT_INT -> {arrayContainer.setData(getIntArr(buffer, len));}
+            case DT_LONG-> {arrayContainer.setData(getLongArr(buffer, len), dimensions);}
+            case DT_FLOAT -> {arrayContainer.setData(getFloatArr(buffer, len), dimensions);}
+            case DT_DOUBLE -> {arrayContainer.setData(getDoubleArr(buffer, len), dimensions);}
+            case DT_STRING -> {arrayContainer.setData(getStringArr(buffer, len), dimensions);}
+            case DT_DATA -> {arrayContainer.setData(getClusterArr(buffer, len, (LVClusterDescriptor) lvElemDescriptor), dimensions);}
         }
-
         return null;
     }
 
-    private static PropertyContainer decodeCluster(ByteBuffer buffer, LVClusterDescriptor lvClusterDescriptor){
+    private static PropertyContainer decodeCluster(ByteBuffer buffer, PropertyContainer propertyContainer, LVClusterDescriptor lvClusterDescriptor){
         LVTypeDescriptor[] lvTypeDescriptors = lvClusterDescriptor.getFieldDescriptors();
-        DataContainer<?>[] DataContainers = new DataContainer[lvTypeDescriptors.length];
         for(int i = 0; i< lvTypeDescriptors.length; i++){
-            DataContainers[i] = decode(buffer, lvTypeDescriptors[i]);
+            LVTypeDescriptor lvTypeDescriptor = lvTypeDescriptors[i];
+            DataContainer dataContainer = propertyContainer.getField(lvTypeDescriptor.getName());
+            decode(buffer, dataContainer, lvTypeDescriptor);
         }
-        return new PropertyContainer(lvClusterDescriptor.getName(), DataContainers, DataType.DT_DATA);
+        return propertyContainer;
     }
 
-    private static PropertyContainer[] getClusterArr(ByteBuffer buffer, int len, LVClusterDescriptor lvClusterDescriptor) {
+    private static PropertyContainer[] getClusterArr(ByteBuffer buffer, int len, PropertyContainer propertyContainer, LVClusterDescriptor lvClusterDescriptor) {
         PropertyContainer[] propertyContainers = new PropertyContainer[len];
         for(int i = 0; i<len; i++){
-            propertyContainers[i] = decodeCluster(buffer, lvClusterDescriptor);
+            PropertyContainer newPropertyContainer = propertyContainer;
+            decodeCluster(buffer, propertyContainer, lvClusterDescriptor);
         }
         return propertyContainers;
     }

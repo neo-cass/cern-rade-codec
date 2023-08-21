@@ -17,11 +17,11 @@ public class CMWDW {
     private Data cmwData;
     public CMWDW(){cmwData = DataFactory.createData();}
     public Data getCmwData() {return cmwData;}
-    public void appendByte(DataContainer<Byte> DataContainer){
-        cmwData.append(DataContainer.getName(), DataContainer.getData());
+    public void appendByte(DataContainer DataContainer){
+        cmwData.append(DataContainer.getName(), (Boolean) DataContainer.getData());
     }
-    public void appendBool(DataContainer<Boolean> DataContainer){
-        cmwData.append(DataContainer.getName(), DataContainer.getData());
+    public void appendBool(DataContainer DataContainer){
+        cmwData.append(DataContainer.getName(), (Boolean) DataContainer.getData());
     }
     public void appendShort(DataContainer<Short> DataContainer){
         cmwData.append(DataContainer.getName(), DataContainer.getData());
