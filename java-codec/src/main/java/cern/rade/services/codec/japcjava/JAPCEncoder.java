@@ -10,8 +10,10 @@ import cern.rade.services.common.containers.java.ArrayContainer;
 import cern.rade.services.common.containers.java.DataContainer;
 import cern.rade.services.common.containers.java.PropertyContainer;
 
+import java.util.Map;
+
 public final class JAPCEncoder {
-    public static ParameterValue encode(DataContainer<?> DataContainer){
+    public static ParameterValue encode(DataContainer DataContainer){
         MapParameterValue mpv = MapParameterValueFactory.newMapParameterValue();
         switch(DataContainer.getDataType()){
             case DT_DATA -> {
@@ -26,15 +28,13 @@ public final class JAPCEncoder {
     }
 
     private static MapParameterValue encodeData(PropertyContainer property, MapParameterValue mpv) {
-        DataContainer<?>[] DataContainers = property.getData();
-
-        for (DataContainer<?> DataContainer : DataContainers){
-            encodeSingle(DataContainer, mpv);
+        for (Map.Entry<String, DataContainer> entry : property.getData().entrySet()){
+            encodeSingle(entry.getValue(), mpv);
         }
         return mpv;
     }
 
-    private static void encodeSingle(DataContainer<?> DataContainer, MapParameterValue mpv){
+    private static void encodeSingle(DataContainer DataContainer, MapParameterValue mpv){
         switch(DataContainer.getDataType()){
             case DT_BYTE -> mpv.setByte(DataContainer.getName(), (byte) DataContainer.getData());
             case DT_BOOL -> mpv.setBoolean(DataContainer.getName(), (boolean) DataContainer.getData());

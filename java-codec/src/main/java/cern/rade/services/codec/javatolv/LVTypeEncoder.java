@@ -10,14 +10,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 public final class LVTypeEncoder {
 
-    public static short[] encodeTypeDescriptor(DataContainer<?> DataContainer) throws IOException {
+    public static short[] encodeTypeDescriptor(DataContainer DataContainer) throws IOException {
         return byteArrToShortArr(encodeTypeDescriptor_bytes(DataContainer));
     }
 
-    private static byte[] encodeTypeDescriptor_bytes(DataContainer<?> DataContainer) throws IOException {
+    private static byte[] encodeTypeDescriptor_bytes(DataContainer DataContainer) throws IOException {
         byte[] typeDescriptor = null;
         switch(DataContainer.getDataType()){
             case DT_DATA -> {typeDescriptor = encodeClusterDescriptor((PropertyContainer) DataContainer);}
@@ -84,10 +85,9 @@ public final class LVTypeEncoder {
         String fieldName = propertyContainer.getName();
         byte[] fieldNameBytes = fieldName.getBytes();
         short totalLength = 0;
-        short nTDs = (short) propertyContainer.getData().length;
-        DataContainer<?>[] DataContainers = propertyContainer.getData();
-        for (DataContainer<?> javaData : DataContainers){
-            byte[] nestedtypeDesc = encodeTypeDescriptor_bytes(javaData);
+        short nTDs = (short) propertyContainer.getData().size();
+        for (Map.Entry<String, DataContainer> entry: propertyContainer.getData().entrySet()){
+            byte[] nestedtypeDesc = encodeTypeDescriptor_bytes(entry.getValue());
             totalLength+=nestedtypeDesc.length;
             dos.write(nestedtypeDesc);
         }
@@ -104,7 +104,7 @@ public final class LVTypeEncoder {
         return byteBuffer.array();
     }
 
-    private static byte[] encodeArrayDescriptor(ArrayContainer<?> arrayContainer) throws IOException {
+    private static byte[] encodeArrayDescriptor(ArrayContainer arrayContainer) throws IOException {
         Object[] arr = arrayContainer.getData();
         int[] dimensions = arrayContainer.getDimensions();
         int dimension = dimensions.length;

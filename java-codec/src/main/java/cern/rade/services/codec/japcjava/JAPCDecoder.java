@@ -8,6 +8,8 @@ import cern.rade.services.common.containers.java.DataContainer;
 import cern.rade.services.common.containers.java.PropertyContainer;
 import cern.rade.services.common.containers.TypeLookup;
 
+import java.util.Map;
+
 /**
  * Decodes JAPC types into {@link cern.rade.services.common.containers.java} types.
  */
@@ -18,11 +20,10 @@ public final class JAPCDecoder {
      * @param apv the {@link AcquiredParameterValue} you want to decode.
      * @return the reference to the {@link PropertyContainer} you decoded into.
      */
-    public static DataContainer<?> decode(PropertyContainer property, AcquiredParameterValue apv){
-        DataContainer<Object>[] fields = (DataContainer<Object>[]) property.getData();
+    public static DataContainer decode(PropertyContainer property, AcquiredParameterValue apv){
         MapParameterValue mpv = apv.getValue().castAsMap();
-        for(DataContainer<Object> field : fields){
-           decodeSimple(mpv.get(field.getName()), field);
+        for(Map.Entry<String, DataContainer> entry: property.getData().entrySet()){
+           decodeSimple(mpv.get(entry.getKey()), entry.getValue());
         }
         return property;
     }
@@ -35,13 +36,11 @@ public final class JAPCDecoder {
     public static PropertyContainer decode(AcquiredParameterValue apv){
         MapParameterValue mpv = apv.getValue().castAsMap();
         String[] names = mpv.getNames();
-        DataContainer<Object>[] fields = new DataContainer[names.length];
-        int counter = 0;
+        PropertyContainer propertyContainer = new PropertyContainer(apv.getParameterName());
         for (String name : names){
-            fields[counter] = decodeSimple(mpv.get(name), name);
-            counter++;
+            propertyContainer.setDataContainer(name, decodeSimple(mpv.get(name), name));
         }
-        return new PropertyContainer(apv.getParameterName(), fields, DataType.DT_DATA);
+        return propertyContainer;
     }
 
     /**
@@ -50,14 +49,14 @@ public final class JAPCDecoder {
      * @param name
      * @return
      */
-    private static DataContainer<Object> decodeSimple(SimpleParameterValue spv, String name){
+    private static DataContainer decodeSimple(SimpleParameterValue spv, String name){
         DataType dataType = TypeLookup.getCMWType(spv.getValueType(name));
-        DataContainer<Object> field = new DataContainer<>(name, null, dataType);
+        DataContainer field = new DataContainer(name);
         decodeSimple(spv, field);
         return field;
     }
 
-    private static void decodeSimple(SimpleParameterValue spv, DataContainer<Object> field){
+    private static void decodeSimple(SimpleParameterValue spv, DataContainer field){
         String name = field.getName();
         switch(field.getDataType()){
             case DT_BYTE -> field.setData(spv.getByte(name));
@@ -78,6 +77,7 @@ public final class JAPCDecoder {
             case DT_FLOAT_ARRAY -> field.setData(spv.getFloats(name));
             case DT_STRING_ARRAY -> field.setData(spv.getStrings(name));
 
+            //TODO add dimensions
             case DT_BYTE_ARRAY_2D -> field.setData(spv.getArray2D(name).getByteArray2D());
             case DT_BOOL_ARRAY_2D -> field.setData(spv.getArray2D(name).getBooleanArray2D());
             case DT_SHORT_ARRAY_2D -> field.setData(spv.getArray2D(name).getShortArray2D());

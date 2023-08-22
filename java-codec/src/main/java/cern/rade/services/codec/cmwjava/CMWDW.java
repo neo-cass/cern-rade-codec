@@ -18,29 +18,29 @@ public class CMWDW {
     public CMWDW(){cmwData = DataFactory.createData();}
     public Data getCmwData() {return cmwData;}
     public void appendByte(DataContainer DataContainer){
-        cmwData.append(DataContainer.getName(), (Boolean) DataContainer.getData());
+        cmwData.append(DataContainer.getName(), (byte) DataContainer.getData());
     }
     public void appendBool(DataContainer DataContainer){
-        cmwData.append(DataContainer.getName(), (Boolean) DataContainer.getData());
+        cmwData.append(DataContainer.getName(), (boolean) DataContainer.getData());
     }
-    public void appendShort(DataContainer<Short> DataContainer){
-        cmwData.append(DataContainer.getName(), DataContainer.getData());
+    public void appendShort(DataContainer DataContainer){
+        cmwData.append(DataContainer.getName(), (short) DataContainer.getData());
     }
-    public void appendInt(DataContainer<Integer> DataContainer){
-        cmwData.append(DataContainer.getName(), DataContainer.getData());
+    public void appendInt(DataContainer DataContainer){
+        cmwData.append(DataContainer.getName(), (int) DataContainer.getData());
     }
-    public void appendFloat(DataContainer<Float> DataContainer){
-        cmwData.append(DataContainer.getName(), DataContainer.getData());
+    public void appendFloat(DataContainer DataContainer){
+        cmwData.append(DataContainer.getName(), (float) DataContainer.getData());
     }
-    public void appendDouble(DataContainer<Double> DataContainer){
-        cmwData.append(DataContainer.getName(), DataContainer.getData());
+    public void appendDouble(DataContainer DataContainer){
+        cmwData.append(DataContainer.getName(), (boolean) DataContainer.getData());
     }
 
-    public void appendLong(DataContainer<Long> DataContainer){
-        cmwData.append(DataContainer.getName(), DataContainer.getData());
+    public void appendLong(DataContainer DataContainer){
+        cmwData.append(DataContainer.getName(), (long) DataContainer.getData());
     }
-    public void appendString(DataContainer<String> DataContainer){
-        cmwData.append(DataContainer.getName(), DataContainer.getData());
+    public void appendString(DataContainer DataContainer){
+        cmwData.append(DataContainer.getName(), (boolean) DataContainer.getData());
     }
     public void appendProperty(PropertyContainer propertyContainer){
         cmwData.append(propertyContainer.getName(), encodeProperty(propertyContainer));
@@ -48,70 +48,70 @@ public class CMWDW {
     private Data encodeProperty(PropertyContainer propertyContainer){
         return CMWDEncoder.encode(propertyContainer);
     }
-    public void appendByteArray(ArrayContainer<Byte> arrayContainer) {
+    public void appendByteArray(ArrayContainer arrayContainer) {
         int[] dimensions = arrayContainer.getDimensions();
-        byte[] arr = ArrayUtils.toPrimitive(arrayContainer.getData());
+        byte[] arr = ArrayUtils.toPrimitive((Byte[]) arrayContainer.getData());
         if(dimensions.length==1){cmwData.appendArray(arrayContainer.getName(), arr);}
         else if(dimensions.length==2){cmwData.appendArray2D(arrayContainer.getName(), arr, dimensions[0], dimensions[1]);}
         else{cmwData.appendMultiArray(arrayContainer.getName(), arr, dimensions);}
     }
 
-    public void appendBoolArray(ArrayContainer<Boolean> arrayContainer) {
+    public void appendBoolArray(ArrayContainer arrayContainer) {
         int[] dimensions = arrayContainer.getDimensions();
-        boolean[] arr = ArrayUtils.toPrimitive(arrayContainer.getData());
+        boolean[] arr = ArrayUtils.toPrimitive((Boolean[]) arrayContainer.getData());
         if(dimensions.length==1){cmwData.appendArray(arrayContainer.getName(), arr);}
         else if(dimensions.length==2){cmwData.appendArray2D(arrayContainer.getName(), arr, dimensions[0], dimensions[1]);}
         else{cmwData.appendMultiArray(arrayContainer.getName(), arr, dimensions);}
     }
 
-    public void appendShortArray(ArrayContainer<Short> arrayContainer){
+    public void appendShortArray(ArrayContainer arrayContainer){
         int[] dimensions = arrayContainer.getDimensions();
-        short[] arr = ArrayUtils.toPrimitive(arrayContainer.getData());
+        short[] arr = ArrayUtils.toPrimitive((Short[]) arrayContainer.getData());
         if(dimensions.length==1){cmwData.appendArray(arrayContainer.getName(), arr);}
         else if(dimensions.length==2){cmwData.appendArray2D(arrayContainer.getName(), arr, dimensions[0], dimensions[1]);}
         else{cmwData.appendMultiArray(arrayContainer.getName(), arr, dimensions);}
     }
 
-    public void appendIntArray(ArrayContainer<Integer> arrayContainer)  {
+    public void appendIntArray(ArrayContainer arrayContainer)  {
         int[] dimensions = arrayContainer.getDimensions();
-        int[] arr = ArrayUtils.toPrimitive(arrayContainer.getData());
+        int[] arr = ArrayUtils.toPrimitive((Integer[]) arrayContainer.getData());
         if(dimensions.length==1){cmwData.appendArray(arrayContainer.getName(), arr);}
         else if(dimensions.length==2){cmwData.appendArray2D(arrayContainer.getName(), arr, dimensions[0], dimensions[1]);}
         else{cmwData.appendMultiArray(arrayContainer.getName(), arr, dimensions);}
     }
 
-    public void appendFloatArray(ArrayContainer<Float> arrayContainer){
+    public void appendFloatArray(ArrayContainer arrayContainer){
         int[] dimensions = arrayContainer.getDimensions();
-        float[] arr = ArrayUtils.toPrimitive(arrayContainer.getData());
+        float[] arr = ArrayUtils.toPrimitive((Float[])arrayContainer.getData());
         if(dimensions.length==1){cmwData.appendArray(arrayContainer.getName(), arr);}
         else if(dimensions.length==2){cmwData.appendArray2D(arrayContainer.getName(), arr, dimensions[0], dimensions[1]);}
         else{cmwData.appendMultiArray(arrayContainer.getName(), arr, dimensions);}
     }
 
-    public void appendDoubleArray(ArrayContainer<Double> arrayContainer){
+    public void appendDoubleArray(ArrayContainer arrayContainer){
         int[] dimensions = arrayContainer.getDimensions();
-        double[] arr = ArrayUtils.toPrimitive(arrayContainer.getData());
+        double[] arr = ArrayUtils.toPrimitive((Double[])arrayContainer.getData());
         if(dimensions.length==1){cmwData.appendArray(arrayContainer.getName(), arr);}
         else if(dimensions.length==2){cmwData.appendArray2D(arrayContainer.getName(), arr, dimensions[0], dimensions[1]);}
         else{cmwData.appendMultiArray(arrayContainer.getName(), arr, dimensions);}
     }
-    public void appendLongArray(ArrayContainer<Long> arrayContainer){
+    public void appendLongArray(ArrayContainer arrayContainer){
         int[] dimensions = arrayContainer.getDimensions();
-        long[] arr = ArrayUtils.toPrimitive(arrayContainer.getData());
+        long[] arr = ArrayUtils.toPrimitive((Long[])arrayContainer.getData());
         if(dimensions.length==1){cmwData.appendArray(arrayContainer.getName(), arr);}
         else if(dimensions.length==2){cmwData.appendArray2D(arrayContainer.getName(), arr, dimensions[0], dimensions[1]);}
         else{cmwData.appendMultiArray(arrayContainer.getName(), arr, dimensions);}
     }
-    public void appendStringArray(ArrayContainer<String> arrayContainer){
+    public void appendStringArray(ArrayContainer arrayContainer){
         int[] dimensions = arrayContainer.getDimensions();
-        String[] arr = arrayContainer.getData();
+        String[] arr = (String[]) arrayContainer.getData();
         if(dimensions.length==1){cmwData.appendArray(arrayContainer.getName(), arr);}
         else if(dimensions.length==2){cmwData.appendArray2D(arrayContainer.getName(), arr, dimensions[0], dimensions[1]);}
         else{cmwData.appendMultiArray(arrayContainer.getName(), arr, dimensions);}
     }
-    public void appendDataArray(ArrayContainer<PropertyContainer> arrayContainer) {
+    public void appendDataArray(ArrayContainer arrayContainer) {
         int[] dimensions = arrayContainer.getDimensions();
-        PropertyContainer[] arr = arrayContainer.getData();
+        PropertyContainer[] arr = (PropertyContainer[]) arrayContainer.getData();
         Data[] datum = new Data[arr.length];
         for (int i =0; i< arr.length; i++){
             //this is the reason this class is in the codec and not in common

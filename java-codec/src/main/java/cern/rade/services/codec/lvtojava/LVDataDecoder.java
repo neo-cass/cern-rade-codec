@@ -27,7 +27,7 @@ public final class LVDataDecoder {
                     DT_BOOL_MULTI_ARRAY, DT_BYTE_MULTI_ARRAY, DT_DOUBLE_MULTI_ARRAY, DT_FLOAT_MULTI_ARRAY, DT_STRING_MULTI_ARRAY, DT_INT_MULTI_ARRAY, DT_SHORT_MULTI_ARRAY, DT_LONG_MULTI_ARRAY, DT_DATA_MULTI_ARRAY -> {
                 return decodeArray(buffer, (ArrayContainer) dataContainer, (LVArrayDescriptor) lvTypeDescriptor);
             }
-            default -> {return null;}
+            default -> {throw new RuntimeException();}
         }
     }
 
@@ -75,11 +75,10 @@ public final class LVDataDecoder {
         return propertyContainer;
     }
 
-    private static PropertyContainer[] getClusterArr(ByteBuffer buffer, int len, PropertyContainer propertyContainer, LVClusterDescriptor lvClusterDescriptor) {
-        PropertyContainer[] propertyContainers = new PropertyContainer[len];
+    private static PropertyContainer[] getClusterArr(ByteBuffer buffer, int len, LVClusterDescriptor lvClusterDescriptor) {
+        PropertyContainer[] propertyContainers = LVDataContainerFactory.createPropertyContainerArray(lvClusterDescriptor, len);
         for(int i = 0; i<len; i++){
-            PropertyContainer newPropertyContainer = propertyContainer;
-            decodeCluster(buffer, propertyContainer, lvClusterDescriptor);
+            decodeCluster(buffer, propertyContainers[i], lvClusterDescriptor);
         }
         return propertyContainers;
     }

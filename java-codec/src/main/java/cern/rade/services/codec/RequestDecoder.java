@@ -44,5 +44,4 @@ public final class RequestDecoder {
     private static Request decodePYRequest(HttpServletRequest request, MetaData metaData)  {
         return new Request(metaData, null);
     }
-
 }

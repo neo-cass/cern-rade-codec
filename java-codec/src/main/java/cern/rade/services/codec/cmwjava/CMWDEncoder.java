@@ -5,6 +5,8 @@ import cern.rade.services.common.containers.java.ArrayContainer;
 import cern.rade.services.common.containers.java.DataContainer;
 import cern.rade.services.common.containers.java.PropertyContainer;
 
+import java.util.Map;
+
 /**
  * Encodes containers from {@link cern.rade.services.common.containers.java} into {@link Data}.
  */
@@ -70,16 +72,16 @@ public final class CMWDEncoder {
      * @param cmwDataW the CMW data wrapper which will be appended to.
      */
     @SuppressWarnings("unchecked")
-    private static void encodeSingle(DataContainer<?> dataContainer, CMWDW cmwDataW){
+    private static void encodeSingle(DataContainer dataContainer, CMWDW cmwDataW){
         switch(dataContainer.getDataType()){
-            case DT_BYTE -> cmwDataW.appendByte((DataContainer<Byte>) dataContainer);
-            case DT_SHORT -> cmwDataW.appendShort((DataContainer<Short>) dataContainer);
-            case DT_INT -> cmwDataW.appendInt((DataContainer<Integer>) dataContainer);
-            case DT_LONG -> cmwDataW.appendLong((DataContainer<Long>) dataContainer);
-            case DT_FLOAT -> cmwDataW.appendFloat((DataContainer<Float>) dataContainer);
-            case DT_DOUBLE -> cmwDataW.appendDouble((DataContainer<Double>) dataContainer);
-            case DT_BOOL -> cmwDataW.appendBool((DataContainer<Boolean>) dataContainer);
-            case DT_STRING -> cmwDataW.appendString((DataContainer<String>) dataContainer);
+            case DT_BYTE -> cmwDataW.appendByte(dataContainer);
+            case DT_SHORT -> cmwDataW.appendShort( dataContainer);
+            case DT_INT -> cmwDataW.appendInt(dataContainer);
+            case DT_LONG -> cmwDataW.appendLong( dataContainer);
+            case DT_FLOAT -> cmwDataW.appendFloat(dataContainer);
+            case DT_DOUBLE -> cmwDataW.appendDouble(dataContainer);
+            case DT_BOOL -> cmwDataW.appendBool(dataContainer);
+            case DT_STRING -> cmwDataW.appendString(dataContainer);
         }
     }
 
@@ -90,8 +92,9 @@ public final class CMWDEncoder {
      */
     private static CMWDW encodeData(PropertyContainer propertyContainer){
         CMWDW cmwDataW = new CMWDW();
-        DataContainer<?>[] DataContainers = propertyContainer.getData();
-        for (DataContainer<?> DataContainer : DataContainers) {encode(DataContainer, cmwDataW);}
+        for (Map.Entry<String, DataContainer> entry : propertyContainer.getData().entrySet()) {
+            encode(entry.getValue(), cmwDataW);
+        }
         return cmwDataW;
     }
 }
