@@ -11,6 +11,7 @@ build_jar:
     paths:
       - "$JAVA_CODEC/$JAR_NAME"
   before_script:
+    - ls -la
     - cd $JAVA_CODEC
     - GRADLE_USER_HOME="$(pwd)/.gradle"
     - export GRADLE_USER_HOME
