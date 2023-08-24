@@ -1,2 +1,2 @@
 include:
-  - local: '/java-codec/.gitlab-ci-jar-build.yml'
+  - local: '/java-codec/.gitlab-ci-build-jar.yml'
