@@ -1,6 +1,3 @@
-
-
-
 plugins {
     id 'java-library'
     id ('cern.devops.cbng.dependency') version "4.0.52"
@@ -34,11 +31,9 @@ dependencies {
 }
 
 jar {
-    destinationDirectory.set(file("$projectDir/jar-build"))
-
-    manifest {
-        attributes("Implementation-Title": "codec", "Implementation-Version": archiveVersion)
-    }
+    archiveFileName = project.property('jarName')
+    from file("$buildDir/libs/$jar")
+    getDestinationDirectory().set(file("."))
 }
 
 

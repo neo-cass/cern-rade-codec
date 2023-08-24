@@ -62,7 +62,7 @@ public final class LVDataDecoder {
             case DT_STRING -> {arrayContainer.setData(getStringArr(buffer, len), dimensions);}
             case DT_DATA -> {arrayContainer.setData(getClusterArr(buffer, len, (LVClusterDescriptor) lvElemDescriptor), dimensions);}
         }
-        return null;
+        return arrayContainer;
     }
 
     private static PropertyContainer decodeCluster(ByteBuffer buffer, PropertyContainer propertyContainer, LVClusterDescriptor lvClusterDescriptor){
