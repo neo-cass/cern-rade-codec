@@ -1,0 +1,2 @@
+include:
+  - local: '/java-codec/.gitlab-ci-jar-build.yml'
