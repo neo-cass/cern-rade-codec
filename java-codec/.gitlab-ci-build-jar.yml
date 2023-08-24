@@ -1,6 +1,6 @@
 variables:
   JAR_NAME: "codec-$CI_COMMIT_REF_SLUG.jar"
-  JAVA_CODEC: "/java-codec"
+  JAVA_CODEC: "./java-codec"
 
 
 build_jar:
