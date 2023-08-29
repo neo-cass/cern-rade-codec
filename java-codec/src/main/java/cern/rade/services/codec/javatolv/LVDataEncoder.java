@@ -57,7 +57,6 @@ public final class LVDataEncoder {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private static void serialiseArray(ArrayContainer arrayContainer, DataOutputStream dos) throws IOException {
         int[] dimensions = arrayContainer.getDimensions();
         for (int dimension : dimensions) {dos.writeInt(dimension);}

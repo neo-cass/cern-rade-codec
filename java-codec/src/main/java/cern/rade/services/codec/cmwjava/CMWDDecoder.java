@@ -55,7 +55,7 @@ public final class CMWDDecoder {
         PropertyContainer propertyContainer = new PropertyContainer(fieldName);
 
         for (int i = 0; i<len; i++){
-            propertyContainer.setDataContainer(decodeEntry(entries.get(i)));
+            propertyContainer.setDataContainer(entries.get(i).getName(), decodeEntry(entries.get(i)));
         }
         return propertyContainer;
     }

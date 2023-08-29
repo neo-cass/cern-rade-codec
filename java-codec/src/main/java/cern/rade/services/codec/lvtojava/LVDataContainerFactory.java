@@ -1,5 +1,6 @@
 package cern.rade.services.codec.lvtojava;
 
+import cern.rade.services.common.containers.TypeLookup;
 import cern.rade.services.common.containers.java.ArrayContainer;
 import cern.rade.services.common.containers.java.DataContainer;
 import cern.rade.services.common.containers.java.PropertyContainer;
@@ -17,11 +18,11 @@ public final class LVDataContainerFactory {
                 return createPropertyContainer((LVClusterDescriptor) lvTypeDescriptor);
             }
             case INT_8, INT_16, INT_32, INT_64, UINT_8, UINT_16, UINT_32, BOOL, SGL, DBL, STRING -> {
-                return new DataContainer(name);
+                return new DataContainer(name, TypeLookup.getCMWType(lvTypeDescriptor.getType()));
             }
             case ARRAY -> {
                 LVArrayDescriptor arrayDescriptor = (LVArrayDescriptor) lvTypeDescriptor;
-                return new ArrayContainer(name, arrayDescriptor.getElemDescriptor().getName());
+                return new ArrayContainer(name, arrayDescriptor.getElemDescriptor().getName(), TypeLookup.getCMWType(lvTypeDescriptor.getType()));
             }
             default -> throw new RuntimeException("");
         }
@@ -31,7 +32,7 @@ public final class LVDataContainerFactory {
         PropertyContainer propertyContainer = new PropertyContainer(lvClusterDescriptor.getName());
         for(LVTypeDescriptor lvTypeDescriptor : lvClusterDescriptor.getFieldDescriptors()){
             DataContainer field = createDataContainer(lvTypeDescriptor);
-            propertyContainer.setDataContainer(field);
+            propertyContainer.setDataContainer(lvTypeDescriptor.getName(), field);
         }
         return propertyContainer;
     }
