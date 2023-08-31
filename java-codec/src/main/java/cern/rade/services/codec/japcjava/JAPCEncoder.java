@@ -6,10 +6,13 @@ import cern.japc.core.factory.SimpleParameterValueFactory;
 import cern.japc.value.MapParameterValue;
 import cern.japc.value.ParameterValue;
 import cern.japc.value.SimpleParameterValue;
+import cern.rade.services.codec.DataMismatchException;
 import cern.rade.services.common.containers.java.ArrayContainer;
 import cern.rade.services.common.containers.java.DataContainer;
 import cern.rade.services.common.containers.java.PropertyContainer;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 public final class JAPCEncoder {

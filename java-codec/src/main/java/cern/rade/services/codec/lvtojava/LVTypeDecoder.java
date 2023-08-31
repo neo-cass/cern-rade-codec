@@ -3,10 +3,11 @@ package cern.rade.services.codec.lvtojava;
 import cern.rade.services.common.containers.TypeLookup;
 import cern.rade.services.common.containers.labview.*;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 public final class LVTypeDecoder {
-    public static LVTypeDescriptor decode(ByteBuffer buffer){
+    public static LVTypeDescriptor decode(ByteBuffer buffer) throws BufferUnderflowException {
         int length = buffer.getShort();
         buffer.get();//As per the NI documentation, the first 2 bytes are the length of the type descriptor and the next 2 bytes are the type code but the first of these bytes is reserved for use by LabVIEW
         byte typeCode = buffer.get();
@@ -27,7 +28,7 @@ public final class LVTypeDecoder {
         return lvTypeDescriptor;
     }
 
-    private static LVClusterDescriptor decodeCluster(ByteBuffer buffer){
+    private static LVClusterDescriptor decodeCluster(ByteBuffer buffer) throws BufferUnderflowException {
         int nTDs = buffer.getShort();
         LVTypeDescriptor nestedType;
         LVTypeDescriptor[] nestedTypes = new LVTypeDescriptor[nTDs];
@@ -48,18 +49,18 @@ public final class LVTypeDecoder {
         return new LVClusterDescriptor(fieldName, nestedTypes);
     }
 
-    private static LVTypeDescriptor decodeBasic(ByteBuffer buffer, LVType lVType){
+    private static LVTypeDescriptor decodeBasic(ByteBuffer buffer, LVType lVType) throws BufferUnderflowException {
         String fieldName = readFieldName(buffer);
         return new LVTypeDescriptor(lVType, fieldName);
     }
 
-    private static LVTypeDescriptor decodeString(ByteBuffer buffer){
+    private static LVTypeDescriptor decodeString(ByteBuffer buffer)throws BufferUnderflowException {
         buffer.getInt(); //FFFF FFFF - 4 bytes read
         String fieldName = readFieldName(buffer);
         return new LVTypeDescriptor(LVType.STRING, fieldName);
     }
 
-    private static LVArrayDescriptor decodeArray(ByteBuffer buffer){
+    private static LVArrayDescriptor decodeArray(ByteBuffer buffer) throws BufferUnderflowException {
         int dimension = buffer.getShort(); // 2 bytes
         for (int i = 0; i<dimension; i++) {
             buffer.getInt(); // FFFF FFFF
@@ -74,7 +75,7 @@ public final class LVTypeDecoder {
         return new LVArrayDescriptor(fieldName, dimension, arrayType);
     }
 
-    private static String readFieldName(ByteBuffer buffer){
+    private static String readFieldName(ByteBuffer buffer) throws BufferUnderflowException {
         if (!buffer.hasRemaining()){
             return new String ("\u0000");
         }

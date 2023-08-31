@@ -49,7 +49,7 @@ public final class JAPCDecoder {
      * @param apv the {@link AcquiredParameterValue} to be deocded.
      * @return a new {@link PropertyContainer} containing the decoded {@link AcquiredParameterValue}
      */
-    public static PropertyContainer decode(AcquiredParameterValue apv) throws DataMismatchException {
+    public static PropertyContainer decode(AcquiredParameterValue apv) {
         MapParameterValue mpv = apv.getValue().castAsMap();
         String[] names = mpv.getNames();
         PropertyContainer propertyContainer = new PropertyContainer(apv.getParameterName());

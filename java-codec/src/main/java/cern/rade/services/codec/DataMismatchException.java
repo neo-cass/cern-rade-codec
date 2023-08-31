@@ -2,7 +2,7 @@ package cern.rade.services.codec;
 
 import java.io.IOException;
 
-public class DataMismatchException extends Exception {
+public class DataMismatchException extends CodecException {
     public DataMismatchException(String message, Throwable error){
         super(message, error);
     }

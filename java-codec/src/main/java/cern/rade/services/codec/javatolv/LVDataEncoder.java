@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 import cern.rade.services.common.containers.java.ArrayContainer;
 import cern.rade.services.common.containers.java.DataContainer;
@@ -18,7 +19,7 @@ public final class LVDataEncoder {
         return bos.toByteArray();
     }
 
-    public static void encode(DataContainer DataContainer, DataOutputStream dos) throws IOException {
+    private static void encode(DataContainer DataContainer, DataOutputStream dos) throws IOException {
         switch(DataContainer.getDataType()){
             case DT_DATA -> encodeData((PropertyContainer) DataContainer, dos);
             case DT_BYTE, DT_BOOL, DT_SHORT, DT_INT, DT_LONG, DT_FLOAT, DT_DOUBLE, DT_STRING -> serialiseSingle(DataContainer.getDataType(), DataContainer.getData(),dos);
@@ -61,9 +62,10 @@ public final class LVDataEncoder {
         int[] dimensions = arrayContainer.getDimensions();
         for (int dimension : dimensions) {dos.writeInt(dimension);}
         DataType dataType = arrayContainer.getElemType();
-        switch(dataType){
-            case DT_DATA -> serialiseDataArray(arrayContainer, dos);
-            default -> serialiseSingleArray(arrayContainer, dos);
+        if (Objects.requireNonNull(dataType) == DataType.DT_DATA) {
+            serialiseDataArray(arrayContainer, dos);
+        } else {
+            serialiseSingleArray(arrayContainer, dos);
         }
     }
 
