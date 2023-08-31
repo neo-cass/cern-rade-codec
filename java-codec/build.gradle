@@ -31,7 +31,7 @@ dependencies {
 }
 
 jar {
-    archiveFileName = project.property('jarName')
+    //archiveFileName = project.property('jarName')
     from file("$buildDir/libs/$jar")
     getDestinationDirectory().set(file("."))
 }

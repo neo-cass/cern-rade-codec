@@ -4,11 +4,15 @@ import cern.cmw.data.DataType;
 import cern.japc.core.AcquiredParameterValue;
 import cern.japc.value.MapParameterValue;
 import cern.japc.value.SimpleParameterValue;
+import cern.rade.services.codec.DataMismatchException;
 import cern.rade.services.common.containers.java.DataContainer;
 import cern.rade.services.common.containers.java.PropertyContainer;
 import cern.rade.services.common.containers.TypeLookup;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Decodes JAPC types into {@link cern.rade.services.common.containers.java} types.
@@ -20,10 +24,22 @@ public final class JAPCDecoder {
      * @param apv the {@link AcquiredParameterValue} you want to decode.
      * @return the reference to the {@link PropertyContainer} you decoded into.
      */
-    public static DataContainer decode(PropertyContainer property, AcquiredParameterValue apv){
+    public static DataContainer decode(PropertyContainer property, AcquiredParameterValue apv) throws DataMismatchException {
         MapParameterValue mpv = apv.getValue().castAsMap();
+        HashSet<String> set = new HashSet<>(List.of(mpv.getNames()));
+        boolean valid = property.getData().keySet().equals(set);
+        if(!valid){
+            throw new DataMismatchException("The fields of the provided PropertyContainer does not match the provided AcquiredParameterValue");
+        }
+
         for(Map.Entry<String, DataContainer> entry: property.getData().entrySet()){
-           decodeSimple(mpv.get(entry.getKey()), entry.getValue());
+            DataContainer field = entry.getValue();
+            String name = entry.getKey();
+            SimpleParameterValue spv = mpv.get(name);
+            if(field.getDataType() != TypeLookup.getCMWType(spv.getValueType(name))){
+                throw new DataMismatchException("The type of the field provided does not match the field in the AcquiredParameterValue.");
+            }
+           decodeSimple(spv, field);
         }
         return property;
     }
@@ -33,27 +49,18 @@ public final class JAPCDecoder {
      * @param apv the {@link AcquiredParameterValue} to be deocded.
      * @return a new {@link PropertyContainer} containing the decoded {@link AcquiredParameterValue}
      */
-    public static PropertyContainer decode(AcquiredParameterValue apv){
+    public static PropertyContainer decode(AcquiredParameterValue apv) throws DataMismatchException {
         MapParameterValue mpv = apv.getValue().castAsMap();
         String[] names = mpv.getNames();
         PropertyContainer propertyContainer = new PropertyContainer(apv.getParameterName());
         for (String name : names){
-            propertyContainer.setDataContainer(name, decodeSimple(mpv.get(name), name));
+            SimpleParameterValue spv = mpv.get(name);
+            DataType dataType = TypeLookup.getCMWType(spv.getValueType(name));
+            DataContainer dataContainer =  new DataContainer(name, dataType);
+            decodeSimple(spv, dataContainer);
+            propertyContainer.setDataContainer(name, dataContainer);
         }
         return propertyContainer;
-    }
-
-    /**
-     * Decodes a {@link SimpleParameterValue}
-     * @param spv
-     * @param name
-     * @return
-     */
-    private static DataContainer decodeSimple(SimpleParameterValue spv, String name){
-        DataType dataType = TypeLookup.getCMWType(spv.getValueType(name));
-        DataContainer field = new DataContainer(name);
-        decodeSimple(spv, field);
-        return field;
     }
 
     private static void decodeSimple(SimpleParameterValue spv, DataContainer field){
