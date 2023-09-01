@@ -2,7 +2,6 @@ package cern.rade.services.codec.lvtojava;
 
 
 import cern.rade.services.codec.CodecException;
-import cern.rade.services.codec.DataMismatchException;
 import cern.rade.services.common.containers.java.DataContainer;
 import cern.rade.services.common.containers.labview.LVTypeDescriptor;
 

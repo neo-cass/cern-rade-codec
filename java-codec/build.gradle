@@ -47,4 +47,3 @@ java {
 }
 
 // missing: manifest (see https://docs.gradle.org/7.4.2/userguide/building_java_projects.html#sec:jar_manifest)
-

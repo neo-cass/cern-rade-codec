@@ -1,6 +1,7 @@
 package cern.rade.services.codec.javatolv;
 
 import cern.cmw.data.DataType;
+import cern.rade.services.codec.CodecException;
 import cern.rade.services.common.containers.java.ArrayContainer;
 import cern.rade.services.common.containers.java.DataContainer;
 import cern.rade.services.common.containers.java.PropertyContainer;
@@ -13,30 +14,34 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 public final class LVTypeEncoder {
-
-    public static short[] encodeTypeDescriptor(DataContainer DataContainer) throws IOException {
-        return byteArrToShortArr(encodeTypeDescriptor_bytes(DataContainer));
+    public static short[] encodeTypeDescriptor(DataContainer DataContainer) throws CodecException {
+        try{
+            return byteArrToShortArr(encodeTypeDescriptor_bytes(DataContainer));
+        } catch (IOException e) {
+            throw new CodecException("Failed to encode type descriptor  due to IOException.", e);
+        }
     }
 
-    private static byte[] encodeTypeDescriptor_bytes(DataContainer DataContainer) throws IOException {
-        byte[] typeDescriptor = null;
-        switch(DataContainer.getDataType()){
-            case DT_DATA -> {typeDescriptor = encodeClusterDescriptor((PropertyContainer) DataContainer);}
-            case DT_BYTE, DT_BOOL, DT_SHORT, DT_INT, DT_FLOAT, DT_DOUBLE, DT_STRING -> {typeDescriptor = encodeSingleDescriptor(DataContainer.getName(), DataContainer.getDataType());}
+    private static byte[] encodeTypeDescriptor_bytes(DataContainer dataContainer) throws IOException, CodecException {
+        if(dataContainer.getDataType()==null){throw new CodecException("Data type of container not set, cannot encode.");}
+        switch(dataContainer.getDataType()){
+            case DT_DATA -> {return encodeClusterDescriptor((PropertyContainer) dataContainer);}
+            case DT_BYTE, DT_BOOL, DT_SHORT, DT_LONG, DT_INT, DT_FLOAT, DT_DOUBLE, DT_STRING -> {return encodeSingleDescriptor(dataContainer.getName(), dataContainer.getDataType());}
             case DT_BYTE_ARRAY, DT_BOOL_ARRAY, DT_SHORT_ARRAY, DT_INT_ARRAY, DT_LONG_ARRAY, DT_FLOAT_ARRAY, DT_DOUBLE_ARRAY, DT_STRING_ARRAY, DT_DATA_ARRAY,
                     DT_BYTE_ARRAY_2D, DT_BOOL_ARRAY_2D, DT_SHORT_ARRAY_2D, DT_INT_ARRAY_2D, DT_LONG_ARRAY_2D, DT_FLOAT_ARRAY_2D, DT_DOUBLE_ARRAY_2D, DT_STRING_ARRAY_2D, DT_DATA_ARRAY_2D,
-                    DT_BYTE_MULTI_ARRAY, DT_BOOL_MULTI_ARRAY, DT_SHORT_MULTI_ARRAY, DT_INT_MULTI_ARRAY, DT_LONG_MULTI_ARRAY, DT_FLOAT_MULTI_ARRAY, DT_DOUBLE_MULTI_ARRAY, DT_STRING_MULTI_ARRAY, DT_DATA_MULTI_ARRAY -> {typeDescriptor = encodeArrayDescriptor((ArrayContainer) DataContainer);}
+                    DT_BYTE_MULTI_ARRAY, DT_BOOL_MULTI_ARRAY, DT_SHORT_MULTI_ARRAY, DT_INT_MULTI_ARRAY, DT_LONG_MULTI_ARRAY, DT_FLOAT_MULTI_ARRAY, DT_DOUBLE_MULTI_ARRAY, DT_STRING_MULTI_ARRAY, DT_DATA_MULTI_ARRAY, DT_DISCRETE_FUNCTION_ARRAY -> {return encodeArrayDescriptor((ArrayContainer) dataContainer);}
+            case DT_DISCRETE_FUNCTION, DT_DISCRETE_FUNCTION_LIST -> throw new CodecException("Unimplemented type");
+            default -> throw new CodecException("Unknown type.");
         }
-        return typeDescriptor;
     }
 
-    private static byte[] encodeSingleDescriptor(String fieldName, DataType dataType)  {
-        byte[] typeDesc = new byte[0];
+    private static byte[] encodeSingleDescriptor(String fieldName, DataType dataType) throws CodecException {
+        if(dataType==null){throw new CodecException("Data type given is null, cannot encode.");}
         switch(dataType){
             case DT_BYTE, DT_BOOL, DT_SHORT, DT_INT, DT_FLOAT, DT_DOUBLE -> {return encodeNumericDescriptor(fieldName, dataType);}
             case DT_STRING -> {return encodeStringDescriptor(fieldName, dataType);}
+            default -> throw new CodecException("Trying to encode a single which is not of type single.");
         }
-        return typeDesc;
     }
 
     private static ByteBuffer padWithZeros(int totalLength){
@@ -78,7 +83,7 @@ public final class LVTypeEncoder {
         return byteBuffer.array();
     }
 
-    private static byte[] encodeClusterDescriptor(PropertyContainer propertyContainer) throws IOException {
+    private static byte[] encodeClusterDescriptor(PropertyContainer propertyContainer) throws IOException, CodecException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(bos);
         byte typeCode = TypeLookup.getLVTypeCode(propertyContainer.getDataType());
@@ -104,7 +109,7 @@ public final class LVTypeEncoder {
         return byteBuffer.array();
     }
 
-    private static byte[] encodeArrayDescriptor(ArrayContainer arrayContainer) throws IOException {
+    private static byte[] encodeArrayDescriptor(ArrayContainer arrayContainer) throws IOException, CodecException {
         Object[] arr = arrayContainer.getData();
         int[] dimensions = arrayContainer.getDimensions();
         int dimension = dimensions.length;

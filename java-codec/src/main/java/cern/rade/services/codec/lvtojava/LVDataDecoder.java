@@ -1,24 +1,30 @@
 package cern.rade.services.codec.lvtojava;
 
-import cern.cmw.data.DataType;
 import cern.rade.services.codec.CodecException;
-import cern.rade.services.codec.DataMismatchException;
 import org.apache.commons.lang3.ArrayUtils;
 import cern.rade.services.common.containers.java.ArrayContainer;
 import cern.rade.services.common.containers.java.DataContainer;
 import cern.rade.services.common.containers.java.PropertyContainer;
-import cern.rade.services.common.containers.TypeLookup;
 import cern.rade.services.common.containers.labview.LVArrayDescriptor;
 import cern.rade.services.common.containers.labview.LVClusterDescriptor;
-import cern.rade.services.common.containers.labview.LVType;
 import cern.rade.services.common.containers.labview.LVTypeDescriptor;
+import org.checkerframework.checker.units.qual.C;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 public final class LVDataDecoder {
 
-    public static void decode(ByteBuffer buffer, DataContainer dataContainer, LVTypeDescriptor lvTypeDescriptor) throws BufferUnderflowException {
+    public static void decode(ByteBuffer buffer, DataContainer dataContainer, LVTypeDescriptor lvTypeDescriptor) throws CodecException {
+        try{
+            decodeInternal(buffer, dataContainer, lvTypeDescriptor);
+        } catch(BufferUnderflowException e){
+            throw new CodecException("Exception while decoding LabVIEW data, buffer underflow occurred while reading data. Check your type descriptor is correct and that you are providing the correct data.", e);
+        }
+    }
+
+    private static void decodeInternal(ByteBuffer buffer, DataContainer dataContainer, LVTypeDescriptor lvTypeDescriptor) throws BufferUnderflowException, CodecException {
+        if(dataContainer.getDataType()==null){throw new CodecException("Data container element type is not set, cannot decode data.");}
         switch(dataContainer.getDataType()){
             case DT_DATA -> {
                 decodeCluster(buffer, (PropertyContainer) dataContainer, (LVClusterDescriptor) lvTypeDescriptor);
@@ -31,11 +37,12 @@ public final class LVDataDecoder {
                     DT_BOOL_MULTI_ARRAY, DT_BYTE_MULTI_ARRAY, DT_DOUBLE_MULTI_ARRAY, DT_FLOAT_MULTI_ARRAY, DT_STRING_MULTI_ARRAY, DT_INT_MULTI_ARRAY, DT_SHORT_MULTI_ARRAY, DT_LONG_MULTI_ARRAY, DT_DATA_MULTI_ARRAY, DT_DISCRETE_FUNCTION_ARRAY -> {
                 decodeArray(buffer, (ArrayContainer) dataContainer, (LVArrayDescriptor) lvTypeDescriptor);
             }
-            case DT_DISCRETE_FUNCTION, DT_DISCRETE_FUNCTION_LIST -> {;}
+            case DT_DISCRETE_FUNCTION, DT_DISCRETE_FUNCTION_LIST -> {;}//TODO: implement DFs
         }
     }
 
-    private static void decodeSingle(ByteBuffer buffer, DataContainer dataContainer) throws BufferUnderflowException {
+    private static void decodeSingle(ByteBuffer buffer, DataContainer dataContainer) throws BufferUnderflowException, CodecException {
+        if(dataContainer.getDataType()==null){throw new CodecException("Data container type is not set, cannot decode data.");}
         switch(dataContainer.getDataType()){
             case DT_BYTE -> {dataContainer.setData(buffer.get());}
             case DT_BOOL -> {dataContainer.setData(getBool(buffer));}
@@ -45,15 +52,17 @@ public final class LVDataDecoder {
             case DT_FLOAT -> {dataContainer.setData(buffer.getFloat());}
             case DT_DOUBLE -> {dataContainer.setData(buffer.getDouble());}
             case DT_STRING -> {dataContainer.setData(getString(buffer));}
+            default -> throw new CodecException("Decoding single which is not of single type.");
         }
     }
 
-    private static void decodeArray(ByteBuffer buffer, ArrayContainer arrayContainer, LVArrayDescriptor lvArrayDescriptor) throws BufferUnderflowException {
+    private static void decodeArray(ByteBuffer buffer, ArrayContainer arrayContainer, LVArrayDescriptor lvArrayDescriptor) throws BufferUnderflowException, CodecException {
         LVTypeDescriptor lvElemDescriptor = lvArrayDescriptor.getElemDescriptor();
         int[] dimensions = getDims(buffer, lvArrayDescriptor);
         int len = getArrLen(dimensions);
         arrayContainer.setElemName(lvElemDescriptor.getName());
         arrayContainer.setDimensions(dimensions);
+        if(arrayContainer.getElemType()==null){throw new CodecException("Array container element type is not set, cannot decode array.");}
         switch(arrayContainer.getElemType()){
             case DT_BYTE -> {arrayContainer.setData(getByteArr(buffer, len), dimensions);}
             case DT_BOOL -> {arrayContainer.setData(getBoolArr(buffer, len), dimensions);}
@@ -64,20 +73,21 @@ public final class LVDataDecoder {
             case DT_DOUBLE -> {arrayContainer.setData(getDoubleArr(buffer, len), dimensions);}
             case DT_STRING -> {arrayContainer.setData(getStringArr(buffer, len), dimensions);}
             case DT_DATA -> {arrayContainer.setData(getClusterArr(buffer, len, (LVClusterDescriptor) lvElemDescriptor), dimensions);}
+            case DT_DISCRETE_FUNCTION -> {throw new CodecException("Unimplemented type.");}//TODO: implement DF arrays
+            default -> throw new CodecException("Array element type: " + arrayContainer.getElemType() + " is not supported");
         }
     }
 
-    private static PropertyContainer decodeCluster(ByteBuffer buffer, PropertyContainer propertyContainer, LVClusterDescriptor lvClusterDescriptor) throws BufferUnderflowException {
+    private static void decodeCluster(ByteBuffer buffer, PropertyContainer propertyContainer, LVClusterDescriptor lvClusterDescriptor) throws BufferUnderflowException, CodecException {
         LVTypeDescriptor[] lvTypeDescriptors = lvClusterDescriptor.getFieldDescriptors();
         for(int i = 0; i< lvTypeDescriptors.length; i++){
             LVTypeDescriptor lvTypeDescriptor = lvTypeDescriptors[i];
             DataContainer dataContainer = propertyContainer.getField(lvTypeDescriptor.getName());
-            decode(buffer, dataContainer, lvTypeDescriptor);
+            decodeInternal(buffer, dataContainer, lvTypeDescriptor);
         }
-        return propertyContainer;
     }
 
-    private static PropertyContainer[] getClusterArr(ByteBuffer buffer, int len, LVClusterDescriptor lvClusterDescriptor) throws BufferUnderflowException {
+    private static PropertyContainer[] getClusterArr(ByteBuffer buffer, int len, LVClusterDescriptor lvClusterDescriptor) throws BufferUnderflowException, CodecException {
         PropertyContainer[] propertyContainers = LVDataContainerFactory.createPropertyContainerArray(lvClusterDescriptor, len);
         for(int i = 0; i<len; i++){
             decodeCluster(buffer, propertyContainers[i], lvClusterDescriptor);
