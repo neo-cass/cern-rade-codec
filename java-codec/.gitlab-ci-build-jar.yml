@@ -9,7 +9,7 @@ build_jar:
   artifacts:
     name: "$JAR_NAME"
     paths:
-      - "$JAVA_CODEC/$JAR_NAME"
+      - "$JAVA_CODEC/build/libs/$JAR_NAME"
   before_script:
     - cd $JAVA_CODEC
     - GRADLE_USER_HOME="$(pwd)/.gradle"
