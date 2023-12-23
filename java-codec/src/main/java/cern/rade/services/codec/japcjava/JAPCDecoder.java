@@ -11,6 +11,7 @@ import cern.rade.services.common.containers.java.DataContainer;
 import cern.rade.services.common.containers.java.PropertyContainer;
 import cern.rade.services.common.containers.TypeLookup;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,7 @@ public final class JAPCDecoder {
      */
     public static void decode(PropertyContainer property, AcquiredParameterValue apv) throws CodecException {
         MapParameterValue mpv = apv.getValue().castAsMap();
-        HashSet<String> set = new HashSet<>(List.of(mpv.getNames()));
+        HashSet<String> set = new HashSet<>(Arrays.asList(mpv.getNames()));
         boolean valid = property.getData().keySet().equals(set);
         if(!valid){
             throw new CodecException("The fields of the provided PropertyContainer does not match the provided AcquiredParameterValue");
