@@ -162,7 +162,6 @@ public final class CMWDDecoder {
                 arrayContainer.setData(propertyContainers, dims);
             }
 
-
             //The multidimensional case is less complex than the 2-dimensional case. We must just call .getDimensions().
             case DT_BYTE_MULTI_ARRAY -> {
                 MultiArray<byte[]> arrayMulti = entry.getByteMultiArray(); Byte[] elems = ArrayUtils.toObject(arrayMulti.getElements()); int[] dims = arrayMulti.getDimensions();
