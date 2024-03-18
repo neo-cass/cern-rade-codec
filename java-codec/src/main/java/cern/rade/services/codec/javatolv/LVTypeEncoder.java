@@ -127,6 +127,7 @@ public final class LVTypeEncoder {
         ByteBuffer byteBuffer = padWithZeros(totalLength);
 
         byteBuffer.putShort( (short) byteBuffer.capacity());
+        //64 means LabVIEW will read the label names. 0 means LabVIEW will ignore label names
         byteBuffer.put((byte) 64);
         byteBuffer.put(typeCode);
         byteBuffer.putShort((short) dimension);
