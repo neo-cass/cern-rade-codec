@@ -128,6 +128,7 @@ public final class LVTypeEncoder {
 
         byteBuffer.putShort( (short) byteBuffer.capacity());
         //64 means LabVIEW will read the label names. 0 means LabVIEW will ignore label names
+        //TODO: use a 0 when the fieldname is null (to be seen when I return to CERN)
         byteBuffer.put((byte) 64);
         byteBuffer.put(typeCode);
         byteBuffer.putShort((short) dimension);
