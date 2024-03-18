@@ -30,6 +30,7 @@ public final class JAPCDecoder {
         MapParameterValue mpv = apv.getValue().castAsMap();
         HashSet<String> set = new HashSet<>(Arrays.asList(mpv.getNames()));
         boolean valid = property.getData().keySet().equals(set);
+        //TODO: this does not need to be checked as it prevents a user from filtering out fields they do not want.
         if(!valid){
             throw new CodecException("The fields of the provided PropertyContainer does not match the provided AcquiredParameterValue");
         }

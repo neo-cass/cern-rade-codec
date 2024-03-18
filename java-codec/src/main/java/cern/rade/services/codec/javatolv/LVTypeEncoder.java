@@ -61,7 +61,7 @@ public final class LVTypeEncoder {
         short totalLength = (short) (fieldNameBytes.length + 1 + 4);
         ByteBuffer byteBuffer = padWithZeros(totalLength);
         byteBuffer.putShort((short) byteBuffer.capacity());
-        byteBuffer.put((byte) 0);
+        byteBuffer.put((byte) 64);
         byteBuffer.put(typeCode);
         byteBuffer.put((byte) fieldName.length());
         byteBuffer.put(fieldNameBytes);
@@ -74,7 +74,7 @@ public final class LVTypeEncoder {
         short totalLength = (short) (fieldNameBytes.length + 1 + 8);
         ByteBuffer byteBuffer = padWithZeros(totalLength);
         byteBuffer.putShort((short) byteBuffer.capacity());
-        byteBuffer.put((byte) 0);
+        byteBuffer.put((byte) 64);
         byteBuffer.put(typeCode);
         byteBuffer.putShort((short) 0xFFFF); //FFFF FFFF
         byteBuffer.putShort((short) 0xFFFF);
@@ -100,7 +100,7 @@ public final class LVTypeEncoder {
         totalLength += (short) (fieldNameBytes.length + 1 + 6);
         ByteBuffer byteBuffer = padWithZeros(totalLength);
         byteBuffer.putShort((short) byteBuffer.capacity());
-        byteBuffer.put((byte) 0);
+        byteBuffer.put((byte) 64);
         byteBuffer.put(typeCode);
         byteBuffer.putShort(nTDs);
         byteBuffer.put(bos.toByteArray());
@@ -127,7 +127,7 @@ public final class LVTypeEncoder {
         ByteBuffer byteBuffer = padWithZeros(totalLength);
 
         byteBuffer.putShort( (short) byteBuffer.capacity());
-        byteBuffer.put((byte) 0);
+        byteBuffer.put((byte) 64);
         byteBuffer.put(typeCode);
         byteBuffer.putShort((short) dimension);
         for(int i = 0; i<dimension*2; i++){
