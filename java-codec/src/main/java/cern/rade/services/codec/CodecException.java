@@ -1,6 +1,8 @@
 package cern.rade.services.codec;
 
-public class CodecException extends Exception{
+import cern.rade.services.common.containers.java.ContainerException;
+
+public class CodecException extends Exception {
     public CodecException(String message, Throwable error){
         super(message, error);
     }

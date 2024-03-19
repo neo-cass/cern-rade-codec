@@ -1,6 +1,8 @@
 package cern.rade.services.codec.cmwjava;
 
 import cern.cmw.data.*;
+import cern.rade.services.codec.CodecException;
+import cern.rade.services.common.containers.java.ContainerException;
 import org.apache.commons.lang3.ArrayUtils;
 import cern.rade.services.common.containers.java.ArrayContainer;
 import cern.rade.services.common.containers.java.DataContainer;
@@ -16,7 +18,7 @@ public final class CMWDDecoder {
      * @param cmwData the {@link Data} which you want to decode.
      * @return the {@link Data} decoded into a {@link DataContainer}.
      */
-    public static DataContainer decode(Data cmwData){
+    public static DataContainer decode(Data cmwData) throws ContainerException {
         ArrayList<Entry> entries = (ArrayList<Entry>) cmwData.getEntries();
         if (entries.size()==1){
             return decodeEntry(entries.get(0));
@@ -33,7 +35,7 @@ public final class CMWDDecoder {
      * @return the decoded {@link Data}.
      */
     //TODO: implement
-    public static DataContainer decode(Data cmwData, PropertyContainer propertyContainer){
+    public static DataContainer decode(Data cmwData, PropertyContainer propertyContainer) throws ContainerException {
         ArrayList<Entry> entries = (ArrayList<Entry>) cmwData.getEntries();
         if (entries.size()==1){
             return decodeEntry(entries.get(0));
@@ -49,7 +51,7 @@ public final class CMWDDecoder {
      * @param fieldName the field name of the CMW data being decoded. This is necessary because of nesting. The top level CMW data cannot have a field name, but CMW data within CMW data can have a field name.
      * @return a {@link PropertyContainer} holding the decoded {@link Data}.
      */
-   private static PropertyContainer decodeData(Data cmwData, String fieldName){
+   private static PropertyContainer decodeData(Data cmwData, String fieldName) throws ContainerException {
         ArrayList<Entry> entries = (ArrayList<Entry>) cmwData.getEntries();
         int len = entries.size();
         PropertyContainer propertyContainer = new PropertyContainer(fieldName);
@@ -66,7 +68,7 @@ public final class CMWDDecoder {
      * @param entry the {@link Entry} you wish to decode.
      * @return A {@link DataContainer} with the decoded entry inside. The DataContainer can be a PropertyContainer if the CMW data is of type DT_DATA.
      */
-    private static DataContainer decodeEntry(Entry entry){
+    private static DataContainer decodeEntry(Entry entry) throws ContainerException {
         DataType type = entry.getType();
         DataContainer dataContainer = new DataContainer(entry.getName());
         switch(type){
@@ -91,7 +93,7 @@ public final class CMWDDecoder {
      * @param data the data array to be decoded.
      * @return an array of {@link PropertyContainer}s.
      */
-    private static PropertyContainer[] getPropertyArray(Data[] data){
+    private static PropertyContainer[] getPropertyArray(Data[] data) throws ContainerException {
         int len = data.length;
         PropertyContainer[] propertyContainers = new PropertyContainer[len];
         for(int i = 0; i<len; i++){
@@ -105,7 +107,7 @@ public final class CMWDDecoder {
      * @param entry the entry of CMW data which is an array.
      * @return an {@link ArrayContainer} containing the decoded entry.
      */
-    private static ArrayContainer decodeNDArray(Entry entry){
+    private static ArrayContainer decodeNDArray(Entry entry) throws ContainerException {
         DataType type = entry.getType();
         ArrayContainer arrayContainer = new ArrayContainer(entry.getName(), type.toString());
         switch(type){

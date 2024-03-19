@@ -7,6 +7,7 @@ import cern.japc.value.MapParameterValue;
 import cern.japc.value.SimpleParameterValue;
 import cern.rade.services.codec.CodecException;
 import cern.rade.services.common.containers.java.ArrayContainer;
+import cern.rade.services.common.containers.java.ContainerException;
 import cern.rade.services.common.containers.java.DataContainer;
 import cern.rade.services.common.containers.java.PropertyContainer;
 import cern.rade.services.common.containers.TypeLookup;
@@ -26,7 +27,7 @@ public final class JAPCDecoder {
      * @param apv the {@link AcquiredParameterValue} you want to decode.
      * @return the reference to the {@link PropertyContainer} you decoded into.
      */
-    public static void decode(PropertyContainer property, AcquiredParameterValue apv) throws CodecException {
+    public static void decode(PropertyContainer property, AcquiredParameterValue apv) throws CodecException, ContainerException {
         MapParameterValue mpv = apv.getValue().castAsMap();
         HashSet<String> set = new HashSet<>(Arrays.asList(mpv.getNames()));
         boolean valid = property.getData().keySet().equals(set);
@@ -51,7 +52,7 @@ public final class JAPCDecoder {
      * @param apv the {@link AcquiredParameterValue} to be deocded.
      * @return a new {@link PropertyContainer} containing the decoded {@link AcquiredParameterValue}
      */
-    public static PropertyContainer decode(AcquiredParameterValue apv) throws CodecException {
+    public static PropertyContainer decode(AcquiredParameterValue apv) throws CodecException, ContainerException {
         MapParameterValue mpv = apv.getValue().castAsMap();
         String[] names = mpv.getNames();
         PropertyContainer propertyContainer = new PropertyContainer(apv.getParameterName());
@@ -65,7 +66,7 @@ public final class JAPCDecoder {
         return propertyContainer;
     }
 
-    private static void decodeSimple(SimpleParameterValue spv, DataContainer field) throws CodecException {
+    private static void decodeSimple(SimpleParameterValue spv, DataContainer field) throws CodecException, ContainerException {
         String name = field.getName();
         if(field.getDataType()==null){throw new CodecException("Data container has no type set, cannot decode.");}
         switch(field.getDataType()){
