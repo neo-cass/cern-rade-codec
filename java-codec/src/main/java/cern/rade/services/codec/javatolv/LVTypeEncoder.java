@@ -110,7 +110,7 @@ public final class LVTypeEncoder {
     }
 
     private static byte[] encodeArrayDescriptor(ArrayContainer arrayContainer) throws IOException, CodecException {
-        Object[] arr = arrayContainer.getData();
+        Object[] arr = (Object[])arrayContainer.getData();
         int[] dimensions = arrayContainer.getDimensions();
         int dimension = dimensions.length;
         DataType elemType = arrayContainer.getElemType();

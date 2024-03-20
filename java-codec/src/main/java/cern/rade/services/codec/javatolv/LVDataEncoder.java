@@ -86,7 +86,7 @@ public final class LVDataEncoder {
     }
 
     private static void serialiseSingleArray(ArrayContainer arrayContainer, DataOutputStream dos) throws IOException, CodecException {
-        Object[] datum = arrayContainer.getData();
-        for(Object data : datum){serialiseSingle(arrayContainer.getElemType(), data, dos);}
+        Object datum = arrayContainer.getData();
+        for(Object data : (Object[])datum){serialiseSingle(arrayContainer.getElemType(), data, dos);}
     }
 }
