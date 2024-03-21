@@ -5,6 +5,7 @@ import cern.cmw.data.DataType;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.Map;
 import java.util.Objects;
 
@@ -86,7 +87,9 @@ public final class LVDataEncoder {
     }
 
     private static void serialiseSingleArray(ArrayContainer arrayContainer, DataOutputStream dos) throws IOException, CodecException {
-        Object datum = arrayContainer.getData();
-        for(Object data : (Object[])datum){serialiseSingle(arrayContainer.getElemType(), data, dos);}
+        Object arr = arrayContainer.getData();
+        for(int i=0; i< Array.getLength(arr); i++){
+            serialiseSingle(arrayContainer.getElemType(), Array.get(arr, i), dos);
+        }
     }
 }

@@ -29,13 +29,7 @@ public final class JAPCDecoder {
      */
     public static void decode(PropertyContainer property, AcquiredParameterValue apv) throws CodecException, ContainerException {
         MapParameterValue mpv = apv.getValue().castAsMap();
-        HashSet<String> set = new HashSet<>(Arrays.asList(mpv.getNames()));
-        boolean valid = property.getData().keySet().equals(set);
-        //TODO: this does not need to be checked as it prevents a user from filtering out fields they do not want.
-        if(!valid){
-            throw new CodecException("The fields of the provided PropertyContainer does not match the provided AcquiredParameterValue");
-        }
-
+        //TODO: check that all the fields in property are in apv, throw CodecException if not
         for(Map.Entry<String, DataContainer> entry: property.getData().entrySet()){
             DataContainer field = entry.getValue();
             String name = entry.getKey();
@@ -87,6 +81,7 @@ public final class JAPCDecoder {
             case DT_DOUBLE_ARRAY -> field.setData(spv.getDoubles(name));
             case DT_FLOAT_ARRAY -> field.setData(spv.getFloats(name));
             case DT_STRING_ARRAY -> field.setData(spv.getStrings(name));
+
 
             case DT_BYTE_ARRAY_2D -> {
                 Array2D array2D = spv.getArray2D(name);
