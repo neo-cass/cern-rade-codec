@@ -27,7 +27,7 @@ public final class LVDataContainerFactory {
             case ARRAY -> {
                 LVArrayDescriptor arrayDescriptor = (LVArrayDescriptor) lvTypeDescriptor;
                 DataType elemType = TypeLookup.getCMWType(arrayDescriptor.getElemDescriptor().getType());
-                return new ArrayContainer(name, arrayDescriptor.getElemDescriptor().getName(), TypeLookup.getCMWType(elemType, arrayDescriptor.getDimension()));
+                return new ArrayContainer(name, arrayDescriptor.getElemDescriptor().getName(), TypeLookup.getCMWType(elemType, arrayDescriptor.getDimension()), elemType);
             }
             case ENUM_8, ENUM_16, ENUM_32 -> {throw new CodecException("Unimplemented type");}
             case VARIANT, UINT_64, REFNUM, WAVE_FORM, PATH, PICTURE,

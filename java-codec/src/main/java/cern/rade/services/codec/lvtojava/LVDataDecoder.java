@@ -70,7 +70,7 @@ public final class LVDataDecoder {
             case DT_BYTE -> {arrayContainer.setData(getByteArr(buffer, len), dimensions);}
             case DT_BOOL -> {arrayContainer.setData(getBoolArr(buffer, len), dimensions);}
             case DT_SHORT -> {arrayContainer.setData(getShortArr(buffer, len), dimensions);}
-            case DT_INT -> {arrayContainer.setData(getIntArr(buffer, len));}
+            case DT_INT -> {arrayContainer.setData(getIntArr(buffer, len), dimensions);}
             case DT_LONG-> {arrayContainer.setData(getLongArr(buffer, len), dimensions);}
             case DT_FLOAT -> {arrayContainer.setData(getFloatArr(buffer, len), dimensions);}
             case DT_DOUBLE -> {arrayContainer.setData(getDoubleArr(buffer, len), dimensions);}
