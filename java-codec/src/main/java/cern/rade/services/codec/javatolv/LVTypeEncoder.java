@@ -38,7 +38,7 @@ public final class LVTypeEncoder {
     private static byte[] encodeSingleDescriptor(String fieldName, DataType dataType) throws CodecException {
         if(dataType==null){throw new CodecException("Data type given is null, cannot encode.");}
         switch(dataType){
-            case DT_BYTE, DT_BOOL, DT_SHORT, DT_INT, DT_FLOAT, DT_DOUBLE -> {return encodeNumericDescriptor(fieldName, dataType);}
+            case DT_BYTE, DT_BOOL, DT_SHORT, DT_INT, DT_FLOAT, DT_LONG, DT_DOUBLE -> {return encodeNumericDescriptor(fieldName, dataType);}
             case DT_STRING -> {return encodeStringDescriptor(fieldName, dataType);}
             default -> throw new CodecException("Trying to encode a single which is not of type single.");
         }

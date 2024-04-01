@@ -73,14 +73,14 @@ public final class JAPCDecoder {
             case DT_FLOAT -> field.setData(spv.getFloat(name));
             case DT_STRING -> field.setData(spv.getString(name));
 
-            case DT_BYTE_ARRAY -> field.setData(spv.getBytes(name));
-            case DT_BOOL_ARRAY -> field.setData(spv.getBooleans(name));
-            case DT_SHORT_ARRAY -> field.setData(spv.getShorts(name));
-            case DT_INT_ARRAY -> field.setData(spv.getInts(name));
-            case DT_LONG_ARRAY -> field.setData(spv.getLongs(name));
-            case DT_DOUBLE_ARRAY -> field.setData(spv.getDoubles(name));
-            case DT_FLOAT_ARRAY -> field.setData(spv.getFloats(name));
-            case DT_STRING_ARRAY -> field.setData(spv.getStrings(name));
+            case DT_BYTE_ARRAY -> ((ArrayContainer)field).setData(spv.getBytes(name));
+            case DT_BOOL_ARRAY -> ((ArrayContainer)field).setData(spv.getBooleans(name));
+            case DT_SHORT_ARRAY -> ((ArrayContainer)field).setData(spv.getShorts(name));
+            case DT_INT_ARRAY -> ((ArrayContainer)field).setData(spv.getInts(name));
+            case DT_LONG_ARRAY -> ((ArrayContainer)field).setData(spv.getLongs(name));
+            case DT_DOUBLE_ARRAY -> ((ArrayContainer)field).setData(spv.getDoubles(name));
+            case DT_FLOAT_ARRAY -> ((ArrayContainer)field).setData(spv.getFloats(name));
+            case DT_STRING_ARRAY -> ((ArrayContainer)field).setData(spv.getStrings(name));
 
 
             case DT_BYTE_ARRAY_2D -> {
