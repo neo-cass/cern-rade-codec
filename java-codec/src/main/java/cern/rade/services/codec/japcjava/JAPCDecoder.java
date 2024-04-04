@@ -1,6 +1,7 @@
 package cern.rade.services.codec.japcjava;
 
 import cern.cmw.data.DataType;
+import cern.cmw.data.DataType.StorageType;
 import cern.japc.core.AcquiredParameterValue;
 import cern.japc.value.Array2D;
 import cern.japc.value.MapParameterValue;
@@ -52,15 +53,74 @@ public final class JAPCDecoder {
         PropertyContainer propertyContainer = new PropertyContainer(apv.getParameterName());
         for (String name : names){
             SimpleParameterValue spv = mpv.get(name);
+            DataContainer dataContainer = null;
             DataType dataType = TypeLookup.getCMWType(spv.getValueType(name));
-            DataContainer dataContainer =  new DataContainer(name, dataType);
-            decodeSimple(spv, dataContainer);
+            StorageType storageType = dataType.getStorageType();
+            switch(storageType){
+                case ARRAY, ARRAY_2D, MULTI_ARRAY -> {
+                    ArrayContainer container = new ArrayContainer(name, dataType);
+                    decodeArray(spv, container);
+                    dataContainer = container;
+                }
+                case SCALAR -> {
+                    DataContainer container = new DataContainer(name, dataType);
+                    decodeSimple(spv, container);   
+                    dataContainer = container;
+                }
+            }
             propertyContainer.setDataContainer(name, dataContainer);
         }
         return propertyContainer;
     }
 
-    private static void decodeSimple(SimpleParameterValue spv, DataContainer field) throws CodecException, ContainerException {
+    private static void decodeArray(SimpleParameterValue spv, ArrayContainer field) throws CodecException, ContainerException {
+        String name = field.getName();
+        switch(field.getDataType()) {
+            case DT_BYTE_ARRAY -> field.setData(spv.getBytes(name));
+            case DT_BOOL_ARRAY -> field.setData(spv.getBooleans(name));
+            case DT_SHORT_ARRAY -> field.setData(spv.getShorts(name));
+            case DT_INT_ARRAY -> field.setData(spv.getInts(name));
+            case DT_LONG_ARRAY -> field.setData(spv.getLongs(name));
+            case DT_DOUBLE_ARRAY ->  field.setData(spv.getDoubles(name));
+            case DT_FLOAT_ARRAY -> field.setData(spv.getFloats(name));
+            case DT_STRING_ARRAY -> field.setData(spv.getStrings(name));
+
+            case DT_BYTE_ARRAY_2D -> {
+                Array2D array2D = spv.getArray2D(name);
+                field.setData(array2D.getByteArray2D(), array2D.getRowCount(), array2D.getColumnCount());
+            }
+            case DT_BOOL_ARRAY_2D -> {
+                Array2D array2D = spv.getArray2D(name);
+                field.setData(array2D.getBooleanArray2D(), array2D.getRowCount(), array2D.getColumnCount());
+            }
+            case DT_SHORT_ARRAY_2D -> {
+                Array2D array2D = spv.getArray2D(name);
+                field.setData(array2D.getShortArray2D(), array2D.getRowCount(), array2D.getColumnCount());
+            }
+            case DT_INT_ARRAY_2D -> {
+                Array2D array2D = spv.getArray2D(name);
+                field.setData(array2D.getIntArray2D(), array2D.getRowCount(), array2D.getColumnCount());
+            }
+            case DT_LONG_ARRAY_2D -> {
+                Array2D array2D = spv.getArray2D(name);
+                field.setData(array2D.getLongArray2D(), array2D.getRowCount(), array2D.getColumnCount());
+            }
+            case DT_DOUBLE_ARRAY_2D -> {
+                Array2D array2D = spv.getArray2D(name);
+                field.setData(array2D.getDoubleArray2D(), array2D.getRowCount(), array2D.getColumnCount());
+            }
+            case DT_FLOAT_ARRAY_2D -> {
+                Array2D array2D = spv.getArray2D(name);
+                field.setData(array2D.getFloatArray2D(), array2D.getRowCount(), array2D.getColumnCount());
+            }
+            case DT_STRING_ARRAY_2D -> {
+                Array2D array2D = spv.getArray2D(name);
+                field.setData(array2D.getStringArray2D(), array2D.getRowCount(), array2D.getColumnCount());
+            }
+        }
+    }
+
+        private static void decodeSimple(SimpleParameterValue spv, DataContainer field) throws CodecException, ContainerException {
         String name = field.getName();
         if(field.getDataType()==null){throw new CodecException("Data container has no type set, cannot decode.");}
         switch(field.getDataType()){
@@ -73,48 +133,7 @@ public final class JAPCDecoder {
             case DT_FLOAT -> field.setData(spv.getFloat(name));
             case DT_STRING -> field.setData(spv.getString(name));
 
-            case DT_BYTE_ARRAY -> ((ArrayContainer)field).setData(spv.getBytes(name));
-            case DT_BOOL_ARRAY -> ((ArrayContainer)field).setData(spv.getBooleans(name));
-            case DT_SHORT_ARRAY -> ((ArrayContainer)field).setData(spv.getShorts(name));
-            case DT_INT_ARRAY -> ((ArrayContainer)field).setData(spv.getInts(name));
-            case DT_LONG_ARRAY -> ((ArrayContainer)field).setData(spv.getLongs(name));
-            case DT_DOUBLE_ARRAY -> ((ArrayContainer)field).setData(spv.getDoubles(name));
-            case DT_FLOAT_ARRAY -> ((ArrayContainer)field).setData(spv.getFloats(name));
-            case DT_STRING_ARRAY -> ((ArrayContainer)field).setData(spv.getStrings(name));
-
-
-            case DT_BYTE_ARRAY_2D -> {
-                Array2D array2D = spv.getArray2D(name);
-                ((ArrayContainer)field).setData(array2D.getByteArray2D(), array2D.getRowCount(), array2D.getColumnCount());
-            }
-            case DT_BOOL_ARRAY_2D -> {
-                Array2D array2D = spv.getArray2D(name);
-                ((ArrayContainer)field).setData(array2D.getBooleanArray2D(), array2D.getRowCount(), array2D.getColumnCount());
-            }
-            case DT_SHORT_ARRAY_2D -> {
-                Array2D array2D = spv.getArray2D(name);
-                ((ArrayContainer)field).setData(array2D.getShortArray2D(), array2D.getRowCount(), array2D.getColumnCount());
-            }
-            case DT_INT_ARRAY_2D -> {
-                Array2D array2D = spv.getArray2D(name);
-                ((ArrayContainer)field).setData(array2D.getIntArray2D(), array2D.getRowCount(), array2D.getColumnCount());
-            }
-            case DT_LONG_ARRAY_2D -> {
-                Array2D array2D = spv.getArray2D(name);
-                ((ArrayContainer)field).setData(array2D.getLongArray2D(), array2D.getRowCount(), array2D.getColumnCount());
-            }
-            case DT_DOUBLE_ARRAY_2D -> {
-                Array2D array2D = spv.getArray2D(name);
-                ((ArrayContainer)field).setData(array2D.getDoubleArray2D(), array2D.getRowCount(), array2D.getColumnCount());
-            }
-            case DT_FLOAT_ARRAY_2D -> {
-                Array2D array2D = spv.getArray2D(name);
-                ((ArrayContainer)field).setData(array2D.getFloatArray2D(), array2D.getRowCount(), array2D.getColumnCount());
-            }
-            case DT_STRING_ARRAY_2D -> {
-                Array2D array2D = spv.getArray2D(name);
-                ((ArrayContainer)field).setData(array2D.getStringArray2D(), array2D.getRowCount(), array2D.getColumnCount());
-            }
+           
             default -> throw new CodecException("Unsupported type");
         }
 
