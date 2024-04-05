@@ -10,7 +10,9 @@ import static cern.rade.services.common.BytesUtil.byteArrToShortArr;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Map;
 
 public final class LVTypeEncoder {
@@ -110,7 +112,7 @@ public final class LVTypeEncoder {
     }
 
     private static byte[] encodeArrayDescriptor(ArrayContainer arrayContainer) throws IOException, CodecException {
-        Object[] arr = (Object[])arrayContainer.getData();
+        Object arr = arrayContainer.getData();
         int[] dimensions = arrayContainer.getDimensions();
         int dimension = dimensions.length;
         DataType elemType = arrayContainer.getElemType();
@@ -120,7 +122,7 @@ public final class LVTypeEncoder {
         short totalLength = 0;
         byte[] arrTypeDesc;
 
-        if(elemType==DataType.DT_DATA){arrTypeDesc = encodeClusterDescriptor((PropertyContainer) arr[0]);}
+        if(elemType==DataType.DT_DATA){arrTypeDesc = encodeClusterDescriptor((PropertyContainer) Array.get(arr,0));}
         else{arrTypeDesc = encodeSingleDescriptor(arrayContainer.getElemName(), arrayContainer.getElemType());}
 
         totalLength += (short) (fieldNameBytes.length + 1 + 6 + (dimension*4) + arrTypeDesc.length);
