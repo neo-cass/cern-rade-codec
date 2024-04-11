@@ -59,6 +59,8 @@ public final class LVTypeEncoder {
 
     private static byte[] encodeNumericDescriptor(String fieldName, DataType dataType) {
         byte typeCode = TypeLookup.getLVTypeCode(dataType);
+        //TODO: if fieldName is null or "" you should write 00 instead of 64 so LabVIEW ignores the field name
+        //This line will throw for array descriptors if the field of the element is not labelled
         byte [] fieldNameBytes = fieldName.getBytes();
         short totalLength = (short) (fieldNameBytes.length + 1 + 4);
         ByteBuffer byteBuffer = padWithZeros(totalLength);

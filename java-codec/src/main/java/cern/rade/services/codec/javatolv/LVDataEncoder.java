@@ -48,18 +48,18 @@ public final class LVDataEncoder {
     private static void serialiseSingle(DataType dataType, Object data, DataOutputStream dos) throws IOException, CodecException {
         if(dataType==null){throw new CodecException("Data type of the container is not set, cannot encode data.");}
         switch(dataType){
-            case DT_BYTE -> {dos.writeByte((Byte) data); }
+            case DT_BYTE -> {dos.writeByte((byte) data); }
             case DT_BOOL -> {
-                boolean bool = (Boolean) data;
+                boolean bool = (boolean) data;
                 byte boolByte = 0;
                 if (bool){boolByte = 1;}
                 dos.writeByte(boolByte);
             }
-            case DT_SHORT -> {dos.writeShort((Short) data); }
-            case DT_INT -> {dos.writeInt((Integer) data); }
-            case DT_LONG -> {dos.writeLong((Long) data);}
-            case DT_FLOAT -> {dos.writeFloat((Float) data);}
-            case DT_DOUBLE -> {dos.writeDouble((Double) data); }
+            case DT_SHORT -> {dos.writeShort((short) data); }
+            case DT_INT -> {dos.writeInt((int) data); }
+            case DT_LONG -> {dos.writeLong((long) data);}
+            case DT_FLOAT -> {dos.writeFloat((float) data);}
+            case DT_DOUBLE -> {dos.writeDouble((double) data); }
             case DT_STRING -> {
                 byte[] rawString = ((String) data).getBytes();
                 dos.writeInt(rawString.length);

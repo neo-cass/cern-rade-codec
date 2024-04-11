@@ -13,9 +13,6 @@ import cern.rade.services.common.containers.java.DataContainer;
 import cern.rade.services.common.containers.java.PropertyContainer;
 import cern.rade.services.common.containers.TypeLookup;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,27 +50,45 @@ public final class JAPCDecoder {
         PropertyContainer propertyContainer = new PropertyContainer(apv.getParameterName());
         for (String name : names){
             SimpleParameterValue spv = mpv.get(name);
-            DataContainer dataContainer = null;
             DataType dataType = TypeLookup.getCMWType(spv.getValueType(name));
-            StorageType storageType = dataType.getStorageType();
-            switch(storageType){
-                case ARRAY, ARRAY_2D, MULTI_ARRAY -> {
-                    ArrayContainer container = new ArrayContainer(name, dataType);
-                    decodeArray(spv, container);
-                    dataContainer = container;
-                }
-                case SCALAR -> {
-                    DataContainer container = new DataContainer(name, dataType);
-                    decodeSimple(spv, container);   
-                    dataContainer = container;
-                }
-            }
+            DataContainer dataContainer = decodeSimple(spv, dataType, name);
             propertyContainer.setDataContainer(name, dataContainer);
         }
         return propertyContainer;
     }
 
-    private static void decodeArray(SimpleParameterValue spv, ArrayContainer field) throws CodecException, ContainerException {
+    private static DataContainer decodeSimple(SimpleParameterValue spv, DataType dataType, String name) throws ContainerException, CodecException {
+        DataContainer field = null;
+        StorageType storageType = dataType.getStorageType();
+        switch(storageType){
+            case ARRAY, ARRAY_2D, MULTI_ARRAY -> {
+                ArrayContainer container = new ArrayContainer(name, dataType);
+                decodeArray(spv, container);
+                field = container;
+            }
+            case SCALAR -> {
+                DataContainer container = new DataContainer(name, dataType);
+                decodeSingle(spv, container);
+                field = container;
+            }
+        }
+        return field;
+    }
+
+    private static void decodeSimple(SimpleParameterValue spv, DataContainer field) throws ContainerException, CodecException {
+        StorageType storageType = field.getDataType().getStorageType();
+        switch(storageType){
+            case ARRAY, ARRAY_2D, MULTI_ARRAY -> {
+                decodeArray(spv, (ArrayContainer) field);
+            }
+            case SCALAR -> {
+                decodeSingle(spv, field);
+            }
+        }
+    }
+
+
+        private static void decodeArray(SimpleParameterValue spv, ArrayContainer field) throws CodecException, ContainerException {
         String name = field.getName();
         switch(field.getDataType()) {
             case DT_BYTE_ARRAY -> field.setData(spv.getBytes(name));
@@ -120,7 +135,7 @@ public final class JAPCDecoder {
         }
     }
 
-        private static void decodeSimple(SimpleParameterValue spv, DataContainer field) throws CodecException, ContainerException {
+        private static void decodeSingle(SimpleParameterValue spv, DataContainer field) throws CodecException, ContainerException {
         String name = field.getName();
         if(field.getDataType()==null){throw new CodecException("Data container has no type set, cannot decode.");}
         switch(field.getDataType()){
