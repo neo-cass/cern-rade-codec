@@ -147,8 +147,6 @@ public final class JAPCDecoder {
             case DT_DOUBLE -> field.setData(spv.getDouble(name));
             case DT_FLOAT -> field.setData(spv.getFloat(name));
             case DT_STRING -> field.setData(spv.getString(name));
-
-           
             default -> throw new CodecException("Unsupported type");
         }
 
