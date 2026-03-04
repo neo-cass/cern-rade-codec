@@ -30,6 +30,7 @@ dependencies {
     implementation ("com.google.code.gson:gson:2.10.1")
     implementation("cern.rade.services:common:master")
 //    implementation(files("/home/ncass/Workspace/common/build/libs/common-1.0.3.jar"))
+    implementation(files("C:\\Users\\ncass\\workspace\\common\\build\\libs\\common-1.0.3.jar"))
 }
 
 
