@@ -85,7 +85,7 @@ public final class LVTypeDecoder {
 
     private static String readFieldName(ByteBuffer buffer) throws BufferUnderflowException {
         if (!buffer.hasRemaining()){
-            return new String ("\u0000");
+            return "";
         }
         int fieldNameLen = buffer.get();
         byte[] fieldNameBytes = new byte[fieldNameLen];

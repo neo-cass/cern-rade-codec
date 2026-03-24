@@ -6,12 +6,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.util.Map;
-import java.util.Objects;
 
+import cern.japc.value.Array2D;
+import cern.japc.value.Type;
+import cern.japc.value.ValueType;
+import cern.japc.value.spi.value.SimpleParameterValueImpl;
 import cern.rade.services.codec.CodecException;
 import cern.rade.services.common.containers.java.ArrayContainer;
 import cern.rade.services.common.containers.java.DataContainer;
+import cern.rade.services.common.containers.java.FieldContainer;
 import cern.rade.services.common.containers.java.PropertyContainer;
 public final class LVDataEncoder {
     public static byte[] encode(DataContainer DataContainer) throws CodecException {
@@ -26,70 +29,76 @@ public final class LVDataEncoder {
     }
 
     private static void encode(DataContainer dataContainer, DataOutputStream dos) throws IOException, CodecException {
-        if(dataContainer.getDataType()==null){throw new CodecException("Data type of the container is not set, cannot encode data.");}
-        switch(dataContainer.getDataType()){
-            case DT_DATA -> encodeData((PropertyContainer) dataContainer, dos);
-            case DT_BYTE, DT_BOOL, DT_SHORT, DT_INT, DT_LONG, DT_FLOAT, DT_DOUBLE, DT_STRING -> serialiseSingle(dataContainer.getDataType(), dataContainer.getData(),dos);
-            case DT_BYTE_ARRAY, DT_BOOL_ARRAY, DT_SHORT_ARRAY, DT_INT_ARRAY, DT_LONG_ARRAY, DT_FLOAT_ARRAY, DT_DOUBLE_ARRAY, DT_STRING_ARRAY, DT_DATA_ARRAY,
-                    DT_BYTE_ARRAY_2D, DT_BOOL_ARRAY_2D, DT_SHORT_ARRAY_2D, DT_INT_ARRAY_2D, DT_LONG_ARRAY_2D, DT_FLOAT_ARRAY_2D, DT_DOUBLE_ARRAY_2D, DT_STRING_ARRAY_2D, DT_DATA_ARRAY_2D,
-                    DT_BYTE_MULTI_ARRAY, DT_BOOL_MULTI_ARRAY, DT_SHORT_MULTI_ARRAY, DT_INT_MULTI_ARRAY, DT_LONG_MULTI_ARRAY, DT_FLOAT_MULTI_ARRAY, DT_DOUBLE_MULTI_ARRAY, DT_STRING_MULTI_ARRAY, DT_DATA_MULTI_ARRAY, DT_DISCRETE_FUNCTION_ARRAY ->
-                    serialiseArray((ArrayContainer) dataContainer,dos);
-            case DT_DISCRETE_FUNCTION, DT_DISCRETE_FUNCTION_LIST -> throw new CodecException("Unimplemented type.");
-            default -> throw new CodecException("Unknown type.");
+        if(dataContainer.getType() == Type.MAP){
+            encodeMap((PropertyContainer) dataContainer, dos);
+        }
+        else {
+            encodeSingle((FieldContainer) dataContainer, dos);
         }
     }
 
-    private static void encodeData(PropertyContainer propertyContainer, DataOutputStream dos) throws IOException, CodecException {
-        for(Map.Entry<String, DataContainer> entry : propertyContainer.getData().entrySet()){
-            dos.write(encode(entry.getValue()));
+    private static void encodeSingle(FieldContainer field, DataOutputStream dos) throws CodecException, IOException {
+        ValueType type = field.getValueType();
+        if (type.isScalar()){
+            serialiseScalar(field, dos);
+        }
+        else if (type.isArray() || type.isArray2d()){
+            serialiseArray(field, dos);
         }
     }
 
-    private static void serialiseSingle(DataType dataType, Object data, DataOutputStream dos) throws IOException, CodecException {
-        if(dataType==null){throw new CodecException("Data type of the container is not set, cannot encode data.");}
-        switch(dataType){
-            case DT_BYTE -> {dos.writeByte((byte) data); }
-            case DT_BOOL -> {
-                boolean bool = (boolean) data;
-                byte boolByte = 0;
-                if (bool){boolByte = 1;}
-                dos.writeByte(boolByte);
-            }
-            case DT_SHORT -> {dos.writeShort((short) data); }
-            case DT_INT -> {dos.writeInt((int) data); }
-            case DT_LONG -> {dos.writeLong((long) data);}
-            case DT_FLOAT -> {dos.writeFloat((float) data);}
-            case DT_DOUBLE -> {dos.writeDouble((double) data); }
-            case DT_STRING -> {
-                byte[] rawString = ((String) data).getBytes();
-                dos.writeInt(rawString.length);
-                dos.write(rawString);
-            }
-            default -> throw new CodecException("Trying to serialise a single which is not of single type");
+    private static void encodeMap(PropertyContainer propertyContainer, DataOutputStream dos) throws IOException, CodecException {
+        String[] names = propertyContainer.getNames();
+        for(String name : names){
+            dos.write(encode(propertyContainer.get(name)));
         }
     }
 
-    private static void serialiseArray(ArrayContainer arrayContainer, DataOutputStream dos) throws IOException, CodecException {
-        int[] dimensions = arrayContainer.getDimensions();
+    private static void serialiseScalar(FieldContainer field, DataOutputStream dos) throws IOException, CodecException {
+        serialisePrimitive(field.getObject(), field.getValueType(), dos);
+    }
+
+    private static void serialiseArray(FieldContainer field, DataOutputStream dos) throws IOException, CodecException {
+        int[] dimensions;
+        Object arr;
+        if(field.getValueType().isArray2d()){
+            Array2D array2D = field.getArray2D();
+            arr = array2D.getArray1D();
+            dimensions = new int[]{array2D.getRowCount(), array2D.getColumnCount()};
+        }
+        else {
+            arr = field.getObject();
+            dimensions = new int[] {field.getLength()};
+        }
         for (int dimension : dimensions) {dos.writeInt(dimension);}
-        DataType dataType = arrayContainer.getElemType();
-        if(dataType==null){throw new CodecException("Data type of the container is not set, cannot encode data.");}
-        if (dataType == DataType.DT_DATA) {
-            serialiseDataArray(arrayContainer, dos);
-        } else {
-            serialiseSingleArray(arrayContainer, dos);
+        ValueType type = field.getValueType().getComponentType();
+        int len = Array.getLength(arr);
+        for (int i = 0; i < len; i++) {
+            serialisePrimitive(Array.get(arr, i), type, dos);
         }
     }
 
-    private static void serialiseDataArray(ArrayContainer arrayContainer, DataOutputStream dos) throws IOException, CodecException {
-        PropertyContainer[] propertyContainers = (PropertyContainer[]) arrayContainer.getData();
-        for(PropertyContainer propertyContainer : propertyContainers){dos.write(encode(propertyContainer));}
-    }
-
-    private static void serialiseSingleArray(ArrayContainer arrayContainer, DataOutputStream dos) throws IOException, CodecException {
-        Object arr = arrayContainer.getData();
-        for(int i=0; i< Array.getLength(arr); i++){
-            serialiseSingle(arrayContainer.getElemType(), Array.get(arr, i), dos);
+    private static void serialisePrimitive(Object value, ValueType type, DataOutputStream dos) throws IOException, CodecException {
+        if (type.equals(ValueType.BYTE)) {
+            dos.writeByte((Byte) value);
+        } else if (type.equals(ValueType.BOOLEAN)) {
+            dos.writeByte((Boolean) value ? 1 : 0);
+        } else if (type.equals(ValueType.SHORT)) {
+            dos.writeShort((Short) value);
+        } else if (type.equals(ValueType.INT)) {
+            dos.writeInt((Integer) value);
+        } else if (type.equals(ValueType.LONG)) {
+            dos.writeLong((Long) value);
+        } else if (type.equals(ValueType.FLOAT)) {
+            dos.writeFloat((Float) value);
+        } else if (type.equals(ValueType.DOUBLE)) {
+            dos.writeDouble((Double) value);
+        } else if (type.equals(ValueType.STRING)) {
+            byte[] rawString = ((String) value).getBytes();
+            dos.writeInt(rawString.length);
+            dos.write(rawString);
+        } else {
+            throw new CodecException("Unsupported type for serialisation: " + type);
         }
     }
 }
