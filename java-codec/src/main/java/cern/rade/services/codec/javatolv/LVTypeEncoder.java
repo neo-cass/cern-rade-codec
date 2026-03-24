@@ -1,6 +1,7 @@
 package cern.rade.services.codec.javatolv;
 
 import cern.cmw.data.DataType;
+import cern.japc.value.Type;
 import cern.japc.value.ValueType;
 import cern.rade.services.codec.CodecException;
 import cern.rade.services.common.containers.java.ArrayContainer;
@@ -24,6 +25,26 @@ public final class LVTypeEncoder {
             return byteArrToShortArr(encodeTypeDescriptor_bytes(dataContainer));
         } catch (IOException e) {
             throw new CodecException("Failed to encode type descriptor due to IOException.", e);
+        }
+    }
+
+    private static boolean hasLabel(String fieldName) {
+        return fieldName != null && !fieldName.isBlank();
+    }
+
+    private static byte labelFlag(String fieldName) {
+        return hasLabel(fieldName) ? (byte) 64 : (byte) 0;
+    }
+
+    private static int labelLength(String fieldName) {
+        return hasLabel(fieldName) ? fieldName.getBytes().length + 1 : 0; // +1 for the length prefix byte
+    }
+
+    private static void writeLabel(ByteBuffer byteBuffer, String fieldName) {
+        if (hasLabel(fieldName)) {
+            byte[] fieldNameBytes = fieldName.getBytes();
+            byteBuffer.put((byte) fieldNameBytes.length);
+            byteBuffer.put(fieldNameBytes);
         }
     }
 
@@ -66,38 +87,33 @@ public final class LVTypeEncoder {
 
     private static byte[] encodeNumericDescriptor(String fieldName, ValueType type) {
         byte typeCode = TypeLookup.getLVTypeCode(type);
-        byte[] fieldNameBytes = fieldName.getBytes();
-        short totalLength = (short) (fieldNameBytes.length + 1 + 4);
+        short totalLength = (short) (labelLength(fieldName) + 4);
         ByteBuffer byteBuffer = padWithZeros(totalLength);
         byteBuffer.putShort((short) byteBuffer.capacity());
-        byteBuffer.put((byte) 64);
+        byteBuffer.put(labelFlag(fieldName));
         byteBuffer.put(typeCode);
-        byteBuffer.put((byte) fieldName.length());
-        byteBuffer.put(fieldNameBytes);
+        writeLabel(byteBuffer, fieldName);
         return byteBuffer.array();
     }
 
     private static byte[] encodeStringDescriptor(String fieldName, ValueType type) {
         byte typeCode = TypeLookup.getLVTypeCode(type);
-        byte[] fieldNameBytes = fieldName.getBytes();
-        short totalLength = (short) (fieldNameBytes.length + 1 + 8);
+        short totalLength = (short) (labelLength(fieldName) + 8);
         ByteBuffer byteBuffer = padWithZeros(totalLength);
         byteBuffer.putShort((short) byteBuffer.capacity());
-        byteBuffer.put((byte) 64);
+        byteBuffer.put(labelFlag(fieldName));
         byteBuffer.put(typeCode);
         byteBuffer.putShort((short) 0xFFFF);
         byteBuffer.putShort((short) 0xFFFF);
-        byteBuffer.put((byte) fieldName.length());
-        byteBuffer.put(fieldNameBytes);
+        writeLabel(byteBuffer, fieldName);
         return byteBuffer.array();
     }
 
     private static byte[] encodeClusterDescriptor(PropertyContainer propertyContainer) throws IOException, CodecException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(bos);
-        byte typeCode = TypeLookup.getLVTypeCode();
+        byte typeCode = TypeLookup.getLVClusterTypeCode();
         String fieldName = propertyContainer.getName();
-        byte[] fieldNameBytes = fieldName.getBytes();
         String[] names = propertyContainer.getNames();
         short nTDs = (short) names.length;
         short totalLength = 0;
@@ -108,15 +124,14 @@ public final class LVTypeEncoder {
             dos.write(nestedTypeDesc);
         }
 
-        totalLength += (short) (fieldNameBytes.length + 1 + 6);
+        totalLength += (short) (labelLength(fieldName) + 6);
         ByteBuffer byteBuffer = padWithZeros(totalLength);
         byteBuffer.putShort((short) byteBuffer.capacity());
-        byteBuffer.put((byte) 64);
+        byteBuffer.put(labelFlag(fieldName));
         byteBuffer.put(typeCode);
         byteBuffer.putShort(nTDs);
         byteBuffer.put(bos.toByteArray());
-        byteBuffer.put((byte) fieldName.length());
-        byteBuffer.put(fieldNameBytes);
+        writeLabel(byteBuffer, fieldName);
         return byteBuffer.array();
     }
 
@@ -125,24 +140,22 @@ public final class LVTypeEncoder {
         ValueType componentType = type.getComponentType();
         int dimension = type.isArray2d() ? 2 : 1;
         String fieldName = field.getName();
-        byte[] fieldNameBytes = fieldName.getBytes();
         byte typeCode = TypeLookup.getLVTypeCode(type);
 
-        // element descriptor uses empty name — LabVIEW ignores it for array elements
-        byte[] elemTypeDesc = encodeScalarDescriptor("", componentType);
+        // omit labels of array elements
+        byte[] elemTypeDesc = encodeScalarDescriptor(null, componentType);
 
-        short totalLength = (short) (fieldNameBytes.length + 1 + 6 + (dimension * 4) + elemTypeDesc.length);
+        short totalLength = (short) (labelLength(fieldName) + 6 + (dimension * 4) + elemTypeDesc.length);
         ByteBuffer byteBuffer = padWithZeros(totalLength);
         byteBuffer.putShort((short) byteBuffer.capacity());
-        byteBuffer.put((byte) 64);
+        byteBuffer.put(labelFlag(fieldName));
         byteBuffer.put(typeCode);
         byteBuffer.putShort((short) dimension);
         for (int i = 0; i < dimension * 2; i++) {
             byteBuffer.putShort((short) 0xFFFF);
         }
         byteBuffer.put(elemTypeDesc);
-        byteBuffer.put((byte) fieldName.length());
-        byteBuffer.put(fieldNameBytes);
+        writeLabel(byteBuffer, fieldName);
         return byteBuffer.array();
     }
 }
