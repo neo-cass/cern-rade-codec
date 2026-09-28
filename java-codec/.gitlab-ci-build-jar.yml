@@ -1,25 +1,29 @@
 variables:
-  JAR_NAME: "codec-$CI_COMMIT_REF_SLUG.jar"
   JAVA_CODEC: "./java-codec"
-
 
 build_jar:
   image:
     name: eclipse-temurin:17-alpine
   artifacts:
-    name: "$JAR_NAME"
+    name: "java-codec"
     paths:
-      - "$JAVA_CODEC/build/libs/$JAR_NAME"
+      - "./java-codec/build/libs/*.jar"
   before_script:
-    - cd $JAVA_CODEC
+    - cd ./java-codec
     - GRADLE_USER_HOME="$(pwd)/.gradle"
     - export GRADLE_USER_HOME
     - chmod +x ./gradlew
-  stage: build
-  script:
     - apk update && apk add wget
     - wget -O root.crt "https://ca.cern.ch/cafiles/certificates/CERN%20Certification%20Authority.crt"
     - wget -O auth.crt "https://ca.cern.ch/cafiles/certificates/CERN%20Certification%20Authority(1).crt"
     - keytool -cacerts -keypass changeit -alias root.crt -storepass changeit -noprompt -importcert -file root.crt
     - keytool -cacerts -keypass changeit -alias auth.crt -storepass changeit -noprompt -importcert -file auth.crt
-    - ./gradlew -PjarName=$JAR_NAME -Pversion=$CI_COMMIT_REF_SLUG jar publishAllPublicationsToDevelopmentRepository
+  stage: build
+  script:
+    - |
+      if [ -n "$CI_COMMIT_TAG" ]
+      then
+        ./gradlew -Pversion=$CI_COMMIT_TAG jar publishAllPublicationsToProRepository      
+      else
+        ./gradlew -Pversion="branch.${CI_COMMIT_BRANCH}.${CI_COMMIT_SHORT_SHA}" jar publishAllPublicationsToDevelopmentRepository      
+      fi

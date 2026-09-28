@@ -1,10 +1,8 @@
 package cern.rade.services.codec.javatolv;
 
-import cern.cmw.data.DataType;
 import cern.japc.value.Type;
 import cern.japc.value.ValueType;
 import cern.rade.services.codec.CodecException;
-import cern.rade.services.common.containers.java.ArrayContainer;
 import cern.rade.services.common.containers.java.DataContainer;
 import cern.rade.services.common.containers.java.FieldContainer;
 import cern.rade.services.common.containers.java.PropertyContainer;
@@ -13,10 +11,7 @@ import static cern.rade.services.common.BytesUtil.byteArrToShortArr;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Map;
 
 public final class LVTypeEncoder {
 
