@@ -1,7 +1,11 @@
-package cern.rade.services.codec.lvtojava;
+package cern.rade.services.codec.labview;
 
 import cern.rade.services.codec.CodecException;
-import cern.rade.services.common.containers.java.*;
+import cern.japc.core.factory.MapParameterValueFactory;
+import cern.japc.core.factory.SimpleParameterValueFactory;
+import cern.japc.value.MapParameterValue;
+import cern.japc.value.ParameterValue;
+import cern.japc.value.SimpleParameterValue;
 import cern.rade.services.common.containers.labview.LVType;
 import cern.rade.services.common.containers.labview.LVArrayDescriptor;
 import cern.rade.services.common.containers.labview.LVClusterDescriptor;
@@ -14,17 +18,15 @@ import java.util.Objects;
 
 public final class LVDataDecoder {
 
-    public static DataContainer decode(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor) throws CodecException {
+    public static ParameterValue decode(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor) throws CodecException {
         try{
             return decodeInternal(buffer, lvTypeDescriptor);
         } catch(BufferUnderflowException e ){
             throw new CodecException("Exception while decoding LabVIEW data, buffer underflow occurred while reading data. Check your type descriptor is correct and that you are providing the correct data.", e);
-        } catch(ContainerException e){
-            throw new CodecException("Exception while trying to set data in DataContainer, the type being set did not match the type specified in the DataContainer.", e);
         }
     }
 
-    private static DataContainer decodeInternal(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor) throws BufferUnderflowException, ContainerException, CodecException {
+    private static ParameterValue decodeInternal(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor) throws BufferUnderflowException, CodecException {
         if (Objects.requireNonNull(lvTypeDescriptor.getType()) == LVType.CLUSTER) {
             return decodeCluster(buffer, (LVClusterDescriptor) lvTypeDescriptor);
         } else {
@@ -32,80 +34,48 @@ public final class LVDataDecoder {
         }
     }
 
-    private static FieldContainer decodeSingle(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor) throws BufferUnderflowException, ContainerException, CodecException {
-        FieldContainer field = new FieldContainer(lvTypeDescriptor.getName());
-        switch(lvTypeDescriptor.getType()){
-            case INT_8, BOOL, INT_16, INT_32, INT_64, SGL, DBL, STRING -> {decodeScalar(buffer, field, lvTypeDescriptor);}
-            case ARRAY -> {
-                decodeArray(buffer, field, (LVArrayDescriptor) lvTypeDescriptor);}
+    private static SimpleParameterValue decodeSingle(ByteBuffer buffer, LVTypeDescriptor lvTypeDescriptor) throws BufferUnderflowException, CodecException {
+        return switch(lvTypeDescriptor.getType()){
+            case INT_8, BOOL, INT_16, INT_32, INT_64, SGL, DBL, STRING -> SimpleParameterValueFactory.newSimpleParameterValue(decodeScalar(buffer, lvTypeDescriptor.getType()));
+            case ARRAY -> decodeArray(buffer, (LVArrayDescriptor) lvTypeDescriptor);
             default -> throw new CodecException("Decoding simple which is not of single type.");
-        }
-        return field;
+        };
     }
 
-    private static void decodeScalar(ByteBuffer buffer, FieldContainer field, LVTypeDescriptor lvTypeDescriptor){
-        switch(lvTypeDescriptor.getType()) {
-            case INT_8 -> {
-                field.setByte(buffer.get());
-            }
-            case BOOL -> {
-                field.setBoolean(getBool(buffer));
-            }
-            case INT_16 -> {
-                field.setShort(buffer.getShort());
-            }
-            case INT_32 -> {
-                field.setInt(buffer.getInt());
-            }
-            case INT_64 -> {
-                field.setLong(buffer.getLong());
-            }
-            case SGL -> {
-                field.setFloat(buffer.getFloat());
-            }
-            case DBL -> {
-                field.setDouble(buffer.getDouble());
-            }
-            case STRING -> {
-                field.setString(getString(buffer));
-            }
-        }
+    private static Object decodeScalar(ByteBuffer buffer, LVType lvType) throws CodecException {
+        return switch(lvType) {
+            case INT_8 -> buffer.get();
+            case BOOL -> getBool(buffer);
+            case INT_16 -> buffer.getShort();
+            case INT_32 -> buffer.getInt();
+            case INT_64 -> buffer.getLong();
+            case SGL -> buffer.getFloat();
+            case DBL -> buffer.getDouble();
+            case STRING -> getString(buffer);
+            default -> throw new CodecException("Scalar type: " + lvType + " is not supported");
+        };
     }
 
-    private static void decodeArray(ByteBuffer buffer, FieldContainer field, LVArrayDescriptor lvArrayDescriptor) throws CodecException {
-        LVTypeDescriptor lvElemDescriptor = lvArrayDescriptor.getElemDescriptor();
+    private static SimpleParameterValue decodeArray(ByteBuffer buffer, LVArrayDescriptor lvArrayDescriptor) throws CodecException {
         int[] dimensions = getDims(buffer, lvArrayDescriptor);
         int len = getArrLen(dimensions);
         LVType lvType = lvArrayDescriptor.getElemDescriptor().getType();
-        if (dimensions.length == 1){
-            switch(lvType){
-                case INT_8   -> { field.setBytes(getByteArr(buffer, len)); }
-                case BOOL    -> { field.setBooleans(getBoolArr(buffer, len)); }
-                case INT_16  -> { field.setShorts(getShortArr(buffer, len)); }
-                case INT_32  -> { field.setInts(getIntArr(buffer, len)); }
-                case INT_64  -> { field.setLongs(getLongArr(buffer, len)); }
-                case SGL     -> { field.setFloats(getFloatArr(buffer, len)); }
-                case DBL     -> { field.setDoubles(getDoubleArr(buffer, len)); }
-                case STRING  -> { field.setStrings(getStringArr(buffer, len)); }
-                default -> throw new CodecException("Array element type: " + lvType + " is not supported");
-            }
-        }
-        else if (dimensions.length == 2){
-            switch(lvType) {
-                case INT_8   -> { field.setBytes2D(getByteArr(buffer, len), dimensions); }
-                case BOOL    -> { field.setBooleans2D(getBoolArr(buffer, len), dimensions); }
-                case INT_16  -> { field.setShorts2D(getShortArr(buffer, len), dimensions); }
-                case INT_32  -> { field.setInts2D(getIntArr(buffer, len), dimensions); }
-                case INT_64  -> { field.setLongs2D(getLongArr(buffer, len), dimensions); }
-                case SGL     -> { field.setFloats2D(getFloatArr(buffer, len), dimensions); }
-                case DBL     -> { field.setDoubles2D(getDoubleArr(buffer, len), dimensions); }
-                case STRING  -> { field.setStrings2D(getStringArr(buffer, len), dimensions); }
-                default -> throw new CodecException("Array element type: " + lvType + " is not supported");
-            }
-        }
-        else{
-            throw new CodecException("Unsupported array dimension (>2)");
-        }
+        Object arr = switch(lvType){
+            case INT_8   -> getByteArr(buffer, len);
+            case BOOL    -> getBoolArr(buffer, len);
+            case INT_16  -> getShortArr(buffer, len);
+            case INT_32  -> getIntArr(buffer, len);
+            case INT_64  -> getLongArr(buffer, len);
+            case SGL     -> getFloatArr(buffer, len);
+            case DBL     -> getDoubleArr(buffer, len);
+            case STRING  -> getStringArr(buffer, len);
+            default -> throw new CodecException("Array element type: " + lvType + " is not supported");
+        };
+        return switch(dimensions.length){
+            case 1 -> SimpleParameterValueFactory.newSimpleParameterValue(arr);
+            case 2 -> SimpleParameterValueFactory.newSimpleParameterValue(arr, dimensions);
+            default -> throw new CodecException("Unsupported array dimension (>2)");
+        };
     }
 //
 //    private static FieldContainer decodeArray(ByteBuffer buffer, FieldContainer field, LVArrayDescriptor lvArrayDescriptor) throws BufferUnderflowException, ContainerException, CodecException {
@@ -128,14 +98,12 @@ public final class LVDataDecoder {
 //        }
 //    }
 
-    private static PropertyContainer decodeCluster(ByteBuffer buffer, LVClusterDescriptor lvClusterDescriptor) throws BufferUnderflowException, ContainerException, CodecException {
-        PropertyContainer propertyContainer = new PropertyContainer(lvClusterDescriptor.getName());
-        LVTypeDescriptor[] lvTypeDescriptors = lvClusterDescriptor.getFieldDescriptors();
-        for (LVTypeDescriptor lvTypeDescriptor : lvTypeDescriptors) {
-            DataContainer field = decodeInternal(buffer, lvTypeDescriptor);
-            propertyContainer.put(field);
+    private static MapParameterValue decodeCluster(ByteBuffer buffer, LVClusterDescriptor lvClusterDescriptor) throws BufferUnderflowException, CodecException {
+        MapParameterValue map = MapParameterValueFactory.newMapParameterValue();
+        for (LVTypeDescriptor lvTypeDescriptor : lvClusterDescriptor.getFieldDescriptors()) {
+            map.put(lvTypeDescriptor.getName(), decodeSingle(buffer, lvTypeDescriptor));
         }
-        return propertyContainer;
+        return map;
     }
 
 //    private static PropertyContainer[] getClusterArr(ByteBuffer buffer, int len, LVClusterDescriptor lvClusterDescriptor) throws BufferUnderflowException, ContainerException, CodecException {

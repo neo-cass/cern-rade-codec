@@ -1,6 +1,4 @@
-package cern.rade.services.codec.javatolv;
-
-import cern.cmw.data.DataType;
+package cern.rade.services.codec.labview;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -8,36 +6,36 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 
 import cern.japc.value.Array2D;
-import cern.japc.value.Type;
+import cern.japc.value.MapParameterValue;
+import cern.japc.value.ParameterValue;
+import cern.japc.value.SimpleParameterValue;
 import cern.japc.value.ValueType;
-import cern.japc.value.spi.value.SimpleParameterValueImpl;
 import cern.rade.services.codec.CodecException;
-import cern.rade.services.common.containers.java.ArrayContainer;
-import cern.rade.services.common.containers.java.DataContainer;
-import cern.rade.services.common.containers.java.FieldContainer;
-import cern.rade.services.common.containers.java.PropertyContainer;
+import cern.rade.services.common.containers.labview.LVClusterDescriptor;
+import cern.rade.services.common.containers.labview.LVType;
+import cern.rade.services.common.containers.labview.LVTypeDescriptor;
 public final class LVDataEncoder {
-    public static byte[] encode(DataContainer DataContainer) throws CodecException {
+    public static byte[] encode(ParameterValue value, LVTypeDescriptor desc) throws CodecException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(bos);
         try {
-            encode(DataContainer, dos);
+            encode(value, desc, dos);
         } catch (IOException e) {
             throw new CodecException("Cannot encode type ",e);
         }
         return bos.toByteArray();
     }
 
-    private static void encode(DataContainer dataContainer, DataOutputStream dos) throws IOException, CodecException {
-        if(dataContainer.getType() == Type.MAP){
-            encodeMap((PropertyContainer) dataContainer, dos);
+    private static void encode(ParameterValue value, LVTypeDescriptor desc, DataOutputStream dos) throws IOException, CodecException {
+        if(desc.getType() == LVType.CLUSTER){
+            encodeMap(value.castAsMap(), (LVClusterDescriptor) desc, dos);
         }
         else {
-            encodeSingle((FieldContainer) dataContainer, dos);
+            encodeSingle(value.castAsSimple(), dos);
         }
     }
 
-    private static void encodeSingle(FieldContainer field, DataOutputStream dos) throws CodecException, IOException {
+    private static void encodeSingle(SimpleParameterValue field, DataOutputStream dos) throws CodecException, IOException {
         ValueType type = field.getValueType();
         if (type.isScalar()){
             serialiseScalar(field, dos);
@@ -47,18 +45,21 @@ public final class LVDataEncoder {
         }
     }
 
-    private static void encodeMap(PropertyContainer propertyContainer, DataOutputStream dos) throws IOException, CodecException {
-        String[] names = propertyContainer.getNames();
-        for(String name : names){
-            dos.write(encode(propertyContainer.get(name)));
+    private static void encodeMap(MapParameterValue map, LVClusterDescriptor desc, DataOutputStream dos) throws IOException, CodecException {
+        for(LVTypeDescriptor fieldDesc : desc.getFieldDescriptors()){
+            SimpleParameterValue field = map.get(fieldDesc.getName());
+            if(field == null){
+                throw new CodecException("Field " + fieldDesc.getName() + " not found in value for cluster " + desc.getName());
+            }
+            encodeSingle(field, dos);
         }
     }
 
-    private static void serialiseScalar(FieldContainer field, DataOutputStream dos) throws IOException, CodecException {
+    private static void serialiseScalar(SimpleParameterValue field, DataOutputStream dos) throws IOException, CodecException {
         serialisePrimitive(field.getObject(), field.getValueType(), dos);
     }
 
-    private static void serialiseArray(FieldContainer field, DataOutputStream dos) throws IOException, CodecException {
+    private static void serialiseArray(SimpleParameterValue field, DataOutputStream dos) throws IOException, CodecException {
         int[] dimensions;
         Object arr;
         if(field.getValueType().isArray2d()){

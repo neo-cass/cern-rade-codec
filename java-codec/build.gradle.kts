@@ -23,11 +23,13 @@ dependencies {
     implementation ("cern.japc:japc-ext-cmwrda3:PRO")
     implementation ("cern.japc:japc-value:PRO")
     implementation ("cern.japc:japc-ext-remote:PRO")
+    implementation ("cern.japc:japc-json:PRO")
+    implementation ("com.fasterxml.jackson.core:jackson-databind")
     implementation ("cern.cmw:cmw-data:PRO")
     implementation("org.apache.commons:commons-lang3:3.18.0")
     implementation("jakarta.servlet:jakarta.servlet-api:5.0.0")
     implementation ("com.google.code.gson:gson:2.10.1")
-    implementation("cern.rade.services:common:master")
+    implementation("cern.rade.services:common:refactor-SNAPSHOT")
 
 }
 

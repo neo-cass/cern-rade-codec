@@ -1,12 +1,15 @@
-package cern.rade.services.codec.javatolv;
+package cern.rade.services.codec.labview;
 
+import cern.japc.value.MapParameterValue;
+import cern.japc.value.ParameterValue;
+import cern.japc.value.SimpleParameterValue;
 import cern.japc.value.Type;
 import cern.japc.value.ValueType;
 import cern.rade.services.codec.CodecException;
-import cern.rade.services.common.containers.java.DataContainer;
-import cern.rade.services.common.containers.java.FieldContainer;
-import cern.rade.services.common.containers.java.PropertyContainer;
 import cern.rade.services.common.containers.TypeLookup;
+import cern.rade.services.common.containers.labview.LVClusterDescriptor;
+import cern.rade.services.common.containers.labview.LVType;
+import cern.rade.services.common.containers.labview.LVTypeDescriptor;
 import static cern.rade.services.common.BytesUtil.byteArrToShortArr;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -15,9 +18,22 @@ import java.nio.ByteBuffer;
 
 public final class LVTypeEncoder {
 
-    public static short[] encodeTypeDescriptor(DataContainer dataContainer) throws CodecException {
+    public static LVTypeDescriptor describe(String name, ParameterValue value) {
+        if (value.getType() == Type.MAP) {
+            MapParameterValue map = value.castAsMap();
+            String[] names = map.getNames();
+            LVTypeDescriptor[] fields = new LVTypeDescriptor[names.length];
+            for (int i = 0; i < names.length; i++) {
+                fields[i] = describe(names[i], map.get(names[i]));
+            }
+            return new LVClusterDescriptor(name, fields);
+        }
+        return new LVTypeDescriptor(TypeLookup.getLVType(TypeLookup.getLVTypeCode(value.castAsSimple().getValueType())), name);
+    }
+
+    public static short[] encodeTypeDescriptor(LVTypeDescriptor desc, ParameterValue value) throws CodecException {
         try {
-            return byteArrToShortArr(encodeTypeDescriptor_bytes(dataContainer));
+            return byteArrToShortArr(encodeTypeDescriptor_bytes(desc, value));
         } catch (IOException e) {
             throw new CodecException("Failed to encode type descriptor due to IOException.", e);
         }
@@ -43,20 +59,20 @@ public final class LVTypeEncoder {
         }
     }
 
-    private static byte[] encodeTypeDescriptor_bytes(DataContainer dataContainer) throws IOException, CodecException {
-        if (dataContainer.getType() == Type.MAP) {
-            return encodeClusterDescriptor((PropertyContainer) dataContainer);
+    private static byte[] encodeTypeDescriptor_bytes(LVTypeDescriptor desc, ParameterValue value) throws IOException, CodecException {
+        if (desc.getType() == LVType.CLUSTER) {
+            return encodeClusterDescriptor((LVClusterDescriptor) desc, value.castAsMap());
         } else {
-            return encodeFieldDescriptor((FieldContainer) dataContainer);
+            return encodeFieldDescriptor(desc.getName(), value.castAsSimple());
         }
     }
 
-    private static byte[] encodeFieldDescriptor(FieldContainer field) throws IOException, CodecException {
+    private static byte[] encodeFieldDescriptor(String fieldName, SimpleParameterValue field) throws IOException, CodecException {
         ValueType type = field.getValueType();
         if (type.isScalar()) {
-            return encodeScalarDescriptor(field.getName(), type);
+            return encodeScalarDescriptor(fieldName, type);
         } else if (type.isArray() || type.isArray2d()) {
-            return encodeArrayDescriptor(field);
+            return encodeArrayDescriptor(fieldName, type);
         } else {
             throw new CodecException("Unsupported ValueType: " + type);
         }
@@ -104,17 +120,21 @@ public final class LVTypeEncoder {
         return byteBuffer.array();
     }
 
-    private static byte[] encodeClusterDescriptor(PropertyContainer propertyContainer) throws IOException, CodecException {
+    private static byte[] encodeClusterDescriptor(LVClusterDescriptor desc, MapParameterValue map) throws IOException, CodecException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(bos);
         byte typeCode = TypeLookup.getLVClusterTypeCode();
-        String fieldName = propertyContainer.getName();
-        String[] names = propertyContainer.getNames();
-        short nTDs = (short) names.length;
+        String fieldName = desc.getName();
+        LVTypeDescriptor[] fieldDescs = desc.getFieldDescriptors();
+        short nTDs = (short) fieldDescs.length;
         short totalLength = 0;
 
-        for (String name : names) {
-            byte[] nestedTypeDesc = encodeTypeDescriptor_bytes(propertyContainer.get(name));
+        for (LVTypeDescriptor fieldDesc : fieldDescs) {
+            SimpleParameterValue field = map.get(fieldDesc.getName());
+            if (field == null) {
+                throw new CodecException("Field " + fieldDesc.getName() + " not found in value for cluster " + fieldName);
+            }
+            byte[] nestedTypeDesc = encodeFieldDescriptor(fieldDesc.getName(), field);
             totalLength += nestedTypeDesc.length;
             dos.write(nestedTypeDesc);
         }
@@ -130,11 +150,9 @@ public final class LVTypeEncoder {
         return byteBuffer.array();
     }
 
-    private static byte[] encodeArrayDescriptor(FieldContainer field) throws IOException, CodecException {
-        ValueType type = field.getValueType();
+    private static byte[] encodeArrayDescriptor(String fieldName, ValueType type) throws IOException, CodecException {
         ValueType componentType = type.getComponentType();
         int dimension = type.isArray2d() ? 2 : 1;
-        String fieldName = field.getName();
         byte typeCode = TypeLookup.getLVTypeCode(type);
 
         // omit labels of array elements

@@ -1,4 +1,4 @@
-package cern.rade.services.codec.lvtojava;
+package cern.rade.services.codec.labview;
 
 import cern.rade.services.codec.CodecException;
 import cern.rade.services.common.containers.TypeLookup;
