@@ -14,7 +14,14 @@ public final class JSONErrorEncoder {
     }
 
     public static String encode(boolean status, int code, String source, String message) throws CodecException {
+        return encode(null, status, code, source, message);
+    }
+
+    public static String encode(String type, boolean status, int code, String source, String message) throws CodecException {
         Map<String, Object> error = new LinkedHashMap<>();
+        if (type != null) {
+            error.put("type", type);
+        }
         error.put("status", status);
         error.put("code", code);
         error.put("source", source);

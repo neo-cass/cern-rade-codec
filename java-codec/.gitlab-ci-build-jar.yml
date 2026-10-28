@@ -3,7 +3,7 @@ variables:
 
 build_jar:
   image:
-    name: eclipse-temurin:17-alpine
+    name: eclipse-temurin:21-alpine
   artifacts:
     name: "java-codec"
     paths:

@@ -10,7 +10,6 @@ import cern.rade.services.common.containers.labview.LVType;
 import cern.rade.services.common.containers.labview.LVArrayDescriptor;
 import cern.rade.services.common.containers.labview.LVClusterDescriptor;
 import cern.rade.services.common.containers.labview.LVTypeDescriptor;
-//import org.checkerframework.checker.units.qual.C;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -77,26 +76,6 @@ public final class LVDataDecoder {
             default -> throw new CodecException("Unsupported array dimension (>2)");
         };
     }
-//
-//    private static FieldContainer decodeArray(ByteBuffer buffer, FieldContainer field, LVArrayDescriptor lvArrayDescriptor) throws BufferUnderflowException, ContainerException, CodecException {
-//        LVTypeDescriptor lvElemDescriptor = lvArrayDescriptor.getElemDescriptor();
-//        int[] dimensions = getDims(buffer, lvArrayDescriptor);
-//        int len = getArrLen(dimensions);
-//
-//        switch(lvArrayDescriptor.getElemDescriptor()){
-//            case INT_8 -> {arrayContainer.setData(getByteArr(buffer, len), dimensions);}
-//            case DT_BOOL -> {arrayContainer.setData(getBoolArr(buffer, len), dimensions);}
-//            case DT_SHORT -> {arrayContainer.setData(getShortArr(buffer, len), dimensions);}
-//            case DT_INT -> {arrayContainer.setData(getIntArr(buffer, len), dimensions);}
-//            case DT_LONG-> {arrayContainer.setData(getLongArr(buffer, len), dimensions);}
-//            case DT_FLOAT -> {arrayContainer.setData(getFloatArr(buffer, len), dimensions);}
-//            case DT_DOUBLE -> {arrayContainer.setData(getDoubleArr(buffer, len), dimensions);}
-//            case DT_STRING -> {arrayContainer.setData(getStringArr(buffer, len), dimensions);}
-//            case DT_DATA -> {arrayContainer.setData(getClusterArr(buffer, len, (LVClusterDescriptor) lvElemDescriptor), dimensions);}
-//            case DT_DISCRETE_FUNCTION -> {throw new CodecException("Unimplemented type.");}//TODO: implement DF arrays
-//            default -> throw new CodecException("Array element type: " + arrayContainer.getElemType() + " is not supported");
-//        }
-//    }
 
     private static MapParameterValue decodeCluster(ByteBuffer buffer, LVClusterDescriptor lvClusterDescriptor) throws BufferUnderflowException, CodecException {
         MapParameterValue map = MapParameterValueFactory.newMapParameterValue();
@@ -105,14 +84,6 @@ public final class LVDataDecoder {
         }
         return map;
     }
-
-//    private static PropertyContainer[] getClusterArr(ByteBuffer buffer, int len, LVClusterDescriptor lvClusterDescriptor) throws BufferUnderflowException, ContainerException, CodecException {
-//        PropertyContainer[] propertyContainers = LVDataContainerFactory.createPropertyContainerArray(lvClusterDescriptor, len);
-//        for(int i = 0; i<len; i++){
-//            decodeCluster(buffer, propertyContainers[i], lvClusterDescriptor);
-//        }
-//        return propertyContainers;
-//    }
 
     private static byte[] getByteArr(ByteBuffer buffer, int len) throws BufferUnderflowException{
         byte[] arr = new byte[len];
