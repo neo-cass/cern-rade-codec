@@ -26,6 +26,14 @@ dependencies {
     implementation ("com.google.code.gson:gson:2.10.1")
     implementation("cern.rade.services:common:refactor-SNAPSHOT")
 
+
+    testImplementation(platform("org.junit:junit-bom:5.11.4"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 
@@ -50,4 +58,8 @@ java {
     }
     withJavadocJar()
     withSourcesJar()
+}
+
+tasks.withType<JavaCompile> {
+    options.compilerArgs.add("-Xlint:deprecation")
 }
