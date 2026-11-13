@@ -24,7 +24,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.18.0")
     implementation("jakarta.servlet:jakarta.servlet-api:5.0.0")
     implementation ("com.google.code.gson:gson:2.10.1")
-    implementation("cern.rade.services:common:refactor-SNAPSHOT")
+    implementation("cern.rade.services:common:1.0.0")
 
 
     testImplementation(platform("org.junit:junit-bom:5.11.4"))
