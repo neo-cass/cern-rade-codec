@@ -56,7 +56,11 @@ public final class LVTypeDecoder {
     }
 
     private static LVClusterDescriptor decodeCluster(ByteBuffer buffer) throws BufferUnderflowException, CodecException {
-        int nTDs = buffer.getShort();
+        int nTDs = Short.toUnsignedInt(buffer.getShort());
+        // the count comes from an untrusted header: bound it before allocating, a nested descriptor takes at least 4 bytes
+        if (nTDs > buffer.remaining() / 4) {
+            throw new CodecException("Cluster declares " + nTDs + " elements but only " + buffer.remaining() + " bytes follow");
+        }
         LVTypeDescriptor[] nestedTypes = new LVTypeDescriptor[nTDs];
         for (int i = 0; i < nTDs; i++) {
             nestedTypes[i] = decodeNested(buffer);
@@ -142,7 +146,10 @@ public final class LVTypeDecoder {
     }
 
     private static LVArrayDescriptor decodeArray(ByteBuffer buffer) throws BufferUnderflowException, CodecException {
-        int dimension = buffer.getShort(); // 2 bytes
+        int dimension = Short.toUnsignedInt(buffer.getShort()); // 2 bytes
+        if (dimension > buffer.remaining() / 4) {
+            throw new CodecException("Array declares " + dimension + " dimensions but only " + buffer.remaining() + " bytes follow");
+        }
         for (int i = 0; i < dimension; i++) {
             buffer.getInt(); // FFFF FFFF
         }
